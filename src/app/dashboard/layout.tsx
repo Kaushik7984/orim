@@ -1,4 +1,6 @@
 import React from "react";
+import OrgSidebar from "./_components/org-sidebar";
+import Navbar from "./_components/navbar";
 
 export default function DashboardLayout({
   children,
@@ -8,10 +10,13 @@ export default function DashboardLayout({
   return (
     <div className='flex min-h-screen'>
       <aside className='w-64 bg-gray-100 p-4 hidden md:block'>
-        <div className='font-bold text-lg'>Sidebar</div>
+        <OrgSidebar />
       </aside>
 
-      <main className='flex-1 p-6'>{children}</main>
+      <div className='flex-1 flex flex-col'>
+        <Navbar /> {/* 👈 render navbar */}
+        <main className='flex-1 p-6'>{children}</main>
+      </div>
     </div>
   );
 }
