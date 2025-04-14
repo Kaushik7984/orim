@@ -27,7 +27,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "src/app/dashboard/board/[boardId]/_components/Canvas.tsx"
+    "src/app/dashboard/board/[boardId]/Canvas/Canvas.tsx"
   ],
   "exclude": ["node_modules"]
 }

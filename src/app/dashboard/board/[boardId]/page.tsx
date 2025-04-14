@@ -1,4 +1,4 @@
-import CanvasWrapper from "./_components/CanvasWrapper";
+import CanvasWrapper from "./Canvas/CanvasWrapper";
 
 export default function BoardPage() {
   return (
