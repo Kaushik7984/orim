@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const mockBoards = [
@@ -9,8 +8,7 @@ const mockBoards = [
 ];
 
 export default function BoardList() {
-  const router = useRouter();
-  const [boards] = useState(mockBoards);
+  const [boards, setBoards] = useState(mockBoards);
 
   if (boards.length === 0) {
     return (
@@ -20,10 +18,6 @@ export default function BoardList() {
     );
   }
 
-  const handleClick = (id: string) => {
-    router.push(`/dashboard/board/${id}`);
-  };
-
   return (
     <div>
       <h2 className='text-xl font-semibold mb-4'>Your Boards</h2>
@@ -31,7 +25,6 @@ export default function BoardList() {
         {boards.map((board) => (
           <li
             key={board.id}
-            onClick={() => handleClick(board.id)}
             className='p-4 bg-white rounded-lg shadow hover:shadow-md transition cursor-pointer'
           >
             <h3 className='font-bold text-lg'>{board.title}</h3>

@@ -1,5 +1,5 @@
-import BoardCreateButton from "./_components/board-create-button";
 import BoardList from "./_components/board-list";
+import BoardCreateButton from "./_components/board-create-button";
 
 export default function DashboardPage() {
   return (
