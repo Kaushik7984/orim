@@ -6,7 +6,7 @@ import { BoardsModule } from './boards/boards.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    MongooseModule.forRoot(process.env.MONGO_URI!),
+    MongooseModule.forRoot(process.env.MONGODB_URI!),
     BoardsModule,
   ],
 })
