@@ -1,13 +1,20 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getCurrentUser } from "@/lib/api";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
+
+  useEffect(() => {
+    getCurrentUser().then((user) => {
+      if (user) router.push("/");
+    });
+  }, []);
 
   const handleLogin = async (e: any) => {
     e.preventDefault();
