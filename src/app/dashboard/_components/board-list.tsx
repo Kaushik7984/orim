@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Board } from "../../../../backend/src/board/board.schema";
+import { Board } from "../../../../backend/src/boards/board.schema";
 
 const mockBoards = [
   { id: "1", title: "Project Plan", createdAt: "2024-01-15" },

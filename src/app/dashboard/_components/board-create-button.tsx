@@ -6,14 +6,32 @@ export default function BoardCreateButton() {
   const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title) return;
 
     // backend - create board
-    console.log("Create board:", title);
-    setTitle("");
-    setIsOpen(false);
+
+    try {
+      const response = await fetch("http://localhost:3001/boards", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ title }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create board");
+      }
+
+      const data = await response.json();
+      console.log("Created board:", data);
+      setTitle("");
+      setIsOpen(false);
+    } catch (error) {
+      console.error("Error creating board:", error);
+    }
   };
 
   return (
