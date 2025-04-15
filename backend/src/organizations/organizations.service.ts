@@ -46,7 +46,7 @@ export class OrganizationsService {
     const savedOrg = await newOrganization.save();
 
     // Add user to organization
-    await this.usersService.addToOrganization(userId, savedOrg._id.toString());
+    await this.usersService.addToOrganization(userId, String(savedOrg._id));
 
     return savedOrg;
   }

@@ -16,6 +16,10 @@ import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Request } from 'express';
 
+interface AuthenticatedRequest extends Request {
+  user?: { userId: string };
+}
+
 @Controller('organizations')
 @UseGuards(JwtAuthGuard)
 export class OrganizationsController {
@@ -24,25 +28,31 @@ export class OrganizationsController {
   @Post()
   create(
     @Body() createOrganizationDto: CreateOrganizationDto,
-    @Req() req: Request,
-  ) {
-    const userId = req.user['userId'];
+    @Req() req: AuthenticatedRequest,
+  ): Promise<any> {
+    const userId = req.user?.userId;
+    if (!userId) {
+      throw new Error('User ID is required');
+    }
     return this.organizationsService.create(createOrganizationDto, userId);
   }
 
   @Get()
-  findAll(@Req() req: Request) {
-    const userId = req.user['userId'];
+  findAll(@Req() req: AuthenticatedRequest): Promise<any> {
+    const userId = req.user?.userId;
+    if (!userId) {
+      throw new Error('User ID is required');
+    }
     return this.organizationsService.findAll(userId);
   }
 
   @Get('slug/:slug')
-  findBySlug(@Param('slug') slug: string) {
+  findBySlug(@Param('slug') slug: string): Promise<any> {
     return this.organizationsService.findBySlug(slug);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: string): Promise<any> {
     return this.organizationsService.findById(id);
   }
 
@@ -50,15 +60,24 @@ export class OrganizationsController {
   update(
     @Param('id') id: string,
     @Body() updateOrganizationDto: UpdateOrganizationDto,
-    @Req() req: Request,
-  ) {
-    const userId = req.user['userId'];
+    @Req() req: AuthenticatedRequest,
+  ): Promise<any> {
+    const userId = req.user?.userId;
+    if (!userId) {
+      throw new Error('User ID is required');
+    }
     return this.organizationsService.update(id, updateOrganizationDto, userId);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @Req() req: Request) {
-    const userId = req.user['userId'];
+  remove(
+    @Param('id') id: string,
+    @Req() req: AuthenticatedRequest,
+  ): Promise<any> {
+    const userId = req.user?.userId;
+    if (!userId) {
+      throw new Error('User ID is required');
+    }
     return this.organizationsService.remove(id, userId);
   }
 
@@ -66,9 +85,12 @@ export class OrganizationsController {
   addMember(
     @Param('id') id: string,
     @Param('memberId') memberId: string,
-    @Req() req: Request,
-  ) {
-    const userId = req.user['userId'];
+    @Req() req: AuthenticatedRequest,
+  ): Promise<any> {
+    const userId = req.user?.userId;
+    if (!userId) {
+      throw new Error('User ID is required');
+    }
     return this.organizationsService.addMember(id, memberId, userId);
   }
 
@@ -76,9 +98,12 @@ export class OrganizationsController {
   removeMember(
     @Param('id') id: string,
     @Param('memberId') memberId: string,
-    @Req() req: Request,
-  ) {
-    const userId = req.user['userId'];
+    @Req() req: AuthenticatedRequest,
+  ): Promise<any> {
+    const userId = req.user?.userId;
+    if (!userId) {
+      throw new Error('User ID is required');
+    }
     return this.organizationsService.removeMember(id, memberId, userId);
   }
 }

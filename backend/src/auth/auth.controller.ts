@@ -8,7 +8,9 @@ import {
   Get,
   Param,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { Request, Response } from 'express';
+import { ParamsDictionary } from 'express-serve-static-core';
+import { ParsedQs } from 'qs';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { CreateUserDto } from '../users/dto/create-user.dto';
@@ -27,7 +29,7 @@ export class AuthController {
     private readonly configService: ConfigService,
   ) {
     liveBlocks = new Liveblocks({
-      secret: this.configService.get<string>('LIVEBLOCKS_SECRET_KEY'),
+      secret: this.configService.get<string>('LIVEBLOCKS_SECRET_KEY') || '',
     });
   }
 
@@ -36,7 +38,7 @@ export class AuthController {
   async register(
     @Body() createUserDto: CreateUserDto,
     @Res({ passthrough: true }) res: Response,
-  ) {
+  ): Promise<{ user: any }> {
     const result = await this.authService.register(createUserDto);
 
     // Set the JWT as a cookie
@@ -54,7 +56,7 @@ export class AuthController {
   async login(
     @Body() loginDto: LoginDto,
     @Res({ passthrough: true }) res: Response,
-  ) {
+  ): Promise<{ user: any }> {
     const result = await this.authService.login(loginDto);
 
     // Set the JWT as a cookie
@@ -69,20 +71,23 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Post('logout')
-  logout(@Res({ passthrough: true }) res: Response) {
+  logout(@Res({ passthrough: true }) res: Response): { message: string } {
     res.clearCookie('access_token');
     return { message: 'Logged out successfully' };
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  getProfile(@Req() req) {
+  getProfile(@Req() req: Request & { user?: any }): any {
     return req.user;
   }
 
   @Public()
   @Post('liveblocks-auth')
-  async liveblocksAuth(@Req() req, @Res() res) {
+  async liveblocksAuth(
+    @Req() req: Request,
+    @Res() res: Response,
+  ): Promise<any> {
     const { room } = req.body;
 
     if (!room) {
@@ -141,7 +146,7 @@ export class AuthController {
         picture: user.imageUrl || '',
       };
 
-      const session = liveBlocks.prepareSession(user._id.toString(), {
+      const session = liveBlocks.prepareSession(String(user._id), {
         userInfo,
       });
 
@@ -168,7 +173,7 @@ export class AuthController {
   // Add a debug endpoint to check if email exists
   @Public()
   @Get('check-email/:email')
-  async checkEmail(@Param('email') email: string) {
+  async checkEmail(@Param('email') email: string): Promise<any> {
     try {
       const userExists = await this.authService.checkUserExists(email);
       return {
@@ -188,7 +193,7 @@ export class AuthController {
 
   @Public()
   @Post('create-test-user')
-  async createTestUser() {
+  async createTestUser(): Promise<any> {
     try {
       // Check if test user already exists
       const email = 'test@example.com';

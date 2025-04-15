@@ -6,7 +6,7 @@ import {
   Organization,
   OrganizationSchema,
 } from './schemas/organization.schema';
-import { UsersModule } from '../users/users.module';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
   imports: [
