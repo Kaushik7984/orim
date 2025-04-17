@@ -4,7 +4,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import FrameState from "./FrameState";
 import ActivitiesState from "./ActivitiesState";
 import { Nunito } from "next/font/google";
-import { FabricJSEditor } from "@/types";
+import { FabricJSEditor } from "fabricjs-react";
 
 const nunito = Nunito({
     subsets: ['latin-ext'],

@@ -1,23 +1,21 @@
 "use client";
-import { socket } from "@/socket";
-import { BoardContextType, Board, FabricJSEditor } from "@/types";
-import { TEvent } from "fabric/fabric-impl";
+import { socket } from "../socket";
+import { BoardContextType, Board } from "../types";
+import { IEvent } from "fabric/fabric-impl";
+import { FabricJSEditor } from "fabricjs-react";
 import { createContext, useCallback, useEffect, useState } from "react";
-import { useShapes } from "@/utils/useShapes";
-import { drawingsAPI } from "@/utils/api";
-import { useAuth } from "./AuthContext";
+import { useShapes } from "../utils/useShapes";
 
 const BoardContext = createContext<BoardContextType>({} as BoardContextType);
 
 const BoardProvider = ({ children }: { children: React.ReactNode }) => {
   const [boardName, setBoardName] = useState<string>("");
-  const [path, setPath] = useState<MouseEvent | undefined>(undefined);
+  const [path, setPath] = useState<IEvent<MouseEvent>>();
   const [board, setBoard] = useState<Board>();
   const [newJoin, setNewJoin] = useState<string | undefined>("");
   const [boardId, setBoardId] = useState<string | undefined>("");
   const [username, setUsername] = useState<string>("");
   const [editor, setEditor] = useState<FabricJSEditor | undefined>(undefined);
-  const { user } = useAuth();
   const {
     addCircle,
     addRectangle,
@@ -50,21 +48,7 @@ const BoardProvider = ({ children }: { children: React.ReactNode }) => {
 
   const joinBoard = async () => {
     try {
-      if (!boardId) return;
-
-      // Get drawing data from backend
-      const drawing = await drawingsAPI.getDrawing(boardId);
-      if (drawing) {
-        // Load drawing data into canvas
-        if (editor && drawing.imageUrl) {
-          editor.loadFromJSON(JSON.parse(drawing.imageUrl));
-        }
-      }
-
-      socket.emit("join-board", {
-        boardId: boardId,
-        username: user?.name || "Anonymous",
-      });
+      socket.emit("join-board", { boardId: boardId, username: "test" });
 
       socket.on("user-joined", ({ username }) => {
         console.log("user joined", username);
@@ -77,24 +61,8 @@ const BoardProvider = ({ children }: { children: React.ReactNode }) => {
 
   const createBoard = useCallback(async () => {
     try {
-      // Create drawing in backend
-      const drawing = await drawingsAPI.createDrawing({
-        title: boardName,
-        description: "Collaborative drawing board",
-        imageUrl: "",
-        isPublic: true,
-      });
-
-      // Set the board ID from the created drawing
-      setBoardId(drawing._id);
-
-      // create board in socket
-      socket.emit("create-board", {
-        boardName,
-        username: user?.name || "Anonymous",
-        drawingId: drawing._id,
-      });
-
+      // create board
+      socket.emit("create-board", { boardName, username: "test" });
       // listen for board created
       socket.on("board-created", (board: Board) => {
         setBoard(board);
@@ -102,27 +70,7 @@ const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error) {
       console.error("error creating board", error);
     }
-  }, [boardName, user]);
-
-  // Save drawing to backend when canvas changes
-  useEffect(() => {
-    if (editor && boardId) {
-      const saveDrawing = async () => {
-        try {
-          const canvasData = editor.canvas.toJSON();
-          await drawingsAPI.updateDrawing(boardId, {
-            imageUrl: JSON.stringify(canvasData),
-          });
-        } catch (error) {
-          console.error("Error saving drawing:", error);
-        }
-      };
-
-      // Save every 5 seconds
-      const interval = setInterval(saveDrawing, 5000);
-      return () => clearInterval(interval);
-    }
-  }, [editor, boardId]);
+  }, []);
 
   console.log("board", board);
   return (

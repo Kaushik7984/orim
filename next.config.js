@@ -1,22 +1,30 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
-  images: {
-    domains: ['lh3.googleusercontent.com'], // For Google OAuth profile images
-  },
-  webpack: (config) => {
-    config.module.rules.push({
-      test: /\.svg$/,
-      use: ['@svgr/webpack'],
-    });
+  webpack: (config, { server }) => {
+    config.module.rules.push(
+      {
+        test: /\.svg$/,
+        use: [{ loader: "@svgr/webpack", options: { icon: true } }],
+      },
+      {
+        test: /\.node$/,
+        use: [
+          {
+            loader: "node-loader",
+          },
+        ],
+      }
+    );
+
+    // Add path alias configuration
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': require('path').resolve(__dirname, 'src'),
+    };
+
     return config;
   },
-  experimental: {
-    serverActions: true,
-    serverComponentsExternalPackages: ['fabric', 'fabric-ca-client'],
-  },
-  transpilePackages: ['@mui/material', '@emotion/react', '@emotion/styled'],
-}
+};
 
-module.exports = nextConfig 
+module.exports = nextConfig;

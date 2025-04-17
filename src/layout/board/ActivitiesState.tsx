@@ -1,5 +1,12 @@
+
+
+
 const ActivitiesState = () => {
-  return <div className=''>{/* add  */}</div>;
-};
+    return (
+        <div className="">
+            
+        </div>
+    )
+}
 
 export default ActivitiesState;

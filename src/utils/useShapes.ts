@@ -1,5 +1,5 @@
-import * as fabric from "fabric";
-import { FabricJSEditor } from "@/types";
+import { fabric } from "fabric";
+import { FabricJSEditor } from "fabricjs-react";
 import { socket } from "@/socket";
 
 export const useShapes = (
@@ -101,10 +101,8 @@ export const useShapes = (
     if (!editor) return;
     // make pen drawing active
     editor.canvas.isDrawingMode = true;
-    if (editor.canvas.freeDrawingBrush) {
-      editor.canvas.freeDrawingBrush.width = 5;
-      editor.canvas.freeDrawingBrush.color = "red";
-    }
+    editor.canvas.freeDrawingBrush.width = 5;
+    editor.canvas.freeDrawingBrush.color = "red";
   };
 
   return {
