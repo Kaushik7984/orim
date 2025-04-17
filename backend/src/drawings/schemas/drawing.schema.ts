@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { User } from '../../users/schemas/user.schema';
+import { User, UserDocument } from '../../users/schemas/user.schema';
 
 export type DrawingDocument = Drawing & Document;
 
@@ -16,16 +16,19 @@ export class Drawing {
   imageUrl: string;
 
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  author: User;
+  author: Types.ObjectId;
 
   @Prop({ default: false })
   isPublic: boolean;
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }], default: [] })
-  likes: User[];
+  likes: Types.ObjectId[];
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }], default: [] })
-  collaborators: User[];
+  collaborators: Types.ObjectId[];
+
+  @Prop({ type: [Object], default: [] })
+  paths: any[];
 }
 
 export const DrawingSchema = SchemaFactory.createForClass(Drawing); 

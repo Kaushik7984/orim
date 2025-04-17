@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from './schemas/user.schema';
@@ -9,7 +9,23 @@ export class UsersService {
     @InjectModel(User.name) private userModel: Model<UserDocument>,
   ) {}
 
-  async create(createUserDto: any): Promise<User> {
+  async findOne(id: string): Promise<UserDocument> {
+    const user = await this.userModel.findById(id).exec();
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+    return user;
+  }
+
+  async findByFirebaseUid(firebaseUid: string): Promise<UserDocument> {
+    const user = await this.userModel.findOne({ firebaseUid }).exec();
+    if (!user) {
+      throw new NotFoundException(`User with Firebase UID ${firebaseUid} not found`);
+    }
+    return user;
+  }
+
+  async create(createUserDto: any): Promise<UserDocument> {
     const createdUser = new this.userModel(createUserDto);
     return createdUser.save();
   }
@@ -18,21 +34,21 @@ export class UsersService {
     return this.userModel.find().exec();
   }
 
-  async findOne(id: string): Promise<User> {
-    return this.userModel.findById(id).exec();
-  }
-
-  async findByFirebaseUid(firebaseUid: string): Promise<User> {
-    return this.userModel.findOne({ firebaseUid }).exec();
-  }
-
-  async update(id: string, updateUserDto: any): Promise<User> {
-    return this.userModel
+  async update(id: string, updateUserDto: any): Promise<UserDocument> {
+    const user = await this.userModel
       .findByIdAndUpdate(id, updateUserDto, { new: true })
       .exec();
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+    return user;
   }
 
-  async remove(id: string): Promise<User> {
-    return this.userModel.findByIdAndDelete(id).exec();
+  async remove(id: string): Promise<UserDocument> {
+    const user = await this.userModel.findByIdAndDelete(id).exec();
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+    return user;
   }
 } 

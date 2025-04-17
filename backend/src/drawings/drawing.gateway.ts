@@ -4,11 +4,13 @@ import {
   SubscribeMessage,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  MessageBody,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { DrawingEvent, JoinDrawingRoom, LeaveDrawingRoom } from './interfaces/drawing-events.interface';
+import { DrawingsService } from './drawings.service';
 
 @WebSocketGateway({
   cors: {
@@ -22,6 +24,22 @@ export class DrawingGateway implements OnGatewayConnection, OnGatewayDisconnect 
 
   private userRooms: Map<string, Set<string>> = new Map(); // userId -> Set<drawingId>
   private roomUsers: Map<string, Set<string>> = new Map(); // drawingId -> Set<userId>
+
+  constructor(private drawingsService: DrawingsService) {}
+
+  private ensureUserRooms(userId: string): Set<string> {
+    if (!this.userRooms.has(userId)) {
+      this.userRooms.set(userId, new Set());
+    }
+    return this.userRooms.get(userId)!;
+  }
+
+  private ensureRoomUsers(drawingId: string): Set<string> {
+    if (!this.roomUsers.has(drawingId)) {
+      this.roomUsers.set(drawingId, new Set());
+    }
+    return this.roomUsers.get(drawingId)!;
+  }
 
   handleConnection(client: Socket) {
     console.log(`Client connected: ${client.id}`);
@@ -45,15 +63,8 @@ export class DrawingGateway implements OnGatewayConnection, OnGatewayDisconnect 
     client.join(drawingId);
     
     // Update room tracking
-    if (!this.userRooms.has(userId)) {
-      this.userRooms.set(userId, new Set());
-    }
-    this.userRooms.get(userId).add(drawingId);
-    
-    if (!this.roomUsers.has(drawingId)) {
-      this.roomUsers.set(drawingId, new Set());
-    }
-    this.roomUsers.get(drawingId).add(userId);
+    this.ensureUserRooms(userId).add(drawingId);
+    this.ensureRoomUsers(drawingId).add(userId);
     
     // Notify others in the room
     client.to(drawingId).emit('userJoined', { userId });
@@ -67,12 +78,15 @@ export class DrawingGateway implements OnGatewayConnection, OnGatewayDisconnect 
     client.leave(drawingId);
     
     // Update room tracking
-    if (this.userRooms.has(userId)) {
-      this.userRooms.get(userId).delete(drawingId);
+    const userRooms = this.userRooms.get(userId);
+    const roomUsers = this.roomUsers.get(drawingId);
+    
+    if (userRooms) {
+      userRooms.delete(drawingId);
     }
     
-    if (this.roomUsers.has(drawingId)) {
-      this.roomUsers.get(drawingId).delete(userId);
+    if (roomUsers) {
+      roomUsers.delete(userId);
     }
     
     // Notify others in the room
@@ -84,5 +98,12 @@ export class DrawingGateway implements OnGatewayConnection, OnGatewayDisconnect 
     const { drawingId, ...event } = data;
     // Broadcast the drawing event to all clients in the room except the sender
     client.to(drawingId).emit('drawingEvent', event);
+  }
+
+  @SubscribeMessage('draw')
+  async handleDraw(@MessageBody() data: { drawingId: string; path: any }) {
+    const { drawingId, path } = data;
+    await this.drawingsService.update(drawingId, { $push: { paths: path } });
+    this.server.to(drawingId).emit('draw', path);
   }
 } 
