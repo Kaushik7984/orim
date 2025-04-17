@@ -1,28 +1,51 @@
 "use client";
 import { FabricJSCanvas, useFabricJSEditor } from "fabricjs-react";
 import { Suspense, useContext, useEffect, useState } from "react";
-import FabricHeader from "./FabricHeader";
-import FabricSidebar from "./FabricSidebar";
 import { usePathname } from "next/navigation";
-import axios from "axios";
 import { Skeleton } from "@mui/material";
 import { BoardContext } from "@/context/BoardContext";
 import { socket } from "@/socket";
 import { fabric } from "fabric";
+import BoardHeader from "./BoardHeader";
+import BoardToolbar from "./BoardToolbar";
 
-const Board = () => {
+interface BoardProps {
+  boardId: string;
+}
+
+const Board = ({ boardId: initialBoardId }: BoardProps) => {
   const { editor, onReady } = useFabricJSEditor();
   const pathname = usePathname();
-  const { setBoardName, newJoin, boardId, setEditor } =
-    useContext(BoardContext);
+  const boardContext = useContext(BoardContext);
   const [boardCreated, setBoardCreated] = useState<boolean>(false);
+  const [zoomLevel, setZoomLevel] = useState<number>(100);
+
+  if (!boardContext) {
+    return <div>Loading...</div>;
+  }
+
+  const {
+    setBoardName,
+    newJoin,
+    setEditor,
+    board,
+    createBoard,
+    setBoardId,
+    joinBoard,
+  } = boardContext;
+
+  // Set initial board ID and join the board
+  useEffect(() => {
+    setBoardId(initialBoardId);
+    joinBoard();
+  }, [initialBoardId, setBoardId, joinBoard]);
 
   useEffect(() => {
     const setEditorInstance = async () => {
       if (editor) {
         editor.canvas.allowTouchScrolling = true;
         editor.canvas.renderOnAddRemove = true;
-        editor.canvas.setBackgroundColor("#dee0e2", () => {
+        editor.canvas.setBackgroundColor("#f5f5f5", () => {
           editor.canvas.requestRenderAll();
         });
         setEditor(editor);
@@ -34,14 +57,14 @@ const Board = () => {
     return () => {
       setEditor(undefined);
     };
-  }, [editor?.canvas]);
+  }, [editor?.canvas, setEditor]);
 
   useEffect(() => {
     if (!editor) return;
 
-    const grid = 20;
+    const grid = 30;
     const gridOptions = {
-      color: "rgba(0,0,0,0.5)",
+      color: "rgba(0,0,0,0.1)",
       borderWidth: 1,
     };
 
@@ -73,16 +96,17 @@ const Board = () => {
 
     return () => {
       if (editor && editor.canvas) {
-        editor.canvas.off("after:render"); // Remove event listener on component unmount
+        editor.canvas.off("after:render");
       }
     };
-  }, [editor, editor?.canvas]);
+  }, [editor]);
 
   useEffect(() => {
     if (newJoin) console.log("new join", newJoin);
+    
     // send draw event from editor
     editor?.canvas.on("path:created", (e: any) => {
-      socket.emit("draw", { boardId, path: e });
+      socket.emit("draw", { boardId: initialBoardId, path: e });
     });
 
     // listen to add circle event from server
@@ -114,45 +138,59 @@ const Board = () => {
       }
     );
 
-    // cleeaup
+    // cleanup
     return () => {
       socket.off("draw-broadcast");
       socket.off("add-circle-broadcast");
       editor?.canvas.off("path:created");
     };
-  }, [newJoin, editor]);
+  }, [newJoin, editor, initialBoardId]);
 
   useEffect(() => {
     const boardName = pathname.split("/")[2];
     setBoardName(boardName);
-    const sendBoardName = async () => {
-      const board = {
-        boardName,
-        users: ["test"],
-      };
-      await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/create-board`,
-        board
-      );
+    
+    if (!boardCreated && boardName) {
+      createBoard();
       setBoardCreated(true);
-    };
-    // return () => {
-    //     !boardCreated && sendBoardName()
-    // };
-  }, []);
+    }
+  }, [pathname, boardCreated, createBoard, setBoardName]);
+
+  const handleZoomIn = () => {
+    if (editor) {
+      const zoom = editor.canvas.getZoom() * 1.1;
+      editor.canvas.setZoom(zoom);
+      setZoomLevel(Math.round(zoom * 100));
+    }
+  };
+
+  const handleZoomOut = () => {
+    if (editor) {
+      const zoom = editor.canvas.getZoom() / 1.1;
+      editor.canvas.setZoom(zoom);
+      setZoomLevel(Math.round(zoom * 100));
+    }
+  };
 
   return (
-    <div className='w-full h-full'>
-      <FabricHeader />
-      <Suspense
-        fallback={<Skeleton className='w-full h-full absolute -z-20' />}
-      >
-        <FabricJSCanvas
-          onReady={onReady}
-          className='w-full h-full absolute overflow-scroll'
-        />
-      </Suspense>
-      <FabricSidebar editor={editor} />
+    <div className="relative w-full h-full bg-[#f5f5f5]">
+      <BoardHeader 
+        boardName={board?.title || "Untitled"} 
+        zoomLevel={zoomLevel}
+        onZoomIn={handleZoomIn}
+        onZoomOut={handleZoomOut}
+      />
+      <BoardToolbar />
+      <div className="absolute inset-0 pt-12 pl-12">
+        <Suspense
+          fallback={<Skeleton className="w-full h-full" />}
+        >
+          <FabricJSCanvas
+            onReady={onReady}
+            className="w-full h-full"
+          />
+        </Suspense>
+      </div>
     </div>
   );
 };

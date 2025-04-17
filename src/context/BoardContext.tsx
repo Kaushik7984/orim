@@ -5,54 +5,90 @@ import { IEvent } from "fabric/fabric-impl";
 import { FabricJSEditor } from "fabricjs-react";
 import { createContext, useCallback, useEffect, useState } from "react";
 import { useShapes } from "../utils/useShapes";
+import { drawingsAPI } from "@/utils/api";
 
-const BoardContext = createContext<BoardContextType>({} as BoardContextType);
+export const BoardContext = createContext<BoardContextType | null>(null);
 
-const BoardProvider = ({ children }: { children: React.ReactNode }) => {
+export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
+  const [board, setBoard] = useState<Board | undefined>(undefined);
+  const [boardId, setBoardId] = useState<string | undefined>(undefined);
   const [boardName, setBoardName] = useState<string>("");
-  const [path, setPath] = useState<IEvent<MouseEvent>>();
-  const [board, setBoard] = useState<Board>();
-  const [newJoin, setNewJoin] = useState<string | undefined>("");
-  const [boardId, setBoardId] = useState<string | undefined>("");
-  const [username, setUsername] = useState<string>("");
   const [editor, setEditor] = useState<FabricJSEditor | undefined>(undefined);
-  const {
-    addCircle,
-    addRectangle,
-    addTriangle,
-    addStraightLine,
-    addPolygon,
-    addText,
-    addTextbox,
-    addPen,
-  } = useShapes(editor, boardId);
+  const [user, setUser] = useState<any>(null);
+  const [newJoin, setNewJoin] = useState<string>("");
+  const { addCircle, addRectangle, addTriangle, addStraightLine, addPolygon, addText, addTextbox, addPen } = useShapes(editor, boardId);
 
+  // Initialize socket connection
   useEffect(() => {
-    // listen for user joined broadcast
-    socket.on("user-joined-broadcast", (data) => {
-      console.log("user joined broadcast", data);
-      setBoard(data);
+    const token = localStorage.getItem('token');
+    if (token) {
+      socket.auth = { token };
+      socket.connect();
+    }
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  // Handle socket events
+  useEffect(() => {
+    socket.on('board-update', (updatedBoard: Board) => {
+      setBoard(updatedBoard);
     });
 
-    socket.on("user-joined", ({ username }) => {
-      console.log("user joined", username);
+    socket.on('user-joined', ({ username }) => {
       setNewJoin(username);
     });
 
     return () => {
-      socket.off("user-joined");
-      socket.off("user-joined-broadcast");
-      socket.off("board-created");
+      socket.off('board-update');
+      socket.off('user-joined');
     };
   }, []);
 
+  // Save drawing to backend when canvas changes
+  useEffect(() => {
+    if (editor && boardId) {
+      const saveDrawing = async () => {
+        try {
+          const token = localStorage.getItem('token');
+          if (!token) {
+            console.error('No authentication token found');
+            return;
+          }
+
+          const canvasData = editor.canvas.toJSON();
+          await drawingsAPI.updateDrawing(boardId, {
+            imageUrl: JSON.stringify(canvasData),
+          });
+        } catch (error) {
+          console.error("Error saving drawing:", error);
+        }
+      };
+
+      // Save every 5 seconds
+      const interval = setInterval(saveDrawing, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [editor, boardId]);
+
   const joinBoard = async () => {
     try {
-      socket.emit("join-board", { boardId: boardId, username: "test" });
+      if (!boardId) return;
 
-      socket.on("user-joined", ({ username }) => {
-        console.log("user joined", username);
-        setNewJoin(username);
+      // Get drawing data from backend
+      const response = await drawingsAPI.getDrawing(boardId);
+      if (response.data) {
+        // Load drawing data into canvas
+        if (editor && response.data.imageUrl) {
+          editor.canvas.loadFromJSON(JSON.parse(response.data.imageUrl));
+        }
+      }
+
+      socket.emit("join-board", {
+        boardId: boardId,
+        username: user?.name || "Anonymous",
       });
     } catch (error) {
       console.error("error joining board", error);
@@ -61,48 +97,82 @@ const BoardProvider = ({ children }: { children: React.ReactNode }) => {
 
   const createBoard = useCallback(async () => {
     try {
-      // create board
-      socket.emit("create-board", { boardName, username: "test" });
-      // listen for board created
-      socket.on("board-created", (board: Board) => {
-        setBoard(board);
+      // Create drawing in backend
+      const response = await drawingsAPI.createDrawing({
+        title: boardName,
+        description: "Collaborative drawing board",
+        imageUrl: "",
+        isPublic: true,
+      });
+
+      // Set the board ID from the created drawing
+      setBoardId(response.data._id);
+
+      // Create board in socket
+      socket.emit("create-board", {
+        boardName,
+        username: user?.name || "Anonymous",
+        drawingId: response.data._id,
       });
     } catch (error) {
       console.error("error creating board", error);
     }
-  }, []);
+  }, [boardName, user]);
 
-  console.log("board", board);
+  const handleCanvasModified = (event: IEvent) => {
+    if (event.target) {
+      // Handle different shape types
+      const shapeType = event.target.type;
+      switch (shapeType) {
+        case 'circle':
+          addCircle();
+          break;
+        case 'rect':
+          addRectangle();
+          break;
+        case 'triangle':
+          addTriangle();
+          break;
+        case 'line':
+          addStraightLine();
+          break;
+        case 'polygon':
+          addPolygon();
+          break;
+        case 'text':
+          addText();
+          break;
+        case 'textbox':
+          addTextbox('#000000');
+          break;
+        case 'path':
+          addPen();
+          break;
+      }
+    }
+  };
+
   return (
     <BoardContext.Provider
       value={{
-        createBoard,
-        joinBoard,
-        boardName,
-        setBoardName,
-        path,
-        setPath,
-        newJoin,
-        setNewJoin,
+        board,
+        setBoard,
         boardId,
         setBoardId,
-        username,
-        setUsername,
+        boardName,
+        setBoardName,
         editor,
         setEditor,
-        addCircle,
-        addRectangle,
-        addTriangle,
-        addStraightLine,
-        addText,
-        addPolygon,
-        addTextbox,
-        addPen,
+        user,
+        setUser,
+        newJoin,
+        setNewJoin,
+        joinBoard,
+        createBoard,
+        handleCanvasModified,
       }}
     >
       {children}
     </BoardContext.Provider>
   );
 };
-
-export { BoardProvider, BoardContext };

@@ -1,9 +1,7 @@
 "use client";
 import { BoardProvider } from "@/context/BoardContext";
-import "../globals.css";
-import ChatWidget from "../../widgets/chat.widget";
 
-export default function BoardLayout({
+export default function BoardSessionLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -12,8 +10,7 @@ export default function BoardLayout({
     <BoardProvider>
       <section className="w-screen h-screen bg-white overflow-hidden">
         {children}
-        <ChatWidget />
       </section>
     </BoardProvider>
   );
-}
+} 
