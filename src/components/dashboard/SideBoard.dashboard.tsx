@@ -1,4 +1,4 @@
-import { Logo } from "@/svgs/index.svg";
+// import { Logo } from "@/svgs/index.svg";
 import { Fira_Sans } from "next/font/google";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import StarOutlineIcon from "@mui/icons-material/StarOutline";
@@ -14,9 +14,9 @@ const SideBoard = () => {
   return (
     <div className='bg-neutral-100 h-full w-[250px] flex flex-col py-5 px-4 items-start'>
       <div className='flex items-center flex-row cursor-pointer mb-9'>
-        <Logo className='font-bold text-4xl' />
+        {/* <Logo className='font-bold text-4xl' /> */}
         <span className={`font-semibold text-2xl ${fira_sans.className}`}>
-          nspiroDraw
+          Orim
         </span>
         <span className='ml-2 rounded-2xl bg-neutral-200 px-2 py-1 text-violet-950 text-sm'>
           free

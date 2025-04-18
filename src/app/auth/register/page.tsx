@@ -46,52 +46,81 @@ export default function RegisterPage() {
   };
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 8 }}>
-      <Paper elevation={3} sx={{ p: 4 }}>
-        <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-          <Typography variant="h4" component="h1" gutterBottom>
-            Create Account
+    <Container
+      maxWidth='sm'
+      sx={{
+        height: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <Paper
+        elevation={1}
+        sx={{
+          p: 5,
+          borderRadius: 2,
+          width: "100%",
+          boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.05)",
+        }}
+      >
+        <Box
+          component='form'
+          onSubmit={handleSubmit}
+          sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+        >
+          <Typography
+            variant='h5'
+            component='h1'
+            align='center'
+            fontWeight='bold'
+            gutterBottom
+          >
+            Create your account
           </Typography>
-          
+
           {error && (
-            <Alert severity="error" onClose={() => setError("")}>
+            <Alert severity='error' onClose={() => setError("")}>
               {error}
             </Alert>
           )}
 
           <TextField
-            fullWidth
-            label="Email"
-            type="email"
+            label='Email'
+            type='email'
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            fullWidth
           />
 
           <TextField
-            fullWidth
-            label="Password"
-            type="password"
+            label='Password'
+            type='password'
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            fullWidth
           />
 
           <TextField
-            fullWidth
-            label="Confirm Password"
-            type="password"
+            label='Confirm Password'
+            type='password'
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
+            fullWidth
           />
 
           <Button
-            type="submit"
-            variant="contained"
-            size="large"
+            type='submit'
+            variant='contained'
+            size='large'
             sx={{
               bgcolor: "#2563eb",
+              borderRadius: 2,
+              fontWeight: "bold",
+              textTransform: "none",
               "&:hover": { bgcolor: "#1d4ed8" },
             }}
           >
@@ -101,22 +130,25 @@ export default function RegisterPage() {
           <Divider>or</Divider>
 
           <Button
-            variant="outlined"
-            size="large"
-            onClick={handleGoogleSignIn}
+            variant='outlined'
+            size='large'
             startIcon={<FcGoogle size={24} />}
+            onClick={handleGoogleSignIn}
             sx={{
+              textTransform: "none",
+              borderRadius: 2,
+              fontWeight: "medium",
               borderColor: "divider",
-              "&:hover": { borderColor: "divider", bgcolor: "action.hover" },
+              "&:hover": { bgcolor: "action.hover" },
             }}
           >
             Continue with Google
           </Button>
 
-          <Typography variant="body2" color="text.secondary" align="center">
+          <Typography variant='body2' color='text.secondary' align='center'>
             Already have an account?{" "}
             <Button
-              variant="text"
+              variant='text'
               onClick={() => router.push("/auth/login")}
               sx={{ textTransform: "none" }}
             >
@@ -127,4 +159,4 @@ export default function RegisterPage() {
       </Paper>
     </Container>
   );
-} 
+}
