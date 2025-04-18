@@ -1,12 +1,17 @@
 import { BoardContext } from "@/context/BoardContext";
-import { Pen } from "@/svgs/index.svg"
+import { Pen } from "@/svgs/index.svg";
 import { useContext } from "react";
 
-
 export const PenIcon = () => {
-    const { addPen } = useContext(BoardContext);
+  const context = useContext(BoardContext);
 
-    return (
-        <Pen className="w-[27px] h-[27px]" onClick={() => addPen()} />
-    )
-}
+  if (!context) {
+    throw new Error(
+      "BoardContext is null. Ensure the provider is set up correctly."
+    );
+  }
+
+  const { addPen } = context;
+
+  return <Pen className='w-[27px] h-[27px]' onClick={() => addPen()} />;
+};

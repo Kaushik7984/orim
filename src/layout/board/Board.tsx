@@ -8,6 +8,8 @@ import { socket } from "@/socket";
 import { fabric } from "fabric";
 import BoardHeader from "./BoardHeader";
 import BoardToolbar from "./BoardToolbar";
+import FabricHeader from "./FabricHeader";
+import FabricSidebar from "./FabricSidebar";
 
 interface BoardProps {
   boardId: string;
@@ -103,7 +105,7 @@ const Board = ({ boardId: initialBoardId }: BoardProps) => {
 
   useEffect(() => {
     if (newJoin) console.log("new join", newJoin);
-    
+
     // send draw event from editor
     editor?.canvas.on("path:created", (e: any) => {
       socket.emit("draw", { boardId: initialBoardId, path: e });
@@ -149,7 +151,22 @@ const Board = ({ boardId: initialBoardId }: BoardProps) => {
   useEffect(() => {
     const boardName = pathname.split("/")[2];
     setBoardName(boardName);
-    
+
+    // const sendBoardName = async () => {
+    //   const board = {
+    //     boardName,
+    //     users: ["test"],
+    //   };
+    //   await axios.post(
+    //     `${process.env.NEXT_PUBLIC_BACKEND_URL}/create-board`,
+    //     board
+    //   );
+    //   setBoardCreated(true);
+    // };
+    // // return () => {
+    // //     !boardCreated && sendBoardName()
+    // // };
+
     if (!boardCreated && boardName) {
       createBoard();
       setBoardCreated(true);
@@ -173,24 +190,32 @@ const Board = ({ boardId: initialBoardId }: BoardProps) => {
   };
 
   return (
-    <div className="relative w-full h-full bg-[#f5f5f5]">
-      <BoardHeader 
-        boardName={board?.title || "Untitled"} 
-        zoomLevel={zoomLevel}
-        onZoomIn={handleZoomIn}
-        onZoomOut={handleZoomOut}
-      />
-      <BoardToolbar />
-      <div className="absolute inset-0 pt-12 pl-12">
-        <Suspense
-          fallback={<Skeleton className="w-full h-full" />}
-        >
-          <FabricJSCanvas
-            onReady={onReady}
-            className="w-full h-full"
-          />
-        </Suspense>
-      </div>
+    // <div className='relative w-full h-full bg-[#f5f5f5]'>
+    //   <BoardHeader
+    //     boardName={board?.title || "Untitled"}
+    //     zoomLevel={zoomLevel}
+    //     onZoomIn={handleZoomIn}
+    //     onZoomOut={handleZoomOut}
+    //   />
+    //   <BoardToolbar />
+    //   <div className='absolute inset-0 pt-12 pl-12'>
+    //     <Suspense fallback={<Skeleton className='w-full h-full' />}>
+    //       <FabricJSCanvas onReady={onReady} className='w-full h-full' />
+    //     </Suspense>
+    //   </div>
+    // </div>
+
+    <div className='w-full h-full'>
+      <FabricHeader />
+      <Suspense
+        fallback={<Skeleton className='w-full h-full absolute -z-20' />}
+      >
+        <FabricJSCanvas
+          onReady={onReady}
+          className='w-full h-full absolute overflow-scroll'
+        />
+      </Suspense>
+      <FabricSidebar editor={editor} />
     </div>
   );
 };

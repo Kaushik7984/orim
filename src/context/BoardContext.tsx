@@ -7,20 +7,32 @@ import { createContext, useCallback, useEffect, useState } from "react";
 import { useShapes } from "../utils/useShapes";
 import { drawingsAPI } from "@/utils/api";
 
-export const BoardContext = createContext<BoardContextType | null>(null);
+const BoardContext = createContext<BoardContextType | null>(null);
 
-export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
+const BoardProvider = ({ children }: { children: React.ReactNode }) => {
   const [board, setBoard] = useState<Board | undefined>(undefined);
   const [boardId, setBoardId] = useState<string | undefined>(undefined);
   const [boardName, setBoardName] = useState<string>("");
   const [editor, setEditor] = useState<FabricJSEditor | undefined>(undefined);
   const [user, setUser] = useState<any>(null);
   const [newJoin, setNewJoin] = useState<string>("");
-  const { addCircle, addRectangle, addTriangle, addStraightLine, addPolygon, addText, addTextbox, addPen } = useShapes(editor, boardId);
+  const [path, setPath] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
+
+  const {
+    addCircle,
+    addRectangle,
+    addTriangle,
+    addStraightLine,
+    addPolygon,
+    addText,
+    addTextbox,
+    addPen,
+  } = useShapes(editor, boardId);
 
   // Initialize socket connection
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (token) {
       socket.auth = { token };
       socket.connect();
@@ -33,17 +45,17 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Handle socket events
   useEffect(() => {
-    socket.on('board-update', (updatedBoard: Board) => {
+    socket.on("board-update", (updatedBoard: Board) => {
       setBoard(updatedBoard);
     });
 
-    socket.on('user-joined', ({ username }) => {
+    socket.on("user-joined", ({ username }) => {
       setNewJoin(username);
     });
 
     return () => {
-      socket.off('board-update');
-      socket.off('user-joined');
+      socket.off("board-update");
+      socket.off("user-joined");
     };
   }, []);
 
@@ -52,9 +64,9 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     if (editor && boardId) {
       const saveDrawing = async () => {
         try {
-          const token = localStorage.getItem('token');
+          const token = localStorage.getItem("token");
           if (!token) {
-            console.error('No authentication token found');
+            console.error("No authentication token found");
             return;
           }
 
@@ -82,7 +94,9 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
       if (response.data) {
         // Load drawing data into canvas
         if (editor && response.data.imageUrl) {
-          editor.canvas.loadFromJSON(JSON.parse(response.data.imageUrl));
+          editor.canvas.loadFromJSON(JSON.parse(response.data.imageUrl), () => {
+            console.log("Canvas loaded successfully");
+          });
         }
       }
 
@@ -124,33 +138,35 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
       // Handle different shape types
       const shapeType = event.target.type;
       switch (shapeType) {
-        case 'circle':
+        case "circle":
           addCircle();
           break;
-        case 'rect':
+        case "rect":
           addRectangle();
           break;
-        case 'triangle':
+        case "triangle":
           addTriangle();
           break;
-        case 'line':
+        case "line":
           addStraightLine();
           break;
-        case 'polygon':
+        case "polygon":
           addPolygon();
           break;
-        case 'text':
+        case "text":
           addText();
           break;
-        case 'textbox':
-          addTextbox('#000000');
+        case "textbox":
+          addTextbox("#000000");
           break;
-        case 'path':
+        case "path":
           addPen();
           break;
       }
     }
   };
+
+  console.log("board", board);
 
   return (
     <BoardContext.Provider
@@ -164,15 +180,29 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
         editor,
         setEditor,
         user,
-        setUser,
+        path,
+        setPath,
+        username,
+        setUsername,
+        joinBoard,
         newJoin,
         setNewJoin,
-        joinBoard,
         createBoard,
         handleCanvasModified,
+        addCircle,
+        addRectangle,
+        addTriangle,
+        addStraightLine,
+        addText,
+        addPolygon,
+        addTextbox,
+        addPen,
+        setUser,
       }}
     >
       {children}
     </BoardContext.Provider>
   );
 };
+
+export { BoardProvider, BoardContext };

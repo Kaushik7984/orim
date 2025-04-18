@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import {
   AppBar,
   Toolbar,
@@ -10,13 +11,16 @@ import {
   TextField,
   InputAdornment,
   styled,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import SearchIcon from "@mui/icons-material/Search";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import { useAuth } from "@/context/AuthContext";
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   backgroundColor: "#fff",
@@ -43,6 +47,27 @@ const StyledSearchInput = styled(TextField)(({ theme }) => ({
 
 const Header = () => {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, logout } = useAuth();
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      router.push("/auth/login");
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+    handleClose();
+  };
 
   return (
     <StyledAppBar position="fixed">
@@ -109,35 +134,83 @@ const Header = () => {
 
         {/* Right Section */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <Button
-            variant="contained"
-            sx={{
-              bgcolor: "#2563eb",
-              "&:hover": { bgcolor: "#1d4ed8" },
-              textTransform: "none",
-              fontWeight: "normal",
-            }}
-          >
-            Upgrade
-          </Button>
-          <IconButton size="small" sx={{ color: "text.secondary" }}>
-            <HelpOutlineIcon />
-          </IconButton>
-          <IconButton size="small" sx={{ color: "text.secondary" }}>
-            <NotificationsNoneIcon />
-          </IconButton>
-          <IconButton size="small">
-            <Avatar
-              sx={{
-                width: 32,
-                height: 32,
-                bgcolor: "#2563eb",
-                fontSize: "0.875rem",
-              }}
-            >
-              KA
-            </Avatar>
-          </IconButton>
+          {user ? (
+            <>
+              <Button
+                variant="contained"
+                sx={{
+                  bgcolor: "#2563eb",
+                  "&:hover": { bgcolor: "#1d4ed8" },
+                  textTransform: "none",
+                  fontWeight: "normal",
+                }}
+              >
+                Upgrade
+              </Button>
+              <IconButton size="small" sx={{ color: "text.secondary" }}>
+                <HelpOutlineIcon />
+              </IconButton>
+              <IconButton size="small" sx={{ color: "text.secondary" }}>
+                <NotificationsNoneIcon />
+              </IconButton>
+              <IconButton size="small" onClick={handleMenu}>
+                <Avatar
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    bgcolor: "#2563eb",
+                    fontSize: "0.875rem",
+                  }}
+                  src={user.photoURL || undefined}
+                >
+                  {user.displayName?.charAt(0) || "U"}
+                </Avatar>
+              </IconButton>
+              <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "right",
+                }}
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+              >
+                <MenuItem onClick={() => router.push("/profile")}>
+                  Profile
+                </MenuItem>
+                <MenuItem onClick={handleLogout}>Logout</MenuItem>
+              </Menu>
+            </>
+          ) : (
+            <>
+              <Button
+                color="inherit"
+                onClick={() => router.push("/auth/login")}
+                sx={{
+                  textTransform: "none",
+                  fontWeight: "normal",
+                }}
+              >
+                Login
+              </Button>
+              <Button
+                variant="contained"
+                onClick={() => router.push("/auth/register")}
+                sx={{
+                  bgcolor: "#2563eb",
+                  "&:hover": { bgcolor: "#1d4ed8" },
+                  textTransform: "none",
+                  fontWeight: "normal",
+                }}
+              >
+                Sign Up
+              </Button>
+            </>
+          )}
         </Box>
       </Toolbar>
     </StyledAppBar>
