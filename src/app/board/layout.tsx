@@ -10,7 +10,7 @@ export default function BoardLayout({
 }) {
   return (
     <BoardProvider>
-      <section className='w-screen h-screen bg-red-500 overflow-hidden'>
+      <section className='w-screen h-screen bg-yellow-100 overflow-hidden'>
         {children}
         <ChatWidget />
       </section>

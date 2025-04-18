@@ -73,23 +73,35 @@ export default function Dashboard() {
   };
 
   const mockBoards = [
-    { id: 1, name: "My First Board", lastModified: "Apr 12", owner: "kaushik7984" },
+    {
+      id: 1,
+      name: "My First Board",
+      lastModified: "Apr 12",
+      owner: "kaushik7984",
+    },
     { id: 2, name: "Untitled", lastModified: "Apr 11", owner: "kaushik7984" },
     // Add more mock boards as needed
   ];
 
   return (
     <Box sx={{ py: 4, px: { xs: 2, md: 4 } }}>
-      <Container maxWidth="xl">
+      <Container maxWidth='xl'>
         {/* Header Section */}
-        <Box sx={{ mb: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Typography variant="h4" component="h1" sx={{ fontWeight: "bold" }}>
+        <Box
+          sx={{
+            mb: 4,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Typography variant='h4' component='h1' sx={{ fontWeight: "bold" }}>
             Boards in this team
           </Typography>
           <Button
-            variant="contained"
+            variant='contained'
             startIcon={<AddIcon />}
-            onClick={() => router.push("/")}
+            onClick={() => router.push("/board/session/123456")}
             sx={{ bgcolor: "#2563eb", "&:hover": { bgcolor: "#1d4ed8" } }}
           >
             Create new
@@ -97,12 +109,20 @@ export default function Dashboard() {
         </Box>
 
         {/* Filters and Search Section */}
-        <Box sx={{ mb: 4, display: "flex", flexWrap: "wrap", gap: 2, alignItems: "center" }}>
+        <Box
+          sx={{
+            mb: 4,
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 2,
+            alignItems: "center",
+          }}
+        >
           <StyledSearchBox>
             <SearchIcon />
             <TextField
-              placeholder="Search by title or topic"
-              variant="standard"
+              placeholder='Search by title or topic'
+              variant='standard'
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               InputProps={{ disableUnderline: true }}
@@ -110,29 +130,39 @@ export default function Dashboard() {
             />
           </StyledSearchBox>
 
-          <FormControl size="small" sx={{ minWidth: 120 }}>
+          <FormControl size='small' sx={{ minWidth: 120 }}>
             <InputLabel>Filter by</InputLabel>
-            <Select value={filterBy} label="Filter by" onChange={handleFilterChange}>
-              <MenuItem value="all">All boards</MenuItem>
-              <MenuItem value="owned">Owned by me</MenuItem>
-              <MenuItem value="shared">Shared with me</MenuItem>
+            <Select
+              value={filterBy}
+              label='Filter by'
+              onChange={handleFilterChange}
+            >
+              <MenuItem value='all'>All boards</MenuItem>
+              <MenuItem value='owned'>Owned by me</MenuItem>
+              <MenuItem value='shared'>Shared with me</MenuItem>
             </Select>
           </FormControl>
 
-          <FormControl size="small" sx={{ minWidth: 120 }}>
+          <FormControl size='small' sx={{ minWidth: 120 }}>
             <InputLabel>Sort by</InputLabel>
-            <Select value={sortBy} label="Sort by" onChange={handleSortChange}>
-              <MenuItem value="last">Last opened</MenuItem>
-              <MenuItem value="created">Created date</MenuItem>
-              <MenuItem value="name">Board name</MenuItem>
+            <Select value={sortBy} label='Sort by' onChange={handleSortChange}>
+              <MenuItem value='last'>Last opened</MenuItem>
+              <MenuItem value='created'>Created date</MenuItem>
+              <MenuItem value='name'>Board name</MenuItem>
             </Select>
           </FormControl>
 
           <Box sx={{ ml: "auto" }}>
-            <IconButton onClick={() => setViewType("grid")} color={viewType === "grid" ? "primary" : "default"}>
+            <IconButton
+              onClick={() => setViewType("grid")}
+              color={viewType === "grid" ? "primary" : "default"}
+            >
               <GridViewIcon />
             </IconButton>
-            <IconButton onClick={() => setViewType("list")} color={viewType === "list" ? "primary" : "default"}>
+            <IconButton
+              onClick={() => setViewType("list")}
+              color={viewType === "list" ? "primary" : "default"}
+            >
               <ListIcon />
             </IconButton>
           </Box>
@@ -144,18 +174,24 @@ export default function Dashboard() {
             <Grid item xs={12} sm={6} md={4} lg={3} key={board.id}>
               <BoardCard>
                 <CardContent>
-                  <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-                    <Typography variant="h6" noWrap>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      mb: 2,
+                    }}
+                  >
+                    <Typography variant='h6' noWrap>
                       {board.name}
                     </Typography>
-                    <IconButton size="small" onClick={handleMenuClick}>
+                    <IconButton size='small' onClick={handleMenuClick}>
                       <MoreVertIcon />
                     </IconButton>
                   </Box>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant='body2' color='text.secondary'>
                     Last modified: {board.lastModified}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant='body2' color='text.secondary'>
                     Owner: {board.owner}
                   </Typography>
                 </CardContent>
@@ -165,7 +201,11 @@ export default function Dashboard() {
         </Grid>
 
         {/* Board Options Menu */}
-        <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleMenuClose}
+        >
           <MenuItem onClick={handleMenuClose}>Rename</MenuItem>
           <MenuItem onClick={handleMenuClose}>Duplicate</MenuItem>
           <MenuItem onClick={handleMenuClose}>Share</MenuItem>

@@ -1,7 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Drawing, DrawingDocument } from './schemas/drawing.schema';
+import { CreateDrawingDto } from './dto/create-drawing.dto';
+import { UpdateDrawingDto } from './dto/update-drawing.dto';
+import { UserDocument } from '../users/schemas/user.schema';
+import { DrawingContent } from './interfaces/drawing-content.interface';
 
 @Injectable()
 export class DrawingsService {
@@ -9,103 +13,132 @@ export class DrawingsService {
     @InjectModel(Drawing.name) private drawingModel: Model<DrawingDocument>,
   ) {}
 
-  async findAll(): Promise<DrawingDocument[]> {
-    return this.drawingModel.find().populate('author').exec();
-  }
-
-  async findOne(id: string): Promise<DrawingDocument> {
-    const drawing = await this.drawingModel.findById(id).populate('author').exec();
-    if (!drawing) {
-      throw new NotFoundException(`Drawing with ID ${id} not found`);
-    }
-    return drawing;
-  }
-
-  async findByAuthor(authorId: string): Promise<DrawingDocument[]> {
-    return this.drawingModel.find({ author: authorId }).populate('author').exec();
-  }
-
-  async create(createDrawingDto: any): Promise<DrawingDocument> {
-    const createdDrawing = new this.drawingModel(createDrawingDto);
+  async create(
+    createDrawingDto: CreateDrawingDto,
+    user: UserDocument,
+  ): Promise<DrawingDocument> {
+    const createdDrawing = new this.drawingModel({
+      ...createDrawingDto,
+      owner: user._id,
+    });
     return createdDrawing.save();
   }
 
-  async update(id: string, updateDrawingDto: any): Promise<DrawingDocument> {
-    const drawing = await this.drawingModel
-      .findByIdAndUpdate(id, updateDrawingDto, { new: true })
-      .populate('author')
+  async findAll(user: UserDocument): Promise<DrawingDocument[]> {
+    return this.drawingModel
+      .find({
+        $or: [{ owner: user._id }, { collaborators: user._id }],
+      })
       .exec();
+  }
+
+  async findOne(id: string, user: UserDocument): Promise<DrawingDocument> {
+    const drawing = await this.drawingModel
+      .findOne({
+        _id: id,
+        $or: [{ owner: user._id }, { collaborators: user._id }],
+      })
+      .exec();
+
     if (!drawing) {
-      throw new NotFoundException(`Drawing with ID ${id} not found`);
+      throw new NotFoundException(`Drawing with ID "${id}" not found`);
     }
+
     return drawing;
   }
 
-  async remove(id: string): Promise<DrawingDocument> {
-    const drawing = await this.drawingModel.findByIdAndDelete(id).exec();
-    if (!drawing) {
-      throw new NotFoundException(`Drawing with ID ${id} not found`);
+  async update(
+    id: string,
+    updateDrawingDto: UpdateDrawingDto,
+    user: UserDocument,
+  ): Promise<DrawingDocument> {
+    const drawing = await this.findOne(id, user);
+
+    if (drawing.owner.toString() !== user._id.toString()) {
+      throw new NotFoundException(
+        'You do not have permission to update this drawing',
+      );
     }
-    return drawing;
+
+    Object.assign(drawing, updateDrawingDto);
+    return drawing.save();
   }
 
-  async likeDrawing(drawingId: string, userId: string): Promise<DrawingDocument> {
-    const drawing = await this.drawingModel
-      .findByIdAndUpdate(
-        drawingId,
-        { $addToSet: { likes: userId } },
-        { new: true },
-      )
-      .populate('author')
-      .exec();
-    if (!drawing) {
-      throw new NotFoundException(`Drawing with ID ${drawingId} not found`);
+  async remove(id: string, user: UserDocument): Promise<void> {
+    const drawing = await this.findOne(id, user);
+
+    if (drawing.owner.toString() !== user._id.toString()) {
+      throw new NotFoundException(
+        'You do not have permission to delete this drawing',
+      );
     }
-    return drawing;
+
+    await this.drawingModel.deleteOne({ _id: id }).exec();
   }
 
-  async unlikeDrawing(drawingId: string, userId: string): Promise<DrawingDocument> {
-    const drawing = await this.drawingModel
-      .findByIdAndUpdate(
-        drawingId,
-        { $pull: { likes: userId } },
-        { new: true },
-      )
-      .populate('author')
-      .exec();
-    if (!drawing) {
-      throw new NotFoundException(`Drawing with ID ${drawingId} not found`);
+  async addCollaborator(
+    id: string,
+    collaboratorId: string,
+    user: UserDocument,
+  ): Promise<DrawingDocument> {
+    const drawing = await this.findOne(id, user);
+
+    if (drawing.owner.toString() !== user._id.toString()) {
+      throw new NotFoundException(
+        'You do not have permission to add collaborators to this drawing',
+      );
     }
-    return drawing;
+
+    if (drawing.collaborators.includes(new Types.ObjectId(collaboratorId))) {
+      throw new NotFoundException('User is already a collaborator');
+    }
+
+    drawing.collaborators.push(new Types.ObjectId(collaboratorId));
+    return drawing.save();
   }
 
-  async addCollaborator(drawingId: string, userId: string): Promise<DrawingDocument> {
-    const drawing = await this.drawingModel
-      .findByIdAndUpdate(
-        drawingId,
-        { $addToSet: { collaborators: userId } },
-        { new: true },
-      )
-      .populate('author')
-      .exec();
-    if (!drawing) {
-      throw new NotFoundException(`Drawing with ID ${drawingId} not found`);
+  async removeCollaborator(
+    id: string,
+    collaboratorId: string,
+    user: UserDocument,
+  ): Promise<DrawingDocument> {
+    const drawing = await this.findOne(id, user);
+
+    if (drawing.owner.toString() !== user._id.toString()) {
+      throw new NotFoundException(
+        'You do not have permission to remove collaborators from this drawing',
+      );
     }
-    return drawing;
+
+    const collaboratorIndex = drawing.collaborators.findIndex(
+      (id) => id.toString() === collaboratorId,
+    );
+
+    if (collaboratorIndex === -1) {
+      throw new NotFoundException('User is not a collaborator');
+    }
+
+    drawing.collaborators.splice(collaboratorIndex, 1);
+    return drawing.save();
   }
 
-  async removeCollaborator(drawingId: string, userId: string): Promise<DrawingDocument> {
-    const drawing = await this.drawingModel
-      .findByIdAndUpdate(
-        drawingId,
-        { $pull: { collaborators: userId } },
-        { new: true },
-      )
-      .populate('author')
-      .exec();
-    if (!drawing) {
-      throw new NotFoundException(`Drawing with ID ${drawingId} not found`);
+  async updateContent(
+    id: string,
+    content: DrawingContent,
+    user: UserDocument,
+  ): Promise<DrawingDocument> {
+    const drawing = await this.findOne(id, user);
+
+    if (
+      drawing.owner.toString() !== user._id.toString() &&
+      !drawing.collaborators.some((id) => id.toString() === user._id.toString())
+    ) {
+      throw new NotFoundException(
+        'You do not have permission to update this drawing',
+      );
     }
-    return drawing;
+
+    drawing.content = content;
+    return drawing.save();
   }
-} 
+}

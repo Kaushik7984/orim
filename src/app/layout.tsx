@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import Header from "@/layout/Header";
 import ChatWidget from "../widgets/chat.widget";
+import DebugToken from "@/components/DebugToken";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -30,6 +31,9 @@ export default function RootLayout({
 
             {/* Chat widget */}
             <ChatWidget />
+
+            {/* Debug Token Component */}
+            <DebugToken />
           </div>
         </AuthProvider>
       </body>

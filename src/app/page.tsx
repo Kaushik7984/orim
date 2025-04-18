@@ -79,8 +79,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Preview Image */}
-      <section className='py-12'>
+      {/* Preview Image - Commented out until we have a valid image */}
+      {/* <section className='py-12'>
         <div className='container flex items-center justify-center mx-auto px-6'>
           <div className='rounded-xl overflow-hidden shadow-xl border border-gray-200'>
             <Image
@@ -91,7 +91,7 @@ export default function HomePage() {
             />
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Features */}
       <section className='py-20 bg-gray-50'>

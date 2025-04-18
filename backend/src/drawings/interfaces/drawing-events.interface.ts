@@ -17,4 +17,4 @@ export interface JoinDrawingRoom {
 export interface LeaveDrawingRoom {
   drawingId: string;
   userId: string;
-} 
+}

@@ -10,8 +10,8 @@ export class AuthController {
     try {
       const user = await this.authService.validateUser(token);
       return { user };
-    } catch (error) {
+    } catch {
       throw new UnauthorizedException('Invalid token');
     }
   }
-} 
+}

@@ -20,7 +20,9 @@ import SearchIcon from "@mui/icons-material/Search";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { useAuth } from "@/context/AuthContext";
+import { InviteDialog } from "@/components/InviteDialog";
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   backgroundColor: "#fff",
@@ -50,6 +52,8 @@ const Header = () => {
   const router = useRouter();
   const { user, logout } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -69,14 +73,18 @@ const Header = () => {
     handleClose();
   };
 
+  const boardId = pathname.startsWith("/board/")
+    ? pathname.split("/")[2]
+    : null;
+
   return (
-    <StyledAppBar position="fixed">
+    <StyledAppBar position='fixed'>
       <Toolbar sx={{ minHeight: "56px !important" }}>
         {/* Logo Section */}
         <Typography
-          variant="h6"
+          variant='h6'
           component={Link}
-          href="/"
+          href='/'
           sx={{
             textDecoration: "none",
             color: "inherit",
@@ -93,7 +101,7 @@ const Header = () => {
         {/* Navigation Section */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <Button
-            color="inherit"
+            color='inherit'
             sx={{
               textTransform: "none",
               fontWeight: "normal",
@@ -104,7 +112,7 @@ const Header = () => {
             <KeyboardArrowDownIcon />
           </Button>
           <Button
-            color="inherit"
+            color='inherit'
             sx={{
               textTransform: "none",
               fontWeight: "normal",
@@ -118,13 +126,13 @@ const Header = () => {
 
         {/* Search Section */}
         <StyledSearchInput
-          placeholder="Search"
-          size="small"
+          placeholder='Search'
+          size='small'
           sx={{ ml: 2, width: 180 }}
           InputProps={{
             startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon fontSize="small" />
+              <InputAdornment position='start'>
+                <SearchIcon fontSize='small' />
               </InputAdornment>
             ),
           }}
@@ -136,8 +144,44 @@ const Header = () => {
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           {user ? (
             <>
+              {boardId && (
+                <Button
+                  variant='outlined'
+                  onClick={() => setIsInviteDialogOpen(true)}
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: "normal",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 0.5,
+                  }}
+                >
+                  <PersonAddIcon sx={{ fontSize: 20 }} />
+                  Invite
+                </Button>
+              )}
               <Button
-                variant="contained"
+                variant='contained'
+                sx={{
+                  bgcolor: "#fff",
+                  color: "#2563eb",
+                  "&:hover": { bgcolor: "#f1f1f1" },
+                  textTransform: "none",
+                  fontWeight: "normal",
+                }}
+                onClick={() => setIsDialogOpen(true)}
+              >
+                Invite Member
+              </Button>
+
+              <InviteDialog
+                isOpen={isDialogOpen}
+                onClose={() => setIsDialogOpen(false)}
+                // boardId={boardId || ""}
+                boardId='68025d0cee95404ae666a0f2'
+              />
+              <Button
+                variant='contained'
                 sx={{
                   bgcolor: "#2563eb",
                   "&:hover": { bgcolor: "#1d4ed8" },
@@ -147,13 +191,13 @@ const Header = () => {
               >
                 Upgrade
               </Button>
-              <IconButton size="small" sx={{ color: "text.secondary" }}>
+              <IconButton size='small' sx={{ color: "text.secondary" }}>
                 <HelpOutlineIcon />
               </IconButton>
-              <IconButton size="small" sx={{ color: "text.secondary" }}>
+              <IconButton size='small' sx={{ color: "text.secondary" }}>
                 <NotificationsNoneIcon />
               </IconButton>
-              <IconButton size="small" onClick={handleMenu}>
+              <IconButton size='small' onClick={handleMenu}>
                 <Avatar
                   sx={{
                     width: 32,
@@ -188,7 +232,7 @@ const Header = () => {
           ) : (
             <>
               <Button
-                color="inherit"
+                color='inherit'
                 onClick={() => router.push("/auth/login")}
                 sx={{
                   textTransform: "none",
@@ -198,7 +242,7 @@ const Header = () => {
                 Login
               </Button>
               <Button
-                variant="contained"
+                variant='contained'
                 onClick={() => router.push("/auth/register")}
                 sx={{
                   bgcolor: "#2563eb",
@@ -213,6 +257,13 @@ const Header = () => {
           )}
         </Box>
       </Toolbar>
+      {boardId && (
+        <InviteDialog
+          isOpen={isInviteDialogOpen}
+          onClose={() => setIsInviteDialogOpen(false)}
+          boardId={boardId}
+        />
+      )}
     </StyledAppBar>
   );
 };

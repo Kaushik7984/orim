@@ -1,6 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { DrawingsService } from './drawings.service';
+import { CreateDrawingDto } from './dto/create-drawing.dto';
+import { UpdateDrawingDto } from './dto/update-drawing.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { UserDocument } from '../users/schemas/user.schema';
+import { DrawingContent } from './interfaces/drawing-content.interface';
 
 @Controller('drawings')
 @UseGuards(JwtAuthGuard)
@@ -8,50 +22,61 @@ export class DrawingsController {
   constructor(private readonly drawingsService: DrawingsService) {}
 
   @Post()
-  create(@Body() createDrawingDto: any, @Req() req: any) {
-    return this.drawingsService.create({
-      ...createDrawingDto,
-      author: req.user._id,
-    });
+  async create(
+    @Body() createDrawingDto: CreateDrawingDto,
+    @CurrentUser() user: UserDocument,
+  ) {
+    return this.drawingsService.create(createDrawingDto, user);
   }
 
   @Get()
-  findAll() {
-    return this.drawingsService.findAll();
+  async findAll(@CurrentUser() user: UserDocument) {
+    return this.drawingsService.findAll(user);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.drawingsService.findOne(id);
+  async findOne(@Param('id') id: string, @CurrentUser() user: UserDocument) {
+    return this.drawingsService.findOne(id, user);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateDrawingDto: any) {
-    return this.drawingsService.update(id, updateDrawingDto);
+  async update(
+    @Param('id') id: string,
+    @Body() updateDrawingDto: UpdateDrawingDto,
+    @CurrentUser() user: UserDocument,
+  ) {
+    return this.drawingsService.update(id, updateDrawingDto, user);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.drawingsService.remove(id);
+  async remove(@Param('id') id: string, @CurrentUser() user: UserDocument) {
+    return this.drawingsService.remove(id, user);
   }
 
-  @Post(':id/like')
-  likeDrawing(@Param('id') id: string, @Req() req: any) {
-    return this.drawingsService.likeDrawing(id, req.user._id);
-  }
-
-  @Post(':id/unlike')
-  unlikeDrawing(@Param('id') id: string, @Req() req: any) {
-    return this.drawingsService.unlikeDrawing(id, req.user._id);
-  }
-
-  @Post(':id/collaborators')
-  addCollaborator(@Param('id') id: string, @Body('userId') userId: string) {
-    return this.drawingsService.addCollaborator(id, userId);
+  @Post(':id/collaborators/:userId')
+  async addCollaborator(
+    @Param('id') id: string,
+    @Param('userId') userId: string,
+    @CurrentUser() user: UserDocument,
+  ) {
+    return this.drawingsService.addCollaborator(id, userId, user);
   }
 
   @Delete(':id/collaborators/:userId')
-  removeCollaborator(@Param('id') id: string, @Param('userId') userId: string) {
-    return this.drawingsService.removeCollaborator(id, userId);
+  async removeCollaborator(
+    @Param('id') id: string,
+    @Param('userId') userId: string,
+    @CurrentUser() user: UserDocument,
+  ) {
+    return this.drawingsService.removeCollaborator(id, userId, user);
   }
-} 
+
+  @Patch(':id/content')
+  async updateContent(
+    @Param('id') id: string,
+    @Body('content') content: DrawingContent,
+    @CurrentUser() user: UserDocument,
+  ) {
+    return this.drawingsService.updateContent(id, content, user);
+  }
+}
