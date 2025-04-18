@@ -45,3 +45,4 @@ next-env.d.ts
 /backend/node_modules
 /backend/.env
 /backend/.env.*
+backend/firebase-service-account.json
