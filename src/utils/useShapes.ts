@@ -1,34 +1,49 @@
 import { fabric } from "fabric";
 import { FabricJSEditor } from "fabricjs-react";
-import { socket } from "@/socket";
+import { getSocket } from "@/lib/socket";
 
 export const useShapes = (
   editor: FabricJSEditor | undefined,
   boardId: string | undefined
 ) => {
+  const socket = getSocket();
+
+  const addShapeToCanvas = (shape: fabric.Object, type?: string) => {
+    if (!editor?.canvas) return;
+    editor.canvas.add(shape);
+    editor.canvas.renderAll();
+    if (type && socket && boardId) {
+      socket.emit("shape:add", {
+        boardId,
+        shape: shape.toObject(),
+        type,
+      });
+    }
+  };
+
   const addCircle = () => {
     const circle = new fabric.Circle({
       radius: 50,
-      borderColor: "black",
+      fill: "transparent",
+      stroke: "black",
+      strokeWidth: 2,
       left: 500,
       top: 500,
     });
-    editor?.canvas.add(circle);
-    socket.emit("add-circle", { boardId, circle });
+    addShapeToCanvas(circle, "circle");
   };
 
   const addRectangle = () => {
     const rect = new fabric.Rect({
       width: 200,
       height: 200,
-      left: 300,
-      top: 300,
       fill: "transparent",
-      borderColor: "black",
       stroke: "black",
       strokeWidth: 2,
+      left: 300,
+      top: 300,
     });
-    editor?.canvas.add(rect);
+    addShapeToCanvas(rect, "rectangle");
   };
 
   const addTriangle = () => {
@@ -41,7 +56,7 @@ export const useShapes = (
       left: 400,
       top: 400,
     });
-    editor?.canvas.add(triangle);
+    addShapeToCanvas(triangle, "triangle");
   };
 
   const addStraightLine = () => {
@@ -51,7 +66,7 @@ export const useShapes = (
       left: 500,
       top: 500,
     });
-    editor?.canvas.add(line);
+    addShapeToCanvas(line, "line");
   };
 
   const addPolygon = () => {
@@ -64,25 +79,24 @@ export const useShapes = (
       ],
       {
         fill: "transparent",
-        left: 600,
-        top: 600,
         stroke: "black",
         strokeWidth: 2,
+        left: 600,
+        top: 600,
       }
     );
-    editor?.canvas.add(polygon);
+    addShapeToCanvas(polygon, "polygon");
   };
 
   const addText = () => {
     const text = new fabric.IText("Hello world", {
       left: 500,
       top: 500,
-      fontFamily: "arial black",
+      fontFamily: "Arial Black",
       fill: "#333",
       fontSize: 30,
     });
-    console.log(editor);
-    editor?.canvas.add(text);
+    addShapeToCanvas(text, "text");
   };
 
   const addTextbox = (color: string) => {
@@ -94,15 +108,19 @@ export const useShapes = (
       fontSize: 30,
       backgroundColor: color,
     });
-    editor?.canvas.add(textbox);
+    addShapeToCanvas(textbox, "textbox");
   };
 
   const addPen = () => {
-    if (!editor) return;
-    // make pen drawing active
+    if (!editor?.canvas) return;
     editor.canvas.isDrawingMode = true;
     editor.canvas.freeDrawingBrush.width = 5;
     editor.canvas.freeDrawingBrush.color = "red";
+  };
+
+  const disableDrawing = () => {
+    if (!editor?.canvas) return;
+    editor.canvas.isDrawingMode = false;
   };
 
   return {
@@ -114,5 +132,6 @@ export const useShapes = (
     addText,
     addTextbox,
     addPen,
+    disableDrawing,
   };
 };

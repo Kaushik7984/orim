@@ -1,36 +1,45 @@
-import { Suspense } from "react";
-import { RoomProvider } from "@/liveblocks.config";
-import { Loading } from "@/components/Loading";
-import { LiveCanvas } from "@/components/LiveCanvas";
+"use client";
+import { useEffect } from "react";
+import { useParams } from "next/navigation";
+import { useBoard } from "@/context/BoardContext";
+import Board from "@/layout/board/Board";
+import { CircularProgress } from "@mui/material";
 
-interface BoardPageProps {
-  params: {
-    id: string;
-  };
-}
+const BoardPage = () => {
+  const { id } = useParams();
+  const { loadBoard, currentBoard, loading, error } = useBoard();
 
-export default function BoardPage({ params }: BoardPageProps) {
-  return (
-    <RoomProvider
-      id={params.id}
-      initialPresence={{
-        cursor: null,
-        selection: [],
-        color: "#000000",
-        tool: "select",
-        isDrawing: false,
-        name: "Anonymous",
-      }}
-      initialStorage={{
-        objects: [],
-        version: 1,
-      }}
-    >
-      <main className='h-full w-full relative bg-neutral-100 touch-none'>
-        <Suspense fallback={<Loading />}>
-          <LiveCanvas boardId={params.id} />
-        </Suspense>
-      </main>
-    </RoomProvider>
-  );
-}
+  useEffect(() => {
+    if (id) {
+      loadBoard(id as string);
+    }
+  }, [id, loadBoard]);
+
+  if (loading) {
+    return (
+      <div className='flex items-center justify-center h-screen'>
+        <CircularProgress />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className='flex items-center justify-center h-screen text-red-500'>
+        {error}
+      </div>
+    );
+  }
+
+  if (!currentBoard) {
+    return (
+      <div className='flex items-center justify-center h-screen'>
+        Board not found
+      </div>
+    );
+  }
+
+  return <Board boardId={currentBoard.id} />;
+};
+
+export default BoardPage;

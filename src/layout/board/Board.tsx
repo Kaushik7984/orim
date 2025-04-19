@@ -4,10 +4,8 @@ import { Suspense, useContext, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Skeleton } from "@mui/material";
 import { BoardContext } from "@/context/BoardContext";
-import { socket } from "@/socket";
+import { socket } from "@/lib/socket";
 import { fabric } from "fabric";
-import BoardHeader from "./BoardHeader";
-import BoardToolbar from "./BoardToolbar";
 import FabricHeader from "./FabricHeader";
 import FabricSidebar from "./FabricSidebar";
 
@@ -34,6 +32,7 @@ const Board = ({ boardId: initialBoardId }: BoardProps) => {
     createBoard,
     setBoardId,
     joinBoard,
+    loadBoards,
   } = boardContext;
 
   // Set initial board ID and join the board

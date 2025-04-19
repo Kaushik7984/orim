@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { DrawingsModule } from './drawings/drawings.module';
 import { AppController } from './app.controller';
+import { BoardsModule } from './boards/boards.module';
 
 @Module({
   imports: [
@@ -14,11 +15,12 @@ import { AppController } from './app.controller';
     MongooseModule.forRoot(
       process.env.DATABASE_URL ||
         process.env.MONGODB_URI ||
-        'mongodb://localhost:27017/inspiro-draw',
+        'mongodb://localhost:27017/orim',
     ),
     forwardRef(() => AuthModule),
     forwardRef(() => UsersModule),
     forwardRef(() => DrawingsModule),
+    forwardRef(() => BoardsModule),
   ],
   controllers: [AppController],
 })
