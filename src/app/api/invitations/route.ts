@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
 
 export async function POST(req: Request) {
   try {
-    const { userId } = await auth();
-
-    if (!userId) {
+    // Get the token from the Authorization header
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
+    const token = authHeader.split("Bearer ")[1];
 
     const { email, boardId, message } = await req.json();
 
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.API_TOKEN}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           email,
@@ -33,7 +33,13 @@ export async function POST(req: Request) {
     );
 
     if (!response.ok) {
-      throw new Error("Failed to create invitation");
+      const errorData = await response.json();
+      return new NextResponse(
+        errorData.message || "Failed to create invitation",
+        {
+          status: response.status,
+        }
+      );
     }
 
     const invitation = await response.json();
@@ -46,18 +52,18 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
   try {
-    const { userId } = await auth();
-
-    if (!userId) {
+    // Get the token from the Authorization header
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
+    const token = authHeader.split("Bearer ")[1];
 
-    // Make request to your backend API
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/invitations`,
       {
         headers: {
-          Authorization: `Bearer ${process.env.API_TOKEN}`,
+          Authorization: `Bearer ${token}`,
         },
       }
     );

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
@@ -16,17 +17,16 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
 
-  // Enable CORS with specific options for Google authentication
+  // Enable CORS with specific options for development
   app.enableCors({
-    origin: true, // Allow all origins for development
+    origin: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
-    allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Accept', 'Authorization', 'token'],
   });
 
   // Remove problematic security headers that interfere with Google login
   app.use((req: Request, res: Response, next: NextFunction) => {
-    // Remove headers that might interfere with popups
     res.removeHeader('Cross-Origin-Opener-Policy');
     res.removeHeader('Cross-Origin-Embedder-Policy');
     res.removeHeader('Cross-Origin-Resource-Policy');

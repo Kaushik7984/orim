@@ -18,9 +18,9 @@ export class AuthService {
 
   async validateUser(token: string): Promise<UserDocument> {
     try {
-      console.log('Validating token:', token);
+      console.log('Validating token:', token.substring(0, 10) + '...');
       const decodedToken = await this.verifyToken(token);
-      console.log('Decoded token:', decodedToken);
+      console.log('Decoded token:', JSON.stringify(decodedToken, null, 2));
 
       try {
         // Try to find the user
@@ -29,7 +29,8 @@ export class AuthService {
         );
         console.log('Found existing user:', user);
         return user;
-      } catch {
+      } catch (error) {
+        console.error('Error finding user:', error);
         // If user not found, create a new one
         console.log(
           'User not found, creating new user with uid:',
@@ -59,10 +60,18 @@ export class AuthService {
   private async verifyToken(token: string): Promise<admin.auth.DecodedIdToken> {
     try {
       console.log('Verifying token with Firebase...');
+      console.log('Token length:', token.length);
+      console.log(
+        'Token format check:',
+        token.includes('.') ? 'Looks like a JWT' : 'Not a JWT format',
+      );
+
       const decodedToken = await admin.auth().verifyIdToken(token);
+      console.log('Token verification successful');
       return decodedToken;
     } catch (error) {
       console.error('Token verification failed:', error);
+      console.error('Error details:', JSON.stringify(error, null, 2));
       throw new UnauthorizedException('Invalid token');
     }
   }
