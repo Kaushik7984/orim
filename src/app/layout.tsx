@@ -31,9 +31,6 @@ export default function RootLayout({
 
             {/* Chat widget */}
             <ChatWidget />
-
-            {/* Debug Token Component */}
-            <DebugToken />
           </div>
         </AuthProvider>
       </body>

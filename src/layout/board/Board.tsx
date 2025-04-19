@@ -64,7 +64,7 @@ const Board = ({ boardId: initialBoardId }: BoardProps) => {
   useEffect(() => {
     if (!editor) return;
 
-    const grid = 30;
+    const grid = 100;
     const gridOptions = {
       color: "rgba(0,0,0,0.1)",
       borderWidth: 1,

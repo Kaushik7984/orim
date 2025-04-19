@@ -74,11 +74,11 @@ export class MailService {
         from: mailFrom,
         to: invitation.email,
         subject: "You've been invited to collaborate on a board",
-        text: `You've been invited to collaborate on a board. Click here to accept: ${frontendUrl}/invitations/${invitationId}/accept`,
+        text: `You've been invited to collaborate on a board. Click here to accept: ${frontendUrl}/board/session/123456`,
         html: `
           <h1>Board Invitation</h1>
           <p>You've been invited to collaborate on a board.</p>
-          <a href="${frontendUrl}/invitations/${invitationId}/accept" style="padding: 10px 20px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 5px;">
+          <a href="${frontendUrl}/board/session/123456" style="padding: 10px 20px; background-color: #2563eb; color: white; text-decoration: none; border-radius: 5px;">
             Accept Invitation
           </a>
         `,
