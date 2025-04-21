@@ -6,6 +6,8 @@ export class UpdateBoardDto {
   title?: string;
 
   @IsOptional()
-  @IsString()
-  content?: string;
+  content?: any;
+
+  @IsOptional()
+  collaborators?: string[];
 }

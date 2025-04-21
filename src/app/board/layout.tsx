@@ -1,5 +1,5 @@
 "use client";
-import { BoardProvider } from "@/context/BoardContext";
+import { BoardProvider } from "@/context/BoardContext/BoardProvider";
 import "../globals.css";
 import ChatWidget from "../../widgets/chat.widget";
 

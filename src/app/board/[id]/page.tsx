@@ -1,45 +1,43 @@
 "use client";
-import { useEffect } from "react";
-import { useParams } from "next/navigation";
-import { useBoard } from "@/context/BoardContext";
-import Board from "@/layout/board/Board";
+import { useEffect, useState } from "react";
+import { useBoard } from "@/context/BoardContext/useBoard";
+import { useParams, useRouter } from "next/navigation";
 import { CircularProgress } from "@mui/material";
+import Board from "@/layout/board/Board";
 
-const BoardPage = () => {
+export default function BoardPage() {
   const { id } = useParams();
+  const router = useRouter();
+
   const { loadBoard, currentBoard, loading, error } = useBoard();
+  const [hasTried, setHasTried] = useState(false);
 
   useEffect(() => {
-    if (id) {
-      loadBoard(id as string);
+    if (id && !hasTried) {
+      loadBoard(id)
+        .then(() => setHasTried(true))
+        .catch((err) => {
+          console.error("Board not found or failed to load:", err);
+          // Optional: redirect or show error UI
+        });
     }
-  }, [id, loadBoard]);
+  }, [id, hasTried]);
 
-  if (loading) {
+  if (loading || !hasTried) {
     return (
-      <div className='flex items-center justify-center h-screen'>
+      <div className='flex justify-center items-center h-screen'>
         <CircularProgress />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className='flex items-center justify-center h-screen text-red-500'>
-        {error}
       </div>
     );
   }
 
   if (!currentBoard) {
     return (
-      <div className='flex items-center justify-center h-screen'>
-        Board not found
+      <div className='flex justify-center items-center h-screen text-red-500'>
+        Board not found.
       </div>
     );
   }
 
-  return <Board boardId={currentBoard.id} />;
-};
-
-export default BoardPage;
+  return <Board boardId={currentBoard._id} />;
+}

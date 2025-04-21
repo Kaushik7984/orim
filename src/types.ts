@@ -1,12 +1,12 @@
 import { FabricJSEditor } from "fabricjs-react";
-import React from "react";
-import { IEvent } from "fabric/fabric-impl";
 import { User as FirebaseUser } from "firebase/auth";
 
+// Extend Firebase user type
 export interface AppUser extends FirebaseUser {
   displayName: string | null;
 }
 
+// Board model from backend
 export interface Board {
   _id: string;
   id: string;
@@ -20,6 +20,7 @@ export interface Board {
   imageUrl?: string;
 }
 
+// DTO for creating a board
 export interface CreateBoardDto {
   title: string;
   description?: string;
@@ -28,37 +29,56 @@ export interface CreateBoardDto {
   ownerId: string;
 }
 
+// Props for sidebar tools using Fabric
+export interface FabricSidebarProps {
+  editor: FabricJSEditor | undefined;
+}
+
+// The complete BoardContext type
 export interface BoardContextType {
   boards: Board[];
   currentBoard: Board | null;
   loading: boolean;
   error: string | null;
+
   createBoard: (
     title: string,
     description?: string,
     isPublic?: boolean
   ) => Promise<Board>;
+
   updateBoard: (id: string, data: Partial<Board>) => Promise<void>;
   deleteBoard: (id: string) => Promise<void>;
-  setCurrentBoard: (board: Board | null) => void;
   loadBoards: () => Promise<void>;
   loadBoard: (id: string) => Promise<void>;
   updateCanvasData: (id: string, canvasData: any) => Promise<void>;
+
+  setCurrentBoard: (board: Board | null) => void;
+
   boardId?: string;
   setBoardId: (id: string | undefined) => void;
+
   boardName: string;
   setBoardName: (name: string) => void;
+
   editor?: FabricJSEditor;
   setEditor: (editor: FabricJSEditor | undefined) => void;
+
   user?: AppUser;
+
   path: string;
   setPath: (path: string) => void;
+
   username: string;
   setUsername: (username: string) => void;
+
   joinBoard: () => Promise<void>;
   newJoin: string;
   setNewJoin: (username: string) => void;
+
   handleCanvasModified: (event: any) => void;
+
+  // Drawing tools
   addCircle: () => void;
   addRectangle: () => void;
   addTriangle: () => void;
@@ -67,8 +87,4 @@ export interface BoardContextType {
   addPolygon: () => void;
   addTextbox: (color: string) => void;
   addPen: () => void;
-}
-
-export interface FabricSidebarProps {
-  editor: FabricJSEditor | undefined;
 }

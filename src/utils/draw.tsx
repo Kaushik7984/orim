@@ -1,4 +1,4 @@
-import { BoardContext } from "@/context/BoardContext";
+import BoardContext from "@/context/BoardContext/BoardContext";
 import { Pen } from "@/svgs/index.svg";
 import { useContext } from "react";
 

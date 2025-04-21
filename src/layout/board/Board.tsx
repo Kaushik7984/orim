@@ -1,13 +1,22 @@
 "use client";
+
 import { FabricJSCanvas, useFabricJSEditor } from "fabricjs-react";
-import { Suspense, useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { Skeleton } from "@mui/material";
-import { BoardContext } from "@/context/BoardContext";
-import { socket } from "@/lib/socket";
 import { fabric } from "fabric";
+
+import {
+  connectSocket,
+  disconnectSocket,
+  emitBoardUpdate,
+  joinBoard as socketJoinBoard,
+  onBoardUpdate,
+  offBoardUpdate,
+} from "@/lib/socket";
+
 import FabricHeader from "./FabricHeader";
 import FabricSidebar from "./FabricSidebar";
+import BoardContext from "@/context/BoardContext/BoardContext";
 
 interface BoardProps {
   boardId: string;
@@ -17,204 +26,146 @@ const Board = ({ boardId: initialBoardId }: BoardProps) => {
   const { editor, onReady } = useFabricJSEditor();
   const pathname = usePathname();
   const boardContext = useContext(BoardContext);
-  const [boardCreated, setBoardCreated] = useState<boolean>(false);
-  const [zoomLevel, setZoomLevel] = useState<number>(100);
 
-  if (!boardContext) {
-    return <div>Loading...</div>;
-  }
+  const [boardCreated, setBoardCreated] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(100);
+
+  if (!boardContext) return <div>Loading...</div>;
 
   const {
     setBoardName,
     newJoin,
     setEditor,
-    board,
-    createBoard,
+    boardId,
     setBoardId,
     joinBoard,
-    loadBoards,
+    createBoard,
   } = boardContext;
 
-  // Set initial board ID and join the board
+  const boardNameFromPath = pathname.split("/")[2];
+
+  // Set board ID and join
   useEffect(() => {
+    if (!initialBoardId) return;
+
     setBoardId(initialBoardId);
     joinBoard();
-  }, [initialBoardId, setBoardId, joinBoard]);
+  }, [initialBoardId]);
 
+  // Setup editor on load
   useEffect(() => {
-    const setEditorInstance = async () => {
-      if (editor) {
-        editor.canvas.allowTouchScrolling = true;
-        editor.canvas.renderOnAddRemove = true;
-        editor.canvas.setBackgroundColor("#f5f5f5", () => {
-          editor.canvas.requestRenderAll();
-        });
-        setEditor(editor);
-      }
-    };
+    if (!editor) return;
 
-    setEditorInstance();
+    editor.canvas.allowTouchScrolling = true;
+    editor.canvas.renderOnAddRemove = true;
+    editor.canvas.setBackgroundColor("#f5f5f5", () => {
+      editor.canvas.requestRenderAll();
+    });
 
-    return () => {
-      setEditor(undefined);
-    };
-  }, [editor?.canvas, setEditor]);
+    setEditor(editor);
+    return () => setEditor(undefined);
+  }, [editor]);
 
+  // Grid overlay
   useEffect(() => {
     if (!editor) return;
 
     const grid = 100;
-    const gridOptions = {
-      color: "rgba(0,0,0,0.1)",
-      borderWidth: 1,
-    };
-
-    editor.canvas.on("after:render", () => {
+    const drawGrid = () => {
       const ctx = editor.canvas.getContext();
+      const width = editor.canvas.getWidth();
+      const height = editor.canvas.getHeight();
 
       ctx.beginPath();
-
-      const width = editor.canvas.width || 0;
-      const height = editor.canvas.height || 0;
-
       for (let i = 0; i <= width / grid; i++) {
         const pos = i * grid;
         ctx.moveTo(pos, 0);
         ctx.lineTo(pos, height);
       }
-
       for (let i = 0; i <= height / grid; i++) {
         const pos = i * grid;
         ctx.moveTo(0, pos);
         ctx.lineTo(width, pos);
       }
-
       ctx.closePath();
-      ctx.strokeStyle = gridOptions.color;
-      ctx.lineWidth = gridOptions.borderWidth;
+      ctx.strokeStyle = "rgba(0,0,0,0.1)";
+      ctx.lineWidth = 1;
       ctx.stroke();
-    });
+    };
 
+    editor.canvas.on("after:render", drawGrid);
     return () => {
-      if (editor && editor.canvas) {
-        editor.canvas.off("after:render");
-      }
+      editor.canvas.off("after:render", drawGrid);
     };
   }, [editor]);
 
+  // Real-time socket sync
   useEffect(() => {
-    if (newJoin) console.log("new join", newJoin);
+    if (!editor || !initialBoardId) return;
 
-    // send draw event from editor
-    editor?.canvas.on("path:created", (e: any) => {
-      socket.emit("draw", { boardId: initialBoardId, path: e });
-    });
+    connectSocket();
+    socketJoinBoard(initialBoardId);
 
-    // listen to add circle event from server
-    socket.on(
-      "add-circle-broadcast",
-      (data: { circle: fabric.ICircleOptions | undefined }) => {
-        try {
-          console.log("add circle broadcast", data);
-          const circle = new fabric.Circle(data.circle);
-          editor?.canvas.add(circle);
-        } catch (error) {
-          console.error("Error adding to canvas:", error);
-        }
-      }
-    );
-
-    // listen to draw event from server
-    socket.on(
-      "draw-broadcast",
-      (data: { path: { path: Partial<fabric.Path> } }) => {
-        try {
-          console.log("draw broadcast", data);
-          const path = new fabric.Path(data.path.path.path);
-          path.set({ ...data.path.path });
-          editor?.canvas.add(path);
-        } catch (error) {
-          console.error("Error adding to canvas:", error);
-        }
-      }
-    );
-
-    // cleanup
-    return () => {
-      socket.off("draw-broadcast");
-      socket.off("add-circle-broadcast");
-      editor?.canvas.off("path:created");
+    const handleDrawBroadcast = (content: any) => {
+      const { path } = content;
+      const newPath = new fabric.Path(path.path);
+      newPath.set({ ...path });
+      editor.canvas.add(newPath);
     };
-  }, [newJoin, editor, initialBoardId]);
 
+    onBoardUpdate(handleDrawBroadcast);
+
+    const handleLocalDraw = (e: any) => {
+      emitBoardUpdate(initialBoardId, { path: e.path });
+    };
+
+    editor.canvas.on("path:created", handleLocalDraw);
+
+    return () => {
+      editor.canvas.off("path:created", handleLocalDraw);
+      offBoardUpdate();
+      disconnectSocket();
+    };
+  }, [editor, initialBoardId]);
+
+  // Create board if it doesn't exist
   useEffect(() => {
-    const boardName = pathname.split("/")[2];
-    setBoardName(boardName);
-
-    // const sendBoardName = async () => {
-    //   const board = {
-    //     boardName,
-    //     users: ["test"],
-    //   };
-    //   await axios.post(
-    //     `${process.env.NEXT_PUBLIC_BACKEND_URL}/create-board`,
-    //     board
-    //   );
-    //   setBoardCreated(true);
-    // };
-    // // return () => {
-    // //     !boardCreated && sendBoardName()
-    // // };
-
-    if (!boardCreated && boardName) {
-      createBoard();
-      setBoardCreated(true);
+    if (!boardCreated && boardNameFromPath) {
+      setBoardName(boardNameFromPath);
+      createBoard(boardNameFromPath)
+        .then(() => setBoardCreated(true))
+        .catch(console.error);
     }
-  }, [pathname, boardCreated, createBoard, setBoardName]);
+  }, [boardNameFromPath, boardCreated]);
 
+  // Zoom
   const handleZoomIn = () => {
-    if (editor) {
-      const zoom = editor.canvas.getZoom() * 1.1;
-      editor.canvas.setZoom(zoom);
-      setZoomLevel(Math.round(zoom * 100));
-    }
+    if (!editor) return;
+    const zoom = editor.canvas.getZoom() * 1.1;
+    editor.canvas.setZoom(zoom);
+    setZoomLevel(Math.round(zoom * 100));
   };
 
   const handleZoomOut = () => {
-    if (editor) {
-      const zoom = editor.canvas.getZoom() / 1.1;
-      editor.canvas.setZoom(zoom);
-      setZoomLevel(Math.round(zoom * 100));
-    }
+    if (!editor) return;
+    const zoom = editor.canvas.getZoom() / 1.1;
+    editor.canvas.setZoom(zoom);
+    setZoomLevel(Math.round(zoom * 100));
   };
 
   return (
-    // <div className='relative w-full h-full bg-[#f5f5f5]'>
-    //   <BoardHeader
-    //     boardName={board?.title || "Untitled"}
-    //     zoomLevel={zoomLevel}
-    //     onZoomIn={handleZoomIn}
-    //     onZoomOut={handleZoomOut}
-    //   />
-    //   <BoardToolbar />
-    //   <div className='absolute inset-0 pt-12 pl-12'>
-    //     <Suspense fallback={<Skeleton className='w-full h-full' />}>
-    //       <FabricJSCanvas onReady={onReady} className='w-full h-full' />
-    //     </Suspense>
-    //   </div>
-    // </div>
-
-    <div className='w-full h-full'>
-      <FabricHeader />
-      <Suspense
-        fallback={<Skeleton className='w-full h-full absolute -z-20' />}
-      >
-        <FabricJSCanvas
-          onReady={onReady}
-          className='w-full h-full absolute overflow-scroll'
-        />
-      </Suspense>
-      <FabricSidebar editor={editor} />
+    <div className='h-screen w-full flex flex-col'>
+      <FabricHeader
+        zoomLevel={zoomLevel}
+        onZoomIn={handleZoomIn}
+        onZoomOut={handleZoomOut}
+      />
+      <div className='flex flex-1'>
+        <FabricSidebar />
+        <div className='flex-1 bg-white'>
+          <FabricJSCanvas className='h-full w-full' onReady={onReady} />
+        </div>
+      </div>
     </div>
   );
 };

@@ -1,33 +1,55 @@
 "use client";
-import React, { useEffect } from "react";
+
+import React, { useEffect, useState } from "react";
 import { useBoard } from "@/context/BoardContext/useBoard";
 import { useRouter } from "next/navigation";
 import {
   Button,
   Card,
   CardContent,
-  CardActions,
   Typography,
   Grid,
   CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 
 const Dashboard = () => {
   const { boards, loading, error, createBoard, loadBoards } = useBoard();
   const router = useRouter();
+  const [creating, setCreating] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [boardTitle, setBoardTitle] = useState("");
 
   useEffect(() => {
     loadBoards();
   }, []);
 
   const handleCreateBoard = async () => {
+    if (!boardTitle) return;
+
+    setCreating(true);
+
     try {
-      const newBoard = await createBoard("Untitled Board");
-      router.push(`/board/${newBoard._id}`);
+      const newBoard = await createBoard(boardTitle);
+      if (newBoard?._id) {
+        router.push(`/board/${newBoard._id}`);
+      }
     } catch (err) {
       console.error("Failed to create board:", err);
+    } finally {
+      setCreating(false);
+      setOpenDialog(false);
+      setBoardTitle("");
     }
+  };
+
+  const handleOpenBoard = (boardId: string) => {
+    router.push(`/board/${boardId}`);
   };
 
   if (loading) {
@@ -41,7 +63,7 @@ const Dashboard = () => {
   if (error) {
     return (
       <div className='flex items-center justify-center h-screen text-red-500'>
-        {error}
+        <Typography variant='h6'>{error}</Typography>
       </div>
     );
   }
@@ -54,47 +76,67 @@ const Dashboard = () => {
           variant='contained'
           color='primary'
           startIcon={<AddIcon />}
-          onClick={handleCreateBoard}
+          onClick={() => setOpenDialog(true)}
         >
           Create New Board
         </Button>
       </div>
 
-      <Grid container spacing={3}>
-        {boards.map((board) => (
-          <Grid item xs={12} sm={6} md={4} lg={3} key={board._id}>
-            <Card
-              className='h-full cursor-pointer hover:shadow-lg transition-shadow'
-              onClick={() => router.push(`/board/${board._id}`)}
-            >
-              <CardContent>
-                <Typography variant='h6' component='h2' noWrap>
-                  {board.title}
-                </Typography>
-                <Typography color='textSecondary' gutterBottom>
-                  {board.description || "No description"}
-                </Typography>
-                <Typography variant='body2' color='textSecondary'>
-                  Last updated: {new Date(board.updatedAt).toLocaleDateString()}
-                </Typography>
-              </CardContent>
-              <CardActions>
-                <Typography variant='body2' color='textSecondary'>
-                  {board.isPublic ? "Public" : "Private"}
-                </Typography>
-              </CardActions>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-
-      {boards.length === 0 && (
+      {!boards || boards.length === 0 ? (
         <div className='text-center py-12'>
           <Typography variant='h6' color='textSecondary'>
             No boards yet. Create your first board to get started!
           </Typography>
         </div>
+      ) : (
+        <Grid container spacing={3}>
+          {boards.map((board) => (
+            <Grid item xs={12} sm={6} md={4} lg={3} key={board._id}>
+              <Card
+                className='h-full cursor-pointer hover:shadow-lg transition-shadow'
+                onClick={() => handleOpenBoard(board._id)}
+              >
+                <CardContent>
+                  <Typography variant='h6' noWrap>
+                    {board.title || "Untitled"}
+                  </Typography>
+                  <Typography color='textSecondary' gutterBottom>
+                    Owner: {board.ownerId || "Unknown"}
+                  </Typography>
+                  <Typography variant='body2' color='textSecondary'>
+                    Created:{" "}
+                    {board.createdAt
+                      ? new Date(board.createdAt).toLocaleDateString()
+                      : "N/A"}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
       )}
+
+      {/* Create Board Dialog */}
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+        <DialogTitle>Create New Board</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin='dense'
+            label='Board Name'
+            type='text'
+            fullWidth
+            value={boardTitle}
+            onChange={(e) => setBoardTitle(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
+          <Button onClick={handleCreateBoard} disabled={creating}>
+            {creating ? "Creating..." : "Create"}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

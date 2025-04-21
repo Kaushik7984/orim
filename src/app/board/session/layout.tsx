@@ -1,5 +1,5 @@
 "use client";
-import { BoardProvider } from "@/context/BoardContext";
+import { BoardProvider } from "@/context/BoardContext/BoardProvider";
 
 export default function BoardSessionLayout({
   children,
@@ -8,9 +8,9 @@ export default function BoardSessionLayout({
 }) {
   return (
     <BoardProvider>
-      <section className="w-screen h-screen bg-white overflow-hidden">
+      <section className='w-screen h-screen bg-white overflow-hidden'>
         {children}
       </section>
     </BoardProvider>
   );
-} 
+}

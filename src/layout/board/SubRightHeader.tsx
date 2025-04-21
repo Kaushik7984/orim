@@ -17,9 +17,8 @@ import {
 } from "@mui/material";
 import { useContext, useState, useEffect } from "react";
 import { Nunito } from "next/font/google";
-import { BoardContext } from "@/context/BoardContext";
+import BoardContext from "@/context/BoardContext/BoardContext";
 import { useAuth } from "@/context/AuthContext";
-import { Bolt } from "@/svgs/index.svg";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import LogoutIcon from "@mui/icons-material/Logout";
 import LoginIcon from "@mui/icons-material/Login";

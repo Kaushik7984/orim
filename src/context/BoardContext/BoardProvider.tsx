@@ -46,7 +46,8 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       setLoading(true);
       const response = await boardAPI.getAllBoards();
-      setBoards(response.data);
+      console.log("response from provider", response);
+      setBoards(response);
     } catch (err) {
       setError("Failed to load boards");
     } finally {
@@ -58,9 +59,11 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       setLoading(true);
       const response = await boardAPI.getBoard(id);
-      setCurrentBoard(response.data);
-    } catch (err) {
-      setError("Failed to load board");
+      setCurrentBoard(response);
+    } catch (err: any) {
+      console.error("Load board error", err);
+      setError(err?.response?.data?.message || "Board not found");
+      setCurrentBoard(null);
     } finally {
       setLoading(false);
     }
@@ -70,8 +73,8 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       setLoading(true);
       const response = await boardAPI.updateBoard(id, data);
-      setBoards((prev) => prev.map((b) => (b._id === id ? response.data : b)));
-      if (currentBoard?._id === id) setCurrentBoard(response.data);
+      setBoards((prev) => prev.map((b) => (b._id === id ? response : b)));
+      if (currentBoard?._id === id) setCurrentBoard(response);
     } catch (err) {
       setError("Failed to update board");
     } finally {
@@ -107,7 +110,7 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
           imageUrl: "",
         });
 
-        const newBoard = response.data;
+        const newBoard = response;
         setBoardId(newBoard._id);
         setBoardName(title);
 
@@ -131,8 +134,8 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
 
     try {
       const response = await boardAPI.getBoard(boardId);
-      if (editor && response.data?.imageUrl) {
-        editor.canvas.loadFromJSON(JSON.parse(response.data.imageUrl), () => {
+      if (editor && response?.imageUrl) {
+        editor.canvas.loadFromJSON(JSON.parse(response.imageUrl), () => {
           editor.canvas.renderAll();
         });
       }
@@ -147,7 +150,6 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const handleCanvasModified = () => {
-    // You can implement this to trigger save/throttle events, etc.
     console.log("Canvas was modified");
   };
 
