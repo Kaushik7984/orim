@@ -21,30 +21,30 @@ import AddIcon from "@mui/icons-material/Add";
 const Dashboard = () => {
   const { boards, loading, error, createBoard, loadBoards } = useBoard();
   const router = useRouter();
+
   const [creating, setCreating] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const [boardTitle, setBoardTitle] = useState("");
 
-  useEffect(() => {
-    loadBoards();
-  }, []);
+  // useEffect(() => {
+  //   loadBoards();
+  // }, []);
 
   const handleCreateBoard = async () => {
-    if (!boardTitle) return;
+    if (!boardTitle.trim()) return;
+    if (creating) return; // Prevent multiple clicks
 
     setCreating(true);
-
     try {
-      const newBoard = await createBoard(boardTitle);
-      if (newBoard?._id) {
-        router.push(`/board/${newBoard._id}`);
-      }
+      const newBoard = await createBoard(boardTitle.trim());
+      console.log("Created board from Dashboard:", newBoard);
+      setOpenDialog(false);
+      setBoardTitle("");
+      router.push(`/board/${newBoard._id}`);
     } catch (err) {
       console.error("Failed to create board:", err);
     } finally {
       setCreating(false);
-      setOpenDialog(false);
-      setBoardTitle("");
     }
   };
 

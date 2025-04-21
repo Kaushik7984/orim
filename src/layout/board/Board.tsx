@@ -9,7 +9,7 @@ import {
   connectSocket,
   disconnectSocket,
   emitBoardUpdate,
-  joinBoard as socketJoinBoard,
+  // joinBoard as socketJoinBoard,
   onBoardUpdate,
   offBoardUpdate,
 } from "@/lib/socket";
@@ -38,7 +38,7 @@ const Board = ({ boardId: initialBoardId }: BoardProps) => {
     setEditor,
     boardId,
     setBoardId,
-    joinBoard,
+    // joinBoard,
     createBoard,
   } = boardContext;
 
@@ -49,7 +49,7 @@ const Board = ({ boardId: initialBoardId }: BoardProps) => {
     if (!initialBoardId) return;
 
     setBoardId(initialBoardId);
-    joinBoard();
+    // joinBoard();
   }, [initialBoardId]);
 
   // Setup editor on load
@@ -104,7 +104,7 @@ const Board = ({ boardId: initialBoardId }: BoardProps) => {
     if (!editor || !initialBoardId) return;
 
     connectSocket();
-    socketJoinBoard(initialBoardId);
+    // socketJoinBoard(initialBoardId);
 
     const handleDrawBroadcast = (content: any) => {
       const { path } = content;

@@ -47,11 +47,11 @@ export interface BoardContextType {
     isPublic?: boolean
   ) => Promise<Board>;
 
-  updateBoard: (id: string, data: Partial<Board>) => Promise<void>;
+  updateBoard: (id: string, data: Partial<Board>) => Promise<Board>;
   deleteBoard: (id: string) => Promise<void>;
   loadBoards: () => Promise<void>;
   loadBoard: (id: string) => Promise<void>;
-  updateCanvasData: (id: string, canvasData: any) => Promise<void>;
+  updateCanvasData: (id: string, canvasData: any) => Promise<Board>;
 
   setCurrentBoard: (board: Board | null) => void;
 
@@ -72,7 +72,7 @@ export interface BoardContextType {
   username: string;
   setUsername: (username: string) => void;
 
-  joinBoard: () => Promise<void>;
+  // joinBoard: () => Promise<void>;
   newJoin: string;
   setNewJoin: (username: string) => void;
 

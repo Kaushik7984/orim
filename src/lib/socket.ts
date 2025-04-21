@@ -36,10 +36,10 @@ export const disconnectSocket = () => {
   if (socket?.connected) socket.disconnect();
 };
 
-export const joinBoard = (boardId: string) => {
-  const socket = getSocket();
-  socket?.emit("join-board", boardId);
-};
+// export const joinBoard = (boardId: string) => {
+//   const socket = getSocket();
+//   socket?.emit("join-board", boardId);
+// };
 
 export const emitBoardUpdate = (boardId: string, content: any) => {
   const socket = getSocket();
