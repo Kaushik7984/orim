@@ -15,7 +15,7 @@ export default function DashboardLayout({
         sx={{
           display: "flex",
           minHeight: "100vh",
-          pt: "56px", // Height of the header
+          pt: "56px",
         }}
       >
         <DashboardSidebar />
@@ -23,7 +23,7 @@ export default function DashboardLayout({
           component='main'
           sx={{
             flexGrow: 1,
-            bgcolor: "#f8fafc",
+            bgcolor: "#faf9f6db",
             minHeight: "100vh",
           }}
         >

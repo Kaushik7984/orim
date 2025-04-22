@@ -10,7 +10,7 @@ import DebugToken from "@/components/DebugToken";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "ORIUM Board",
+  title: "ORIM Board",
   description: "Collaborative whiteboard application",
 };
 
@@ -25,16 +25,11 @@ export default function RootLayout({
         <AuthProvider>
           <BoardProvider>
             <div className='flex flex-col h-full'>
-              {/* Header - uncomment when ready */}
-              {/* <Header /> */}
+              <main className='flex-1 overflow-auto '>{children}</main>
 
-              {/* Main content area that will scroll */}
-              <main className='flex-1 overflow-auto'>{children}</main>
-
-              {/* Chat widget */}
               <ChatWidget />
 
-              <DebugToken />
+              {/* <DebugToken /> */}
             </div>
           </BoardProvider>
         </AuthProvider>

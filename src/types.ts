@@ -11,9 +11,9 @@ export interface Board {
   _id: string;
   id: string;
   title: string;
-  description?: string;
   isPublic: boolean;
   ownerId: string;
+  ownerEmail: string;
   createdAt: string;
   updatedAt: string;
   canvasData?: any;
@@ -32,6 +32,12 @@ export interface CreateBoardDto {
 // Props for sidebar tools using Fabric
 export interface FabricSidebarProps {
   editor: FabricJSEditor | undefined;
+}
+
+export interface FabricHeaderProps {
+  zoomLevel: number;
+  onZoomIn: () => void;
+  onZoomOut: () => void;
 }
 
 // The complete BoardContext type
@@ -72,7 +78,7 @@ export interface BoardContextType {
   username: string;
   setUsername: (username: string) => void;
 
-  // joinBoard: () => Promise<void>;
+  joinBoard: () => Promise<void>;
   newJoin: string;
   setNewJoin: (username: string) => void;
 

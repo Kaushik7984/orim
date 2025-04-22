@@ -20,9 +20,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { useAuth } from "@/context/AuthContext";
-import InviteDialog from "@/components/InviteDialog";
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   backgroundColor: "#fff",
@@ -48,11 +46,9 @@ const StyledSearchInput = styled(TextField)(({ theme }) => ({
 }));
 
 const Header = () => {
-  const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -67,31 +63,10 @@ const Header = () => {
       await logout();
       router.push("/auth/login");
     } catch (error) {
-      // Handle logout error silently
       console.error("Error logging out:", error);
     }
     handleClose();
   };
-
-  // Use hardcoded board ID for testing
-  const boardId = "68025d0cee95404ae666a0f2";
-
-  // Extract boardId from different possible URL patterns
-  // let boardId = null;
-
-  // Check for /board/session/[board_id] pattern
-  // if (pathname.startsWith("/board/session/")) {
-  //   const parts = pathname.split("/");
-  //   boardId = parts[3]; // The board_id is at index 3
-  // }
-  // // Check for /board/[boardId] pattern
-  // else if (pathname.startsWith("/board/")) {
-  //   const parts = pathname.split("/");
-  //   boardId = parts[2]; // The boardId is at index 2
-  // }
-
-  // Only show invite button and dialog when we have a valid board ID
-  const showInviteButton = boardId && boardId.length > 0;
 
   return (
     <StyledAppBar position='fixed'>
@@ -160,34 +135,6 @@ const Header = () => {
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           {user ? (
             <>
-              {showInviteButton && (
-                <Button
-                  variant='contained'
-                  onClick={() => setIsInviteDialogOpen(true)}
-                  sx={{
-                    bgcolor: "#fff",
-                    color: "#2563eb",
-                    "&:hover": { bgcolor: "#f1f1f1" },
-                    textTransform: "none",
-                    fontWeight: "normal",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 0.5,
-                  }}
-                >
-                  <PersonAddIcon sx={{ fontSize: 20 }} />
-                  Invite
-                </Button>
-              )}
-
-              {showInviteButton && (
-                <InviteDialog
-                  isOpen={isInviteDialogOpen}
-                  onClose={() => setIsInviteDialogOpen(false)}
-                  boardId={boardId}
-                />
-              )}
-
               <Button
                 variant='contained'
                 sx={{

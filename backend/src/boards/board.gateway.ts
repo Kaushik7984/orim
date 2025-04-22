@@ -1,4 +1,3 @@
-// src/boards/board.gateway.ts
 import {
   WebSocketGateway,
   WebSocketServer,
@@ -8,6 +7,7 @@ import {
   MessageBody,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { BoardsService } from './boards.service';
 
 @WebSocketGateway({
   cors: {
@@ -22,6 +22,8 @@ export class BoardGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private boardUsers: Map<string, Set<string>> = new Map(); // boardId -> userIds
   private socketToUser: Map<string, { boardId: string; userId: string }> =
     new Map();
+
+  constructor(private readonly boardsService: BoardsService) {}
 
   handleConnection(client: Socket) {
     console.log(`Client connected: ${client.id}`);
@@ -75,14 +77,21 @@ export class BoardGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('board:update')
-  handleBoardUpdate(
+  async handleBoardUpdate(
     client: Socket,
     @MessageBody() data: { boardId: string; content: any; userId: string },
   ) {
-    client.to(data.boardId).emit('board:update', {
-      content: data.content,
-      userId: data.userId,
+    const { boardId, content, userId } = data;
+
+    // Save the updated content to the database
+    await this.boardsService.updateBoard(boardId, { content }, userId);
+
+    // Emit the updated content to all users in the room
+    client.to(boardId).emit('board:update', {
+      content,
+      userId,
     });
-    console.log(`Board update from ${data.userId} on board ${data.boardId}`);
+
+    console.log(`Board update from ${userId} on board ${boardId}`);
   }
 }

@@ -18,15 +18,13 @@ export default function BoardPage() {
   const { loadBoard, currentBoard, loading, error } = useBoard();
   const [hasTried, setHasTried] = useState(false);
 
-  console.log(currentBoard);
-
   useEffect(() => {
     if (id && !hasTried) {
       (async () => {
         try {
           await loadBoard(id);
         } catch (err) {
-          console.error("❌ Board not found or failed to load:", err);
+          console.error("Board not found or failed to load:", err);
         } finally {
           setHasTried(true);
         }
@@ -34,18 +32,10 @@ export default function BoardPage() {
     }
   }, [id, hasTried, loadBoard]);
 
-  if (loading || !hasTried) {
+  if (loading || !currentBoard) {
     return (
       <div className='flex justify-center items-center h-screen'>
         <CircularProgress />
-      </div>
-    );
-  }
-
-  if (!currentBoard) {
-    return (
-      <div className='flex justify-center items-center h-screen text-red-500'>
-        ❌ Board not found
       </div>
     );
   }

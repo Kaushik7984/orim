@@ -64,7 +64,7 @@ export default function HomePage() {
           </p>
           <div className='mt-10 flex justify-center gap-4 flex-wrap'>
             <Link
-              href='/auth/login'
+              href='/dashboard'
               className='px-8 py-4 bg-blue-600 text-white text-lg rounded-lg hover:bg-blue-700 transition shadow-md'
             >
               Get started

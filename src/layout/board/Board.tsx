@@ -9,7 +9,7 @@ import {
   connectSocket,
   disconnectSocket,
   emitBoardUpdate,
-  // joinBoard as socketJoinBoard,
+  joinBoard as socketJoinBoard,
   onBoardUpdate,
   offBoardUpdate,
 } from "@/lib/socket";
@@ -34,11 +34,10 @@ const Board = ({ boardId: initialBoardId }: BoardProps) => {
 
   const {
     setBoardName,
-    newJoin,
     setEditor,
     boardId,
     setBoardId,
-    // joinBoard,
+    joinBoard,
     createBoard,
   } = boardContext;
 
@@ -49,7 +48,7 @@ const Board = ({ boardId: initialBoardId }: BoardProps) => {
     if (!initialBoardId) return;
 
     setBoardId(initialBoardId);
-    // joinBoard();
+    joinBoard();
   }, [initialBoardId]);
 
   // Setup editor on load
@@ -104,7 +103,7 @@ const Board = ({ boardId: initialBoardId }: BoardProps) => {
     if (!editor || !initialBoardId) return;
 
     connectSocket();
-    // socketJoinBoard(initialBoardId);
+    socketJoinBoard(initialBoardId);
 
     const handleDrawBroadcast = (content: any) => {
       const { path } = content;
@@ -129,14 +128,14 @@ const Board = ({ boardId: initialBoardId }: BoardProps) => {
   }, [editor, initialBoardId]);
 
   // Create board if it doesn't exist
-  useEffect(() => {
-    if (!boardCreated && boardNameFromPath) {
-      setBoardName(boardNameFromPath);
-      createBoard(boardNameFromPath)
-        .then(() => setBoardCreated(true))
-        .catch(console.error);
-    }
-  }, [boardNameFromPath, boardCreated]);
+  // useEffect(() => {
+  //   if (!boardCreated && boardNameFromPath) {
+  //     setBoardName(boardNameFromPath);
+  //     createBoard(boardNameFromPath)
+  //       .then(() => setBoardCreated(true))
+  //       .catch(console.error);
+  //   }
+  // }, [boardNameFromPath, boardCreated]);
 
   // Zoom
   const handleZoomIn = () => {
@@ -161,7 +160,7 @@ const Board = ({ boardId: initialBoardId }: BoardProps) => {
         onZoomOut={handleZoomOut}
       />
       <div className='flex flex-1'>
-        <FabricSidebar />
+        <FabricSidebar editor={editor} />
         <div className='flex-1 bg-white'>
           <FabricJSCanvas className='h-full w-full' onReady={onReady} />
         </div>

@@ -9,6 +9,9 @@ export class Board extends Document {
   @Prop({ required: true })
   ownerId: string;
 
+  @Prop({ required: true })
+  ownerEmail: string;
+
   @Prop({ type: Object, default: {} })
   content: any;
 

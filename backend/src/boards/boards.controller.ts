@@ -21,7 +21,7 @@ export class BoardsController {
 
   @Post()
   create(@CurrentUser() user: any, @Body() dto: CreateBoardDto) {
-    return this.boardsService.createBoard(user.uid, dto);
+    return this.boardsService.createBoard(user.uid, user.email, dto);
   }
 
   @Get()
@@ -35,8 +35,12 @@ export class BoardsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateBoardDto) {
-    return this.boardsService.updateBoard(id, dto);
+  update(
+    @Param('id') id: string,
+    @Body() dto: UpdateBoardDto,
+    @CurrentUser() user: any,
+  ) {
+    return this.boardsService.updateBoard(id, dto, user.uid);
   }
 
   @Delete(':id')
