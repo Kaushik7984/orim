@@ -6,6 +6,9 @@ export class UpdateBoardDto {
   title?: string;
 
   @IsOptional()
+  canvasData: any;
+
+  @IsOptional()
   content?: any;
 
   @IsOptional()

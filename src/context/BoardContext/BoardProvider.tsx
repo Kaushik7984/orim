@@ -40,12 +40,10 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
   useBoardSocket(user, (board) => setCurrentBoard(board), setNewJoin);
   useBoardAutoSave(editor, boardId);
 
-  //Show all boards
   const loadBoards = async () => {
     try {
       setLoading(true);
       const response = await boardAPI.getAllBoards();
-      console.log("BoardProvider: Loaded boards", response);
       setBoards(response);
     } catch (err) {
       console.error("BoardProvider: Failed to load boards", err);
@@ -55,12 +53,10 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // show board by id
   const loadBoard = async (id: string) => {
     try {
       setLoading(true);
       const response = await boardAPI.getBoard(id);
-      console.log("BoardProvider: Loaded board", response);
       setCurrentBoard(response);
       setBoardId(response._id);
       setBoardName(response.title);
@@ -73,7 +69,6 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // create board
   const createBoard = useCallback(
     async (title: string) => {
       if (!user) throw new Error("User not authenticated");
@@ -82,49 +77,19 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
 
       try {
         const response = await boardAPI.createBoard(boardData);
-        console.log("BoardProvider: Created board", response);
-
         setBoards((prev) => [response, ...prev]);
         setBoardId(response._id);
         setBoardName(response.title);
-        setCurrentBoard(response); // Open the new board immediately
-
+        setCurrentBoard(response);
         return response;
       } catch (err) {
         console.error("BoardProvider: Create board error", err);
+        setError("Failed to create board");
         throw err;
       }
     },
     [user]
   );
-
-  //update board by id
-  // const updateBoard = async (id: string, data: Partial<Board>) => {
-  //   try {
-  //     setLoading(true);
-  //     const response = await boardAPI.updateBoard(id, data);
-  //     setBoards((prev) => prev.map((b) => (b._id === id ? response : b)));
-  //     if (currentBoard?._id === id) setCurrentBoard(response);
-  //   } catch (err) {
-  //     setError("Failed to update board");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  // delete board by id
-  const deleteBoard = async (id: string) => {
-    try {
-      setLoading(true);
-      await boardAPI.deleteBoard(id);
-      setBoards((prev) => prev.filter((b) => b._id !== id));
-      if (currentBoard?._id === id) setCurrentBoard(null);
-    } catch (err) {
-      setError("Failed to delete board");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const updateBoard = async (id: string, data: Partial<Board>) => {
     try {
@@ -146,13 +111,30 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const deleteBoard = async (id: string) => {
+    try {
+      setLoading(true);
+      await boardAPI.deleteBoard(id);
+      setBoards((prev) => prev.filter((b) => b._id !== id));
+      if (currentBoard?._id === id) setCurrentBoard(null);
+    } catch (err) {
+      console.error("Failed to delete board", err);
+      setError("Failed to delete board");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const joinBoard = async () => {
     if (!boardId || !user) return;
 
     try {
       const response = await boardAPI.getBoard(boardId);
-      if (editor && response?.imageUrl) {
-        editor.canvas.loadFromJSON(JSON.parse(response.imageUrl), () => {
+      console.log("Join board response", response);
+
+      if (editor && response?.canvasData) {
+        console.log("Loading canvas data into editor", { editor });
+        editor.canvas.loadFromJSON(JSON.parse(response.canvasData), () => {
           editor.canvas.renderAll();
         });
       }
@@ -163,6 +145,7 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
       });
     } catch (err) {
       console.error("Join board error:", err);
+      setError("Failed to join the board");
     }
   };
 
@@ -181,8 +164,8 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
         loading,
         error,
         createBoard,
-        updateBoard: boardAPI.updateBoard,
-        deleteBoard: boardAPI.deleteBoard,
+        updateBoard,
+        deleteBoard,
         loadBoards,
         loadBoard,
         setCurrentBoard,
@@ -194,7 +177,7 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
         editor,
         setEditor,
         user: user || undefined,
-        joinBoard: async () => Promise.resolve(),
+        joinBoard,
         newJoin,
         setNewJoin,
         addCircle,

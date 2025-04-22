@@ -6,6 +6,11 @@ export interface AppUser extends FirebaseUser {
   displayName: string | null;
 }
 
+export interface BoardContent {
+  path: any;
+  canvasData: fabric.ICanvasOptions;
+}
+
 // Board model from backend
 export interface Board {
   _id: string;

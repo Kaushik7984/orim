@@ -30,14 +30,12 @@ export const boardAPI = {
   getAllBoards: async (): Promise<Board[]> => {
     const config = await getAuthHeaders();
     const response = await axios.get<Board[]>(`${BASE_URL}/boards`, config);
-    console.log("API: All boards:", response.data);
     return response.data;
   },
 
   getBoard: async (id: string): Promise<Board> => {
     const config = await getAuthHeaders();
     const response = await axios.get<Board>(`${BASE_URL}/boards/${id}`, config);
-    console.log("API: Get board:", response.data);
     return response.data;
   },
 
@@ -48,7 +46,6 @@ export const boardAPI = {
       data,
       config
     );
-    console.log("API: Create board:", response.data);
     return response.data;
   },
 
@@ -59,14 +56,13 @@ export const boardAPI = {
       data,
       config
     );
-    console.log("API: Update board:", response.data);
+    // console.log(`API: Updated board ${id}`, response.data);
     return response.data;
   },
 
   deleteBoard: async (id: string): Promise<void> => {
     const config = await getAuthHeaders();
     await axios.delete(`${BASE_URL}/boards/${id}`, config);
-    console.log(`API: Deleted board ${id}`);
   },
 
   updateCanvas: async (id: string, canvasData: any): Promise<void> => {

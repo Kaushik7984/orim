@@ -9,41 +9,47 @@ export const useBoardSocket = (
   setNewJoin: (username: string) => void
 ) => {
   useEffect(() => {
-    const setup = async () => {
-      if (user) {
-        const token = await user.getIdToken();
-        const socket = getSocket();
+    let socket = getSocket();
 
-        if (socket) {
+    const setupSocket = async () => {
+      if (user && socket && !socket.connected) {
+        try {
+          const token = await user.getIdToken();
           socket.auth = { token };
           socket.connect();
+        } catch (err) {
+          console.error("Failed to connect socket:", err);
         }
       }
     };
 
-    setup();
+    setupSocket();
 
     return () => {
-      const socket = getSocket();
-      if (socket) socket.disconnect();
+      if (socket?.connected) {
+        socket.disconnect();
+      }
     };
   }, [user]);
 
   useEffect(() => {
     const socket = getSocket();
-
     if (!socket) return;
 
-    const handleUpdate = (updatedBoard: Board) => setCurrentBoard(updatedBoard);
-    const handleJoin = ({ username }: { username: string }) =>
-      setNewJoin(username);
+    const handleBoardUpdate = (updatedBoard: Board) => {
+      setCurrentBoard(updatedBoard);
+    };
 
-    socket.on("board-update", handleUpdate);
-    socket.on("user-joined", handleJoin);
+    const handleUserJoined = ({ username }: { username: string }) => {
+      setNewJoin(username);
+    };
+
+    socket.on("board-update", handleBoardUpdate);
+    socket.on("user-joined", handleUserJoined);
 
     return () => {
-      socket.off("board-update", handleUpdate);
-      socket.off("user-joined", handleJoin);
+      socket.off("board-update", handleBoardUpdate);
+      socket.off("user-joined", handleUserJoined);
     };
-  }, []);
+  }, [setCurrentBoard, setNewJoin]);
 };

@@ -33,17 +33,24 @@ export class BoardGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const userData = this.socketToUser.get(client.id);
     if (userData) {
       const { boardId, userId } = userData;
-      this.boardUsers.get(boardId)?.delete(userId);
+      const users = this.boardUsers.get(boardId);
+      if (users) {
+        users.delete(userId);
+        if (users.size === 0) {
+          this.boardUsers.delete(boardId);
+        }
+      }
       client.to(boardId).emit('board:user-left', { userId });
-      console.log(`Cleaned up user ${userId} from board ${boardId}`);
       this.socketToUser.delete(client.id);
+
+      console.log(`Cleaned up user ${userId} from board ${boardId}`);
     }
 
     console.log(`Client disconnected: ${client.id}`);
   }
 
   @SubscribeMessage('board:join')
-  handleJoinBoard(
+  async handleJoinBoard(
     client: Socket,
     @MessageBody() data: { boardId: string; userId: string },
   ) {
@@ -57,7 +64,15 @@ export class BoardGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.boardUsers.get(boardId)?.add(userId);
     this.socketToUser.set(client.id, { boardId, userId });
 
+    // Notify others
     client.to(boardId).emit('board:user-joined', { userId });
+
+    // Send existing canvas state to joining user
+    const board = await this.boardsService.findBoardById(boardId);
+    if (board?.canvasData) {
+      client.emit('board:sync', board.canvasData);
+    }
+
     client.emit('board:joined-successfully', { boardId });
 
     console.log(`User ${userId} joined board ${boardId}`);
@@ -69,7 +84,13 @@ export class BoardGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() data: { boardId: string; userId: string },
   ) {
     client.leave(data.boardId);
-    this.boardUsers.get(data.boardId)?.delete(data.userId);
+    const users = this.boardUsers.get(data.boardId);
+    if (users) {
+      users.delete(data.userId);
+      if (users.size === 0) {
+        this.boardUsers.delete(data.boardId);
+      }
+    }
     this.socketToUser.delete(client.id);
 
     client.to(data.boardId).emit('board:user-left', { userId: data.userId });
@@ -79,18 +100,31 @@ export class BoardGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('board:update')
   async handleBoardUpdate(
     client: Socket,
-    @MessageBody() data: { boardId: string; content: any; userId: string },
+    @MessageBody()
+    data: { boardId: string; content: any; canvasData: any; userId: string },
   ) {
-    const { boardId, content, userId } = data;
+    const { boardId, content, canvasData, userId } = data;
 
-    // Save the updated content to the database
-    await this.boardsService.updateBoard(boardId, { content }, userId);
+    // Save the update to DB
+    await this.boardsService.updateBoard(
+      boardId,
+      { content, canvasData },
+      userId,
+    );
 
-    // Emit the updated content to all users in the room
+    // Broadcast to others
     client.to(boardId).emit('board:update', {
       content,
+      canvasData,
       userId,
     });
+
+    // Save canvasData to DB if necessary
+    const board = await this.boardsService.getBoardById(boardId);
+    if (board?.canvasData) {
+      // Send the updated board data to the user who made the update
+      client.emit('board:sync', board.canvasData);
+    }
 
     console.log(`Board update from ${userId} on board ${boardId}`);
   }
