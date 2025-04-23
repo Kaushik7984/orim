@@ -40,7 +40,7 @@ export class BoardsController {
     @Body() dto: UpdateBoardDto,
     @CurrentUser() user: any,
   ) {
-    return this.boardsService.updateBoard(id, dto, user.uid);
+    return this.boardsService.updateBoard(id, dto);
   }
 
   @Delete(':id')

@@ -1,5 +1,6 @@
 import { FabricJSEditor } from "fabricjs-react";
 import { User as FirebaseUser } from "firebase/auth";
+import { fabric } from "fabric"; // Needed for fabric.ICanvasOptions
 
 // Extend Firebase user type
 export interface AppUser extends FirebaseUser {
@@ -7,7 +8,7 @@ export interface AppUser extends FirebaseUser {
 }
 
 export interface BoardContent {
-  path: any;
+  path: string;
   canvasData: fabric.ICanvasOptions;
 }
 
@@ -21,7 +22,7 @@ export interface Board {
   ownerEmail: string;
   createdAt: string;
   updatedAt: string;
-  canvasData?: any;
+  canvasData?: fabric.ICanvasOptions;
   imageUrl?: string;
 }
 
@@ -43,6 +44,7 @@ export interface FabricHeaderProps {
   zoomLevel: number;
   onZoomIn: () => void;
   onZoomOut: () => void;
+  // resetZoom: () => void;
 }
 
 // The complete BoardContext type
@@ -62,7 +64,10 @@ export interface BoardContextType {
   deleteBoard: (id: string) => Promise<void>;
   loadBoards: () => Promise<void>;
   loadBoard: (id: string) => Promise<void>;
-  updateCanvasData: (id: string, canvasData: any) => Promise<Board>;
+  // updateCanvasData: (
+  //   id: string,
+  //   canvasData: fabric.ICanvasOptions
+  // ) => Promise<Board>;
 
   setCurrentBoard: (board: Board | null) => void;
 
@@ -98,4 +103,11 @@ export interface BoardContextType {
   addPolygon: () => void;
   addTextbox: (color: string) => void;
   addPen: () => void;
+
+  // Zoom & Pan
+  zoomLevel: number;
+  setZoomLevel: (level: number) => void;
+  enablePanMode: () => void;
+  disablePanMode: () => void;
+  isPanning: boolean;
 }

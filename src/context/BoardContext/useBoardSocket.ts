@@ -9,7 +9,7 @@ export const useBoardSocket = (
   setNewJoin: (username: string) => void
 ) => {
   useEffect(() => {
-    let socket = getSocket();
+    const socket = getSocket();
 
     const setupSocket = async () => {
       if (user && socket && !socket.connected) {
@@ -24,6 +24,16 @@ export const useBoardSocket = (
     };
 
     setupSocket();
+
+    // Handle socket disconnection and attempt reconnection
+    socket?.on("disconnect", () => {
+      console.log("Socket disconnected. Attempting to reconnect...");
+      setupSocket();
+    });
+
+    socket?.on("reconnect", () => {
+      console.log("Socket reconnected.");
+    });
 
     return () => {
       if (socket?.connected) {
@@ -44,8 +54,17 @@ export const useBoardSocket = (
       setNewJoin(username);
     };
 
+    // Emit board updates (for example, when a user draws or moves an object)
+    const emitBoardUpdate = (updatedBoardData: Board) => {
+      socket.emit("board-update", updatedBoardData);
+    };
+
     socket.on("board-update", handleBoardUpdate);
     socket.on("user-joined", handleUserJoined);
+
+    // Example of emitting an update when something changes on the board
+    // You would call emitBoardUpdate whenever board data changes (e.g., when drawing a shape, adding text, etc.)
+    // emitBoardUpdate(updatedBoard);
 
     return () => {
       socket.off("board-update", handleBoardUpdate);

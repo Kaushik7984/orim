@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   UnauthorizedException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -41,38 +42,23 @@ export class BoardsService {
     return board;
   }
 
-  // Update a board (make sure canvasData is properly updated)
-  async updateBoard(boardId: string, dto: UpdateBoardDto, userId: string) {
+  // Update a board
+  async updateBoard(boardId: string, dto: UpdateBoardDto): Promise<Board> {
     const board = await this.boardModel.findById(boardId);
     if (!board) throw new NotFoundException('Board not found');
 
-    // Check if the user is the owner or a collaborator
-    if (board.ownerId !== userId && !board.collaborators.includes(userId)) {
-      throw new UnauthorizedException(
-        'You do not have permission to update this board',
-      );
+    // Ensure canvasData is valid
+    if (dto.canvasData && typeof dto.canvasData !== 'object') {
+      throw new BadRequestException('Invalid canvas data format');
     }
 
-    // Update the content if provided
-    if (dto.content) {
-      board.content = dto.content;
-    }
-
-    // Update canvas data if provided
+    // Update canvasData if provided
     if (dto.canvasData) {
       board.canvasData = dto.canvasData;
     }
 
-    if (dto.title !== undefined) {
-      board.title = dto.title;
-    }
-
-    if (dto.collaborators !== undefined) {
-      board.collaborators = dto.collaborators;
-    }
-
-    await board.save(); // Save the updated board state
-    return board;
+    // Save the updated board
+    return await board.save();
   }
 
   // Delete a board

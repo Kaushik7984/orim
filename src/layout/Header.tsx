@@ -68,6 +68,10 @@ const Header = () => {
     handleClose();
   };
 
+  const handleJoinBoard = () => {
+    router.push("/board/join-board");
+  };
+
   return (
     <StyledAppBar position='fixed'>
       <Toolbar sx={{ minHeight: "56px !important" }}>
@@ -135,6 +139,22 @@ const Header = () => {
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           {user ? (
             <>
+              <Button
+                onClick={handleJoinBoard}
+                variant='outlined'
+                sx={{
+                  textTransform: "none",
+                  fontWeight: "normal",
+                  borderColor: "#2563eb",
+                  color: "#2563eb",
+                  "&:hover": {
+                    borderColor: "#1d4ed8",
+                    backgroundColor: "rgba(37, 99, 235, 0.04)",
+                  },
+                }}
+              >
+                Join Board
+              </Button>
               <Button
                 variant='contained'
                 sx={{

@@ -26,6 +26,13 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
   const [path, setPath] = useState<string>("");
   const [username, setUsername] = useState<string>(user?.displayName || "");
 
+  // Zoom and Pan States
+  const [zoomLevel, setZoomLevel] = useState<number>(1);
+  const [isPanning, setIsPanning] = useState<boolean>(false);
+
+  const enablePanMode = () => setIsPanning(true);
+  const disablePanMode = () => setIsPanning(false);
+
   const {
     addCircle,
     addRectangle,
@@ -37,8 +44,9 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     addPen,
   } = useShapes(editor, boardId);
 
+  // Initialize Socket for real-time updates
   useBoardSocket(user, (board) => setCurrentBoard(board), setNewJoin);
-  useBoardAutoSave(editor, boardId);
+  useBoardAutoSave(editor, boardId); // Auto save functionality will be validated next
 
   const loadBoards = async () => {
     try {
@@ -57,9 +65,23 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       setLoading(true);
       const response = await boardAPI.getBoard(id);
+
       setCurrentBoard(response);
       setBoardId(response._id);
       setBoardName(response.title);
+
+      if (response.canvasData && editor) {
+        const canvasData =
+          typeof response.canvasData === "string"
+            ? response.canvasData
+            : JSON.stringify(response.canvasData);
+
+        editor.canvas.loadFromJSON(canvasData, () => {
+          editor.canvas.renderAll();
+        });
+      } else {
+        console.log("Canvas data not found or editor not ready");
+      }
     } catch (err: any) {
       console.error("Load board error", err);
       setError(err?.response?.data?.message || "Board not found");
@@ -133,8 +155,12 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
       console.log("Join board response", response);
 
       if (editor && response?.canvasData) {
-        console.log("Loading canvas data into editor", { editor });
-        editor.canvas.loadFromJSON(JSON.parse(response.canvasData), () => {
+        const canvasData =
+          typeof response.canvasData === "string"
+            ? response.canvasData
+            : JSON.stringify(response.canvasData);
+
+        editor.canvas.loadFromJSON(canvasData, () => {
           editor.canvas.renderAll();
         });
       }
@@ -156,6 +182,13 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [user]);
 
+  // Wait for editor + boardId to load canvas
+  useEffect(() => {
+    if (editor && boardId) {
+      loadBoard(boardId);
+    }
+  }, [editor, boardId]);
+
   return (
     <BoardContext.Provider
       value={{
@@ -169,7 +202,6 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
         loadBoards,
         loadBoard,
         setCurrentBoard,
-        updateCanvasData: boardAPI.updateBoard,
         boardId,
         setBoardId,
         boardName,
@@ -193,6 +225,11 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
         username,
         setUsername,
         handleCanvasModified: () => console.log("Canvas modified"),
+        zoomLevel,
+        setZoomLevel,
+        enablePanMode,
+        disablePanMode,
+        isPanning,
       }}
     >
       {children}

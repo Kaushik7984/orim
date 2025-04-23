@@ -105,12 +105,13 @@ export class BoardGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     const { boardId, content, canvasData, userId } = data;
 
+    if (!canvasData) {
+      console.log('Canvas data is missing in the update');
+      return;
+    }
+
     // Save the update to DB
-    await this.boardsService.updateBoard(
-      boardId,
-      { content, canvasData },
-      userId,
-    );
+    await this.boardsService.updateBoard(boardId, { content, canvasData });
 
     // Broadcast to others
     client.to(boardId).emit('board:update', {
@@ -119,10 +120,9 @@ export class BoardGateway implements OnGatewayConnection, OnGatewayDisconnect {
       userId,
     });
 
-    // Save canvasData to DB if necessary
+    // Send the updated board data to the user who made the update
     const board = await this.boardsService.getBoardById(boardId);
     if (board?.canvasData) {
-      // Send the updated board data to the user who made the update
       client.emit('board:sync', board.canvasData);
     }
 

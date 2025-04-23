@@ -19,12 +19,13 @@ export const getSocket = () => {
     });
 
     // Optional debug logs
+    socket.on("connect_error", (err) => {
+      console.error("Socket connection error:", err);
+    });
+
     if (process.env.NODE_ENV === "development") {
       socket.on("connect", () => console.log("✅ Connected to socket"));
       socket.on("disconnect", () => console.log("❌ Disconnected from socket"));
-      socket.on("connect_error", (err) =>
-        console.error("Socket connection error:", err)
-      );
     }
   }
 
@@ -70,10 +71,15 @@ export const onBoardUpdate = (callback: (content: any) => void) => {
   const socket = getSocket();
   if (socket) {
     socket.on("board:update", callback);
+
+    // Return cleanup function for unsubscribing
+    return () => {
+      socket.off("board:update", callback);
+    };
   }
 };
 
-// Unsubscribe from board updates
+// Unsubscribe from board updates (not used directly, but included for clarity)
 export const offBoardUpdate = () => {
   const socket = getSocket();
   if (socket) {
