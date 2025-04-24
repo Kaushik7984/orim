@@ -75,6 +75,7 @@ export default function InviteDialog({
       };
 
       await api.post("/invitations", invitationData);
+      console.log("helo api", { api });
 
       toast.success("Invitation sent successfully!");
       onClose();

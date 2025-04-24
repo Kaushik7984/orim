@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { FabricJSEditor } from "fabricjs-react";
-import { boardAPI } from "@/utils/boardApi";
+import { boardAPI } from "@/lib/boardApi";
 
 export const useBoardAutoSave = (editor?: FabricJSEditor, boardId?: string) => {
   const lastCanvasDataRef = useRef<string>("");
@@ -20,7 +20,7 @@ export const useBoardAutoSave = (editor?: FabricJSEditor, boardId?: string) => {
             canvasData: JSON.parse(currentCanvasData),
           });
 
-          console.log("Canvas auto-saved.");
+          // console.log("Canvas auto-saved.");
         }
       } catch (err) {
         console.error("Auto-save failed:", err);

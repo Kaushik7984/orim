@@ -62,7 +62,7 @@ export default function RegisterPage() {
           p: 5,
           borderRadius: 2,
           width: "100%",
-          boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.05)",
+          boxShadow: "1px 1px 5px rgba(0, 0, 0, 0.3)",
         }}
       >
         <Box

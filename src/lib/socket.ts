@@ -24,8 +24,8 @@ export const getSocket = () => {
     });
 
     if (process.env.NODE_ENV === "development") {
-      socket.on("connect", () => console.log("✅ Connected to socket"));
-      socket.on("disconnect", () => console.log("❌ Disconnected from socket"));
+      socket.on("connect", () => console.log("Connected to socket"));
+      socket.on("disconnect", () => console.log("Disconnected from socket"));
     }
   }
 

@@ -8,7 +8,7 @@ export default function BoardSessionLayout({
 }) {
   return (
     <BoardProvider>
-      <section className='w-screen h-screen bg-white overflow-hidden'>
+      <section className='w-screen h-screen overflow-hidden'>
         {children}
       </section>
     </BoardProvider>

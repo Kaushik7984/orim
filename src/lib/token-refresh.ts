@@ -7,7 +7,7 @@ export const refreshToken = async () => {
     if (user) {
       const token = await user.getIdToken(true); // Force refresh
       localStorage.setItem("token", token);
-      console.log("Token refreshed and saved to localStorage");
+      // console.log("Token refreshed and saved to localStorage");
       return token;
     }
     return null;

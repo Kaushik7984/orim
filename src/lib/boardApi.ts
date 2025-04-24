@@ -78,7 +78,7 @@ export const boardAPI = {
         data,
         config
       );
-      console.log(`Board ${id} updated successfully`);
+      // console.log(`Board ${id} updated successfully`);
       return response.data;
     } catch (error) {
       console.error(`Failed to update board with ID ${id}`, error);

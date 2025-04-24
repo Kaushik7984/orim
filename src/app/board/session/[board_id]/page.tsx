@@ -30,7 +30,7 @@ export default function BoardPage({
       joinBoard(board_id);
 
       const handleBoardUpdate = (content: BoardContent) => {
-        console.log("Board content updated:", content);
+        // console.log("Board content updated:", content);
         // Call the board instance to update its content
         boardRef.current?.updateContent(content);
       };
