@@ -43,7 +43,7 @@ export class BoardGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.to(boardId).emit('board:user-left', { userId });
       this.socketToUser.delete(client.id);
 
-      console.log(`Cleaned up user ${userId} from board ${boardId}`);
+      // console.log(`Cleaned up user ${userId} from board ${boardId}`);
     }
 
     console.log(`Client disconnected: ${client.id}`);

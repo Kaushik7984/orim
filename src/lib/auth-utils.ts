@@ -18,7 +18,7 @@ export const ensureValidToken = async (): Promise<boolean> => {
 
     // Save to localStorage
     localStorage.setItem("token", token);
-    console.log("Token refreshed and saved to localStorage");
+    // console.log("Token refreshed and saved to localStorage");
 
     return true;
   } catch (error) {
@@ -45,7 +45,7 @@ export const getValidToken = async (): Promise<string | null> => {
 
     // Save to localStorage
     localStorage.setItem("token", token);
-    console.log("Token refreshed and saved to localStorage");
+    // console.log("Token refreshed and saved to localStorage");
 
     return token;
   } catch (error) {

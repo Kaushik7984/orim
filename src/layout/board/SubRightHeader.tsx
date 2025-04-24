@@ -17,7 +17,6 @@ import {
 } from "@mui/material";
 import { useContext, useState, useEffect } from "react";
 import { Nunito } from "next/font/google";
-import BoardContext from "@/context/BoardContext/BoardContext";
 import { useAuth } from "@/context/AuthContext";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -27,6 +26,7 @@ import ShareIcon from "@mui/icons-material/Share";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import InviteDialog from "@/components/InviteDialog";
 import { useRouter } from "next/navigation";
+import { useBoard } from "@/context/BoardContext/useBoard";
 
 const nunito = Nunito({
   subsets: ["latin-ext"],
@@ -62,16 +62,9 @@ const dummyMembers = [
 ];
 
 const SubRightHeader = () => {
-  const boardContext = useContext(BoardContext);
   const router = useRouter();
 
-  if (!boardContext) {
-    throw new Error(
-      "BoardContext is null. Ensure the provider is set up correctly."
-    );
-  }
-
-  const { createBoard } = boardContext;
+  const { currentBoard } = useBoard();
   const { user, logout } = useAuth();
   const [isPresenting, setIsPresenting] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -151,11 +144,13 @@ const SubRightHeader = () => {
       document.removeEventListener("fullscreenchange", onFullScreenChange);
   }, []);
 
-  // Use hardcoded board ID for testing
-  const boardId = "68025d0cee95404ae666a0f2";
+  const boardId = currentBoard?._id || "";
 
   return (
-    <div className='flex flex-row items-center h-12 px-4 bg-white border-b border-gray-200'>
+    <div
+      className='flex flex-row items-center h-12 px-4 bg-white border-b rounded-md mr-2 border-gray-200'
+      style={{ boxShadow: "1px 1px 5px rgba(0, 0, 0, 0.3)" }}
+    >
       {/* Left Section */}
       <div className='flex items-center space-x-2'>
         {items.map((item) => (

@@ -2,76 +2,209 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Avatar, IconButton, Menu, MenuItem } from "@mui/material";
 
 export default function HomePage() {
-  return (
-    <main className='min-h-screen bg-yellow-100 relative overflow-hidden'>
-      {/* Decorative Pattern (like Miro) */}
-      <div className='absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-purple-50 via-blue-50 to-white opacity-50'></div>
-      <div className='absolute -top-10 -left-10 w-96 h-96 bg-blue-100 rounded-full mix-blend-multiply blur-3xl opacity-30 animate-pulse'></div>
-      <div className='absolute -bottom-10 -right-10 w-96 h-96 bg-purple-100 rounded-full mix-blend-multiply blur-2xl opacity-40 animate-pulse delay-1000'></div>
+  const { user, logout } = useAuth();
+  const router = useRouter();
 
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      router.push("/auth/login");
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+    handleClose();
+  };
+
+  return (
+    <main className='min-h-screen bg-gradient-to-br from-violet-50 to-indigo-50 relative overflow-hidden'>
       {/* Header */}
-      <header className='sticky top-0 z-50 bg-white shadow-sm mx-40 my-10 rounded-lg'>
-        <div className='max-w-7xl mx-auto px-4 py-3 flex justify-between items-center'>
+      <header className='sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm'>
+        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between'>
           <div className='flex items-center gap-8'>
             <Link href='/'>
               <Image
                 src='/orim.svg'
                 alt='Logo'
-                width={40}
-                height={40}
-                className='cursor-pointer'
+                width={120}
+                height={120}
+                className='cursor-pointer hover:opacity-90 transition-opacity'
               />
             </Link>
 
             <nav className='hidden md:flex gap-6 text-sm text-gray-700 font-medium'>
-              <button className='hover:text-black'>Product ▾</button>
-              <button className='hover:text-black'>Solutions ▾</button>
-              <button className='hover:text-black'>Resources ▾</button>
-              <Link href='#' className='hover:text-black'>
+              <button className='hover:text-black transition-colors flex items-center gap-1 group'>
+                Product
+                <svg
+                  xmlns='http://www.w3.org/2000/svg'
+                  className='h-4 w-4 group-hover:translate-y-0.5 transition-transform'
+                  fill='none'
+                  viewBox='0 0 24 24'
+                  stroke='currentColor'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M19 9l-7 7-7-7'
+                  />
+                </svg>
+              </button>
+              <button className='hover:text-black transition-colors flex items-center gap-1 group'>
+                Solutions
+                <svg
+                  xmlns='http://www.w3.org/2000/svg'
+                  className='h-4 w-4 group-hover:translate-y-0.5 transition-transform'
+                  fill='none'
+                  viewBox='0 0 24 24'
+                  stroke='currentColor'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M19 9l-7 7-7-7'
+                  />
+                </svg>
+              </button>
+              <button className='hover:text-black transition-colors flex items-center gap-1 group'>
+                Resources
+                <svg
+                  xmlns='http://www.w3.org/2000/svg'
+                  className='h-4 w-4 group-hover:translate-y-0.5 transition-transform'
+                  fill='none'
+                  viewBox='0 0 24 24'
+                  stroke='currentColor'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M19 9l-7 7-7-7'
+                  />
+                </svg>
+              </button>
+              <Link href='#' className='hover:text-black transition-colors'>
                 Pricing
               </Link>
             </nav>
           </div>
 
           <div className='flex items-center gap-4 text-sm font-medium'>
-            <Link href='#' className='hover:underline'>
+            <Link
+              href='#'
+              className='hidden md:block text-gray-600 hover:text-black transition-colors'
+            >
               Contact Sales
             </Link>
-            <Link href='/auth/login' className='text-gray-700 hover:text-black'>
-              Login
-            </Link>
-            <Link
-              href='/auth/register'
-              className='bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition'
-            >
-              Sign up free
-            </Link>
+            {user ? (
+              <>
+                <IconButton size='small' onClick={handleMenu}>
+                  <Avatar
+                    sx={{
+                      width: 32,
+                      height: 32,
+                      bgcolor: "#4f46e5",
+                      fontSize: "0.875rem",
+                    }}
+                    src={user.photoURL || undefined}
+                  >
+                    {user.displayName?.charAt(0) || "U"}
+                  </Avatar>
+                </IconButton>
+                <Menu
+                  anchorEl={anchorEl}
+                  open={Boolean(anchorEl)}
+                  onClose={handleClose}
+                  anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "right",
+                  }}
+                  transformOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                  PaperProps={{
+                    elevation: 0,
+                    sx: {
+                      mt: 1,
+                      borderRadius: "0.5rem",
+                      minWidth: "180px",
+                      boxShadow:
+                        "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+                    },
+                  }}
+                >
+                  <MenuItem
+                    onClick={() => router.push("/profile")}
+                    sx={{ fontSize: "0.875rem" }}
+                  >
+                    Profile
+                  </MenuItem>
+                  <MenuItem
+                    onClick={handleLogout}
+                    sx={{ fontSize: "0.875rem" }}
+                  >
+                    Logout
+                  </MenuItem>
+                </Menu>
+              </>
+            ) : (
+              <div className='flex items-center gap-3'>
+                <Link
+                  href='/auth/login'
+                  className='text-gray-600 hover:text-black transition-colors'
+                >
+                  Login
+                </Link>
+                <Link
+                  href='/auth/register'
+                  className='bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-all shadow-sm hover:shadow-md'
+                >
+                  Sign up free
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </header>
 
       {/* Hero */}
-      <section className='relative py-28'>
+      <section className='relative py-20 md:py-28'>
         <div className='container mx-auto px-6 text-center max-w-4xl'>
-          <h1 className='text-5xl font-bold text-gray-900 leading-tight'>
-            Collaborate visually with your team in real time
+          <h1 className='text-4xl sm:text-5xl font-bold text-gray-900 leading-tight'>
+            Collaborate visually with your team in{" "}
+            <span className='text-indigo-600'>real time</span>
           </h1>
-          <p className='mt-6 text-lg text-gray-600'>
+          <p className='mt-6 text-lg text-gray-600 max-w-2xl mx-auto'>
             Brainstorm, plan, and design on a shared online whiteboard with
             seamless live collaboration.
           </p>
           <div className='mt-10 flex justify-center gap-4 flex-wrap'>
             <Link
               href='/dashboard'
-              className='px-8 py-4 bg-blue-600 text-white text-lg rounded-lg hover:bg-blue-700 transition shadow-md'
+              className='px-6 py-3 sm:px-8 sm:py-4 bg-indigo-600 text-white text-lg rounded-lg hover:bg-indigo-700 transition-all shadow-md hover:shadow-lg'
             >
               Get started
             </Link>
             <Link
               href='/demo'
-              className='px-8 py-4 border border-gray-300 text-lg rounded-lg text-gray-800 hover:bg-gray-100 transition'
+              className='px-6 py-3 sm:px-8 sm:py-4 border border-gray-300 text-lg rounded-lg text-gray-800 hover:bg-gray-50 transition-all shadow-sm hover:shadow-md'
             >
               Watch demo
             </Link>
@@ -79,55 +212,118 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Preview Image - Commented out until we have a valid image */}
-      {/* <section className='py-12'>
-        <div className='container flex items-center justify-center mx-auto px-6'>
-          <div className='rounded-xl overflow-hidden shadow-xl border border-gray-200'>
-            <Image
-              src='/whiteboard1.webp'
-              alt='Whiteboard'
-              width={1000}
-              height={200}
-            />
+      {/* Preview Image */}
+      <section className='py-12 px-4'>
+        <div className='container mx-auto'>
+          <div className='rounded-xl overflow-hidden shadow-2xl border border-gray-200 max-w-5xl mx-auto'>
+            <div className='aspect-video bg-gradient-to-r from-indigo-100 to-purple-100 flex items-center justify-center'>
+              <div className='text-center p-8'>
+                <svg
+                  className='w-20 h-20 mx-auto text-indigo-400'
+                  fill='none'
+                  stroke='currentColor'
+                  viewBox='0 0 24 24'
+                  xmlns='http://www.w3.org/2000/svg'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth='1.5'
+                    d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
+                  ></path>
+                </svg>
+                <h3 className='mt-4 text-xl font-medium text-gray-900'>
+                  Whiteboard Preview
+                </h3>
+                <p className='mt-2 text-gray-600'>
+                  Interactive collaboration space with real-time updates
+                </p>
+              </div>
+            </div>
           </div>
         </div>
-      </section> */}
+      </section>
 
       {/* Features */}
-      <section className='py-20 bg-gray-50'>
+      <section className='py-20 bg-white'>
         <div className='container mx-auto px-6'>
           <div className='text-center mb-16'>
-            <h2 className='text-4xl font-bold text-gray-900'>
+            <h2 className='text-3xl sm:text-4xl font-bold text-gray-900'>
               Built for teams that move fast
             </h2>
-            <p className='mt-4 text-lg text-gray-600'>
+            <p className='mt-4 text-lg text-gray-600 max-w-2xl mx-auto'>
               Tools and features to help you work better together.
             </p>
           </div>
-          <div className='grid md:grid-cols-3 gap-12'>
+          <div className='grid md:grid-cols-3 gap-8'>
             {[
               {
                 title: "Real-time Collaboration",
                 desc: "Instantly see everyone's updates, no refresh needed.",
-                icon: "https://img.icons8.com/fluency/48/synchronize.png",
+                icon: (
+                  <svg
+                    className='w-8 h-8 text-indigo-600'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                    xmlns='http://www.w3.org/2000/svg'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth='1.5'
+                      d='M13 10V3L4 14h7v7l9-11h-7z'
+                    ></path>
+                  </svg>
+                ),
               },
               {
                 title: "Templates Library",
                 desc: "100+ pre-made templates to kickstart your ideas.",
-                icon: "https://img.icons8.com/fluency/48/template.png",
+                icon: (
+                  <svg
+                    className='w-8 h-8 text-indigo-600'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                    xmlns='http://www.w3.org/2000/svg'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth='1.5'
+                      d='M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z'
+                    ></path>
+                  </svg>
+                ),
               },
               {
                 title: "Live Cursor & Chat",
                 desc: "Track teammates' cursors and chat live as you work.",
-                icon: "https://img.icons8.com/fluency/48/chat.png",
+                icon: (
+                  <svg
+                    className='w-8 h-8 text-indigo-600'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                    xmlns='http://www.w3.org/2000/svg'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth='1.5'
+                      d='M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z'
+                    ></path>
+                  </svg>
+                ),
               },
             ].map((f, i) => (
               <div
                 key={i}
-                className='bg-white p-8 rounded-xl shadow hover:shadow-md border transition'
+                className='bg-white p-6 rounded-xl shadow-sm hover:shadow-md border border-gray-100 transition-all hover:-translate-y-1'
               >
-                <div className='w-14 h-14 bg-blue-100 rounded-lg flex items-center justify-center mb-5'>
-                  <Image src={f.icon} alt={f.title} width={32} height={32} />
+                <div className='w-12 h-12 bg-indigo-50 rounded-lg flex items-center justify-center mb-5'>
+                  {f.icon}
                 </div>
                 <h3 className='text-xl font-semibold mb-2 text-gray-900'>
                   {f.title}
@@ -140,16 +336,16 @@ export default function HomePage() {
       </section>
 
       {/* Testimonials */}
-      <section className='py-20 bg-white'>
-        <div className='container mx-auto px-6 text-center max-w-3xl'>
+      <section className='py-20 bg-gray-50'>
+        <div className='container mx-auto px-6 text-center max-w-4xl'>
           <h2 className='text-3xl font-bold mb-10 text-gray-900'>
-            Trusted by teams at
+            Trusted by innovative teams worldwide
           </h2>
-          <div className='flex flex-wrap justify-center gap-8'>
+          <div className='flex flex-wrap justify-center gap-8 items-center'>
             {["Google", "Netflix", "Spotify", "Airbnb", "Uber"].map((brand) => (
               <div
                 key={brand}
-                className='text-gray-500 text-xl font-medium hover:text-gray-700 transition'
+                className='text-gray-500 text-xl font-medium hover:text-gray-700 transition-colors opacity-80 hover:opacity-100'
               >
                 {brand}
               </div>
@@ -159,17 +355,17 @@ export default function HomePage() {
       </section>
 
       {/* CTA */}
-      <section className='py-20 bg-gradient-to-r from-yellow-200 to-orange-100 text-black text-center'>
+      <section className='py-20 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-center'>
         <div className='container mx-auto px-6'>
-          <h2 className='text-4xl font-bold mb-6'>
+          <h2 className='text-3xl sm:text-4xl font-bold mb-6'>
             Ready to whiteboard with your team?
           </h2>
-          <p className='text-lg mb-10'>
+          <p className='text-lg mb-10 max-w-2xl mx-auto'>
             Sign up and start collaborating in under a minute.
           </p>
           <Link
-            href='/auth/login'
-            className='px-8 py-4 bg-white text-blue-600 font-semibold text-lg rounded-lg hover:bg-gray-100 transition'
+            href='/auth/register'
+            className='inline-block px-8 py-3 bg-white text-indigo-600 font-semibold text-lg rounded-lg hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl'
           >
             Get started now
           </Link>
@@ -177,15 +373,42 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className='bg-gray-900 text-gray-300 py-10'>
-        <div className='container mx-auto px-6 flex flex-col md:flex-row justify-between items-center'>
-          <div className='flex items-center gap-3 mb-4 md:mb-0'>
-            <Image src='/orim.svg' alt='Logo' width={32} height={32} />
-            <span className='text-white font-medium text-lg'>Orim</span>
+      <footer className='bg-gray-900 text-gray-300 py-12'>
+        <div className='container mx-auto px-6'>
+          <div className='flex flex-col md:flex-row justify-between items-center'>
+            <div className='flex items-center gap-3 mb-6 md:mb-0'>
+              <Image
+                src='/orim.svg'
+                alt='Logo'
+                width={120}
+                height={120}
+                className='filter brightness-0 invert'
+              />
+            </div>
+            <div className='flex gap-6 mb-6 md:mb-0'>
+              <Link
+                href='#'
+                className='hover:text-white transition-colors text-sm'
+              >
+                Privacy
+              </Link>
+              <Link
+                href='#'
+                className='hover:text-white transition-colors text-sm'
+              >
+                Terms
+              </Link>
+              <Link
+                href='#'
+                className='hover:text-white transition-colors text-sm'
+              >
+                Contact
+              </Link>
+            </div>
+            <p className='text-sm text-gray-400'>
+              &copy; {new Date().getFullYear()} Orim. All rights reserved.
+            </p>
           </div>
-          <p className='text-sm text-gray-400'>
-            &copy; {new Date().getFullYear()} Orim. All rights reserved.
-          </p>
         </div>
       </footer>
     </main>

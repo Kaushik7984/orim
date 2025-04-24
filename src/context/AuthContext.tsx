@@ -37,14 +37,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         try {
           const token = await user.getIdToken();
           localStorage.setItem("token", token);
-          console.log("Token saved to localStorage");
+          // console.log("Token saved to localStorage");
         } catch (error) {
           console.error("Error getting token:", error);
         }
       } else {
         // Clear token when user logs out
         localStorage.removeItem("token");
-        console.log("Token removed from localStorage");
+        // console.log("Token removed from localStorage");
       }
     });
 

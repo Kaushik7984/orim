@@ -13,7 +13,7 @@ export default function DebugToken() {
       if (auth.currentUser) {
         const newToken = await auth.currentUser.getIdToken(true);
         setToken(newToken);
-        console.log("Token:", newToken); // Also log to console for easy copy
+        // console.log("Token:", newToken);
       } else {
         setToken("No user is signed in. Please sign in first.");
       }

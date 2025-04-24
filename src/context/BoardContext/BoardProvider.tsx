@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { FabricJSEditor } from "fabricjs-react";
 import { useShapes } from "@/utils/useShapes";
-import { boardAPI } from "@/utils/boardApi";
+import { boardAPI } from "@/lib/boardApi";
 import { useAuth } from "../AuthContext";
 import { BoardContextType, Board } from "@/types";
 import BoardContext from "./BoardContext";
@@ -80,7 +80,7 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
           editor.canvas.renderAll();
         });
       } else {
-        console.log("Canvas data not found or editor not ready");
+        console.error("Canvas data not found or editor not ready");
       }
     } catch (err: any) {
       console.error("Load board error", err);
@@ -152,7 +152,7 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
 
     try {
       const response = await boardAPI.getBoard(boardId);
-      console.log("Join board response", response);
+      // console.log("Join board response", response);
 
       if (editor && response?.canvasData) {
         const canvasData =

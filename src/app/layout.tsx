@@ -3,9 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { BoardProvider } from "@/context/BoardContext/BoardProvider";
-import Header from "@/layout/Header";
 import ChatWidget from "../widgets/chat.widget";
-import DebugToken from "@/components/DebugToken";
 
 const inter = Inter({ subsets: ["latin"] });
 

@@ -18,24 +18,24 @@ export class AuthService {
 
   async validateUser(token: string): Promise<UserDocument> {
     try {
-      console.log('Validating token:', token.substring(0, 10) + '...');
+      // console.log('Validating token:', token.substring(0, 10) + '...');
       const decodedToken = await this.verifyToken(token);
-      console.log('Decoded token:', JSON.stringify(decodedToken, null, 2));
+      // console.log('Decoded token:', JSON.stringify(decodedToken, null, 2));
 
       try {
         // Try to find the user
         const user = await this.usersService.findByFirebaseUid(
           decodedToken.uid,
         );
-        console.log('Found existing user:', user);
+        // console.log('Found existing user:', user);
         return user;
       } catch (error) {
         console.error('Error finding user:', error);
         // If user not found, create a new one
-        console.log(
-          'User not found, creating new user with uid:',
-          decodedToken.uid,
-        );
+        // console.log(
+        //   'User not found, creating new user with uid:',
+        //   decodedToken.uid,
+        // );
         const newUser: CreateUserDto = {
           firebaseUid: decodedToken.uid,
           email: decodedToken.email || '',
@@ -48,7 +48,7 @@ export class AuthService {
         };
 
         const createdUser = await this.usersService.create(newUser);
-        console.log('Created new user:', createdUser);
+        // console.log('Created new user:', createdUser);
         return createdUser;
       }
     } catch (error) {
@@ -59,15 +59,15 @@ export class AuthService {
 
   private async verifyToken(token: string): Promise<admin.auth.DecodedIdToken> {
     try {
-      console.log('Verifying token with Firebase...');
-      console.log('Token length:', token.length);
-      console.log(
-        'Token format check:',
-        token.includes('.') ? 'Looks like a JWT' : 'Not a JWT format',
-      );
+      // console.log('Verifying token with Firebase...');
+      // console.log('Token length:', token.length);
+      // console.log(
+      //   'Token format check:',
+      //   token.includes('.') ? 'Looks like a JWT' : 'Not a JWT format',
+      // );
 
       const decodedToken = await admin.auth().verifyIdToken(token);
-      console.log('Token verification successful');
+      // console.log('Token verification successful');
       return decodedToken;
     } catch (error) {
       console.error('Token verification failed:', error);
