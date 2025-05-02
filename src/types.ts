@@ -88,7 +88,7 @@ export interface BoardContextType {
   username: string;
   setUsername: (username: string) => void;
 
-  joinBoard: () => Promise<void>;
+  joinBoard: (boardId: string) => Promise<void>;
   newJoin: string;
   setNewJoin: (username: string) => void;
 

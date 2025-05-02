@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState, useEffect, useCallback } from "react";
 import { FabricJSEditor } from "fabricjs-react";
 import { useShapes } from "@/utils/useShapes";
@@ -12,27 +11,31 @@ import { useBoardAutoSave } from "./useBoardAutoSave";
 import { getSocket } from "@/lib/socket";
 
 export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
-  const socket = getSocket();
   const { user } = useAuth();
+  const socket = getSocket();
 
   const [boards, setBoards] = useState<Board[]>([]);
   const [currentBoard, setCurrentBoard] = useState<Board | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [boardId, setBoardId] = useState<string>();
   const [boardName, setBoardName] = useState<string>("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [editor, setEditor] = useState<FabricJSEditor>();
   const [newJoin, setNewJoin] = useState<string>("");
   const [path, setPath] = useState<string>("");
   const [username, setUsername] = useState<string>(user?.displayName || "");
 
-  // Zoom and Pan States
+  // Track whether live collaboration is active
+  const [isLiveCollaboration, setIsLiveCollaboration] =
+    useState<boolean>(false);
+
+  // Zoom and Pan
   const [zoomLevel, setZoomLevel] = useState<number>(1);
   const [isPanning, setIsPanning] = useState<boolean>(false);
-
   const enablePanMode = () => setIsPanning(true);
   const disablePanMode = () => setIsPanning(false);
 
+  // Shape tools
   const {
     addCircle,
     addRectangle,
@@ -44,17 +47,16 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     addPen,
   } = useShapes(editor, boardId);
 
-  // Initialize Socket for real-time updates
-  useBoardSocket(user, (board) => setCurrentBoard(board), setNewJoin);
-  useBoardAutoSave(editor, boardId); // Auto save functionality will be validated next
+  useBoardSocket(user, boardId, editor, setNewJoin);
+  useBoardAutoSave(editor, boardId);
 
   const loadBoards = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
       const response = await boardAPI.getAllBoards();
       setBoards(response);
     } catch (err) {
-      console.error("BoardProvider: Failed to load boards", err);
+      console.error("Failed to load boards", err);
       setError("Failed to load boards");
     } finally {
       setLoading(false);
@@ -62,10 +64,11 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const loadBoard = async (id: string) => {
-    try {
-      setLoading(true);
-      const response = await boardAPI.getBoard(id);
+    if (isLiveCollaboration) return; // Skip API call if live collaboration is active
 
+    setLoading(true);
+    try {
+      const response = await boardAPI.getBoard(id);
       setCurrentBoard(response);
       setBoardId(response._id);
       setBoardName(response.title);
@@ -80,10 +83,10 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
           editor.canvas.renderAll();
         });
       } else {
-        console.error("Canvas data not found or editor not ready");
+        console.warn("Canvas data missing or editor not ready");
       }
     } catch (err: any) {
-      console.error("Load board error", err);
+      console.error("Failed to load board", err);
       setError(err?.response?.data?.message || "Board not found");
       setCurrentBoard(null);
     } finally {
@@ -95,17 +98,15 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     async (title: string) => {
       if (!user) throw new Error("User not authenticated");
 
-      const boardData = { title };
-
       try {
-        const response = await boardAPI.createBoard(boardData);
+        const response = await boardAPI.createBoard({ title });
         setBoards((prev) => [response, ...prev]);
         setBoardId(response._id);
         setBoardName(response.title);
         setCurrentBoard(response);
         return response;
       } catch (err) {
-        console.error("BoardProvider: Create board error", err);
+        console.error("Failed to create board", err);
         setError("Failed to create board");
         throw err;
       }
@@ -114,15 +115,11 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
   );
 
   const updateBoard = async (id: string, data: Partial<Board>) => {
+    setLoading(true);
     try {
-      setLoading(true);
       const response = await boardAPI.updateBoard(id, data);
       setBoards((prev) => prev.map((b) => (b._id === id ? response : b)));
-
-      if (currentBoard?._id === id) {
-        setCurrentBoard(response);
-      }
-
+      if (currentBoard?._id === id) setCurrentBoard(response);
       return response;
     } catch (err) {
       console.error("Failed to update board", err);
@@ -134,8 +131,8 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const deleteBoard = async (id: string) => {
+    setLoading(true);
     try {
-      setLoading(true);
       await boardAPI.deleteBoard(id);
       setBoards((prev) => prev.filter((b) => b._id !== id));
       if (currentBoard?._id === id) setCurrentBoard(null);
@@ -147,12 +144,11 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const joinBoard = async () => {
+  const joinBoard = async (boardId: string) => {
     if (!boardId || !user) return;
 
     try {
       const response = await boardAPI.getBoard(boardId);
-      // console.log("Join board response", response);
 
       if (editor && response?.canvasData) {
         const canvasData =
@@ -165,12 +161,16 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
         });
       }
 
+      // Emit a "join-board" socket event when the user joins
       socket?.emit("join-board", {
         boardId,
         username: user.displayName || "Anonymous",
       });
+
+      // Set live collaboration flag to true
+      setIsLiveCollaboration(true); // Indicate that collaboration has started
     } catch (err) {
-      console.error("Join board error:", err);
+      console.error("Failed to join the board", err);
       setError("Failed to join the board");
     }
   };
@@ -182,12 +182,11 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [user]);
 
-  // Wait for editor + boardId to load canvas
   useEffect(() => {
-    if (editor && boardId) {
+    if (editor && boardId && !isLiveCollaboration) {
       loadBoard(boardId);
     }
-  }, [editor, boardId]);
+  }, [editor, boardId, isLiveCollaboration]);
 
   return (
     <BoardContext.Provider
@@ -224,7 +223,10 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
         setPath,
         username,
         setUsername,
-        handleCanvasModified: () => console.log("Canvas modified"),
+        handleCanvasModified: () => {
+          // You can emit a socket event here or trigger a save
+          console.log("Canvas modified");
+        },
         zoomLevel,
         setZoomLevel,
         enablePanMode,
