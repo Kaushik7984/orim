@@ -115,6 +115,15 @@ const SubRightHeader = () => {
 
   const handleInviteClick = () => {
     setIsInviteDialogOpen(true);
+    const shareableLink = `${window.location.origin}/board/${boardId}`;
+    navigator.clipboard
+      .writeText(shareableLink)
+      .then(() => {
+        alert("Board link copied to clipboard!");
+      })
+      .catch((err) => {
+        console.error("Error copying link: ", err);
+      });
     handleMenuClose();
   };
 
@@ -145,6 +154,8 @@ const SubRightHeader = () => {
   }, []);
 
   const boardId = currentBoard?._id || "";
+
+  const shareLink = boardId ? `${window.location.origin}/board/${boardId}` : "";
 
   return (
     <div
@@ -316,6 +327,7 @@ const SubRightHeader = () => {
         isOpen={isInviteDialogOpen}
         onClose={() => setIsInviteDialogOpen(false)}
         boardId={boardId}
+        shareLink={shareLink}
       />
     </div>
   );

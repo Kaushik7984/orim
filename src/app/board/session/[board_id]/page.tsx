@@ -19,32 +19,35 @@ export default function BoardPage({
   const { board_id } = params;
   const router = useRouter();
 
-  // Ref to hold a handler for updating board content
   const boardRef = useRef<{
     updateContent: (content: BoardContent) => void;
   }>(null);
 
   useEffect(() => {
+    let socketConnected = false;
+
     try {
       connectSocket();
+      socketConnected = true;
+
       joinBoard(board_id);
 
       const handleBoardUpdate = (content: BoardContent) => {
-        // console.log("Board content updated:", content);
-        // Call the board instance to update its content
         boardRef.current?.updateContent(content);
       };
 
       onBoardUpdate(handleBoardUpdate);
 
       return () => {
-        offBoardUpdate();
+        if (socketConnected) {
+          offBoardUpdate();
+        }
       };
     } catch (error) {
-      console.error("Error setting up board socket:", error);
+      console.error("Failed to initialize board socket:", error);
       router.push("/dashboard");
     }
-  }, [board_id]);
+  }, [board_id, router]);
 
   return (
     <div className='w-full h-full'>

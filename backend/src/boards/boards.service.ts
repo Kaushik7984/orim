@@ -20,6 +20,9 @@ export class BoardsService {
       title: dto.title,
       ownerId: userId,
       ownerEmail: userEmail,
+      content: {}, // Initialize content
+      collaborators: [], // Initialize collaborators
+      canvasData: {}, // Initialize canvasData
     });
   }
 
@@ -47,17 +50,23 @@ export class BoardsService {
     const board = await this.boardModel.findById(boardId);
     if (!board) throw new NotFoundException('Board not found');
 
-    // Ensure canvasData is valid
     if (dto.canvasData && typeof dto.canvasData !== 'object') {
       throw new BadRequestException('Invalid canvas data format');
     }
 
-    // Update canvasData if provided
+    // Update canvasData and other properties if provided
     if (dto.canvasData) {
       board.canvasData = dto.canvasData;
     }
 
-    // Save the updated board
+    if (dto.content) {
+      board.content = dto.content;
+    }
+
+    if (dto.collaborators) {
+      board.collaborators = dto.collaborators;
+    }
+
     return await board.save();
   }
 

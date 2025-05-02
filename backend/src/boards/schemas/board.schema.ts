@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import * as mongoose from 'mongoose';
 
-@Schema({ timestamps: true }) // This automatically adds `createdAt` and `updatedAt` fields.
+@Schema({ timestamps: true })
 export class Board extends Document {
   @Prop({ required: true })
   title: string;
@@ -14,13 +14,13 @@ export class Board extends Document {
   ownerEmail: string;
 
   @Prop({ type: Object, default: {} })
-  content: any; // This will store additional content if needed (like board metadata)
+  content: any;
 
   @Prop({ type: [String], default: [] })
   collaborators: string[];
 
   @Prop({ type: mongoose.Schema.Types.Mixed, default: {} })
-  canvasData: any; // Store canvas data (drawing state)
+  canvasData: any;
 
   @Prop({ type: Date, default: Date.now })
   updatedAt: Date;
