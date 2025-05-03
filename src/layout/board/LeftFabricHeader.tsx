@@ -22,9 +22,9 @@ const LeftFabricHeader = () => {
       >
         Orim
       </h1>
-      <span className='rounded-2xl bg-neutral-200 px-2 py-1 text-violet-950 text-sm mr-1'>
+      {/* <span className='rounded-2xl bg-neutral-200 px-2 py-1 text-violet-950 text-sm mr-1'>
         free
-      </span>
+      </span> */}
       <Divider orientation='vertical' flexItem />
       <p className='rounded-md p-2 hover:bg-[#fed2cf] duration-200 cursor-pointer text-sm ml-1'>
         {boardName || "Untitled"}

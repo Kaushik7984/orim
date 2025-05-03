@@ -9,7 +9,7 @@ export default function useBoardEditor(
   useEffect(() => {
     if (!initialBoardId || !boardContext) return;
     boardContext.setBoardId(initialBoardId);
-    boardContext.joinBoard();
+    // boardContext.joinBoard();
   }, [initialBoardId]);
 
   useEffect(() => {

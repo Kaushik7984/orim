@@ -13,14 +13,11 @@ export class Board extends Document {
   @Prop({ required: true })
   ownerEmail: string;
 
-  @Prop({ type: Object, default: {} })
-  content: any;
-
   @Prop({ type: [String], default: [] })
   collaborators: string[];
 
   @Prop({ type: mongoose.Schema.Types.Mixed, default: {} })
-  canvasData: any;
+  canvasData: object;
 
   @Prop({ type: Date, default: Date.now })
   updatedAt: Date;
