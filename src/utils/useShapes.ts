@@ -1,3 +1,4 @@
+"use client";
 import { fabric } from "fabric";
 import { FabricJSEditor } from "fabricjs-react";
 import { getSocket } from "@/lib/socket";

@@ -3,7 +3,6 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-import { DrawingsModule } from './drawings/drawings.module';
 import { AppController } from './app.controller';
 import { BoardsModule } from './boards/boards.module';
 
@@ -19,7 +18,6 @@ import { BoardsModule } from './boards/boards.module';
     ),
     forwardRef(() => AuthModule),
     forwardRef(() => UsersModule),
-    forwardRef(() => DrawingsModule),
     forwardRef(() => BoardsModule),
   ],
   controllers: [AppController],

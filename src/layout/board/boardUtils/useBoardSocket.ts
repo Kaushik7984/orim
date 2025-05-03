@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { fabric } from "fabric";
 import {
   connectSocket,
   disconnectSocket,
@@ -13,14 +12,15 @@ export default function useBoardSocket(editor: any, initialBoardId: string) {
   useEffect(() => {
     if (!editor || !initialBoardId) return;
 
+    // Connect socket and join the board room
     connectSocket();
     socketJoinBoard(initialBoardId);
 
+    // Handle drawing updates received from other users
     const handleDrawBroadcast = (content: any) => {
-      const { path, canvasData } = content;
-      const newPath = new fabric.Path(path.path);
-      newPath.set({ ...path });
-      editor.canvas.add(newPath);
+      const { canvasData } = content;
+      if (!canvasData) return;
+
       editor.canvas.loadFromJSON(canvasData, () => {
         editor.canvas.renderAll();
       });
@@ -28,14 +28,16 @@ export default function useBoardSocket(editor: any, initialBoardId: string) {
 
     onBoardUpdate(handleDrawBroadcast);
 
-    const handleLocalDraw = (e: any) => {
+    // Emit drawing updates when the local user draws
+    const handleLocalDraw = () => {
       const canvasData = editor.canvas.toJSON();
-      emitBoardUpdate(initialBoardId, { path: e.path, canvasData });
+      emitBoardUpdate(initialBoardId, null, canvasData);
     };
 
     editor.canvas.on("path:created", handleLocalDraw);
 
     return () => {
+      // Cleanup on unmount
       editor.canvas.off("path:created", handleLocalDraw);
       offBoardUpdate();
       disconnectSocket();

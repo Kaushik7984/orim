@@ -20,9 +20,8 @@ export class BoardsService {
       title: dto.title,
       ownerId: userId,
       ownerEmail: userEmail,
-      content: {}, // Initialize content
-      collaborators: [], // Initialize collaborators
-      canvasData: {}, // Initialize canvasData
+      collaborators: [],
+      canvasData: {},
     });
   }
 
@@ -57,10 +56,6 @@ export class BoardsService {
     // Update canvasData and other properties if provided
     if (dto.canvasData) {
       board.canvasData = dto.canvasData;
-    }
-
-    if (dto.content) {
-      board.content = dto.content;
     }
 
     if (dto.collaborators) {

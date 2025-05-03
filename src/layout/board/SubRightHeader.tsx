@@ -115,7 +115,7 @@ const SubRightHeader = () => {
 
   const handleInviteClick = () => {
     setIsInviteDialogOpen(true);
-    const shareableLink = `${window.location.origin}/board/${boardId}`;
+    const shareableLink = `${window.location.origin}/board/session/${boardId}`;
     navigator.clipboard
       .writeText(shareableLink)
       .then(() => {
@@ -155,7 +155,9 @@ const SubRightHeader = () => {
 
   const boardId = currentBoard?._id || "";
 
-  const shareLink = boardId ? `${window.location.origin}/board/${boardId}` : "";
+  const shareLink = boardId
+    ? `${window.location.origin}/board/session/${boardId}`
+    : "";
 
   return (
     <div

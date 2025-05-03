@@ -6,10 +6,7 @@ export class UpdateBoardDto {
   title?: string;
 
   @IsOptional()
-  canvasData: any;
-
-  @IsOptional()
-  content?: any;
+  canvasData: object;
 
   @IsOptional()
   collaborators?: string[];

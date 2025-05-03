@@ -64,7 +64,7 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const loadBoard = async (id: string) => {
-    if (isLiveCollaboration) return; // Skip API call if live collaboration is active
+    // if (isLiveCollaboration) return; // Skip API call if live collaboration is active
 
     setLoading(true);
     try {
@@ -114,6 +114,7 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     [user]
   );
 
+  //update board
   const updateBoard = async (id: string, data: Partial<Board>) => {
     setLoading(true);
     try {
@@ -130,6 +131,7 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  //delate board
   const deleteBoard = async (id: string) => {
     setLoading(true);
     try {
@@ -144,36 +146,36 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const joinBoard = async (boardId: string) => {
-    if (!boardId || !user) return;
+  // const joinBoard = async (boardId: string) => {
+  //   if (!boardId || !user) return;
 
-    try {
-      const response = await boardAPI.getBoard(boardId);
+  //   try {
+  //     const response = await boardAPI.getBoard(boardId);
 
-      if (editor && response?.canvasData) {
-        const canvasData =
-          typeof response.canvasData === "string"
-            ? response.canvasData
-            : JSON.stringify(response.canvasData);
+  //     if (editor && response?.canvasData) {
+  //       const canvasData =
+  //         typeof response.canvasData === "string"
+  //           ? response.canvasData
+  //           : JSON.stringify(response.canvasData);
 
-        editor.canvas.loadFromJSON(canvasData, () => {
-          editor.canvas.renderAll();
-        });
-      }
+  //       editor.canvas.loadFromJSON(canvasData, () => {
+  //         editor.canvas.renderAll();
+  //       });
+  //     }
 
-      // Emit a "join-board" socket event when the user joins
-      socket?.emit("join-board", {
-        boardId,
-        username: user.displayName || "Anonymous",
-      });
+  //     // Emit a "join-board" socket event when the user joins
+  //     socket?.emit("join-board", {
+  //       boardId,
+  //       username: user.displayName || "Anonymous",
+  //     });
 
-      // Set live collaboration flag to true
-      setIsLiveCollaboration(true); // Indicate that collaboration has started
-    } catch (err) {
-      console.error("Failed to join the board", err);
-      setError("Failed to join the board");
-    }
-  };
+  //     // Set live collaboration flag to true
+  //     setIsLiveCollaboration(true); // Indicate that collaboration has started
+  //   } catch (err) {
+  //     console.error("Failed to join the board", err);
+  //     setError("Failed to join the board");
+  //   }
+  // };
 
   useEffect(() => {
     if (user) {
@@ -208,7 +210,7 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
         editor,
         setEditor,
         user: user || undefined,
-        joinBoard,
+        // joinBoard,
         newJoin,
         setNewJoin,
         addCircle,
