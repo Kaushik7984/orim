@@ -185,10 +185,10 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
   }, [user]);
 
   useEffect(() => {
-    if (editor && boardId && !isLiveCollaboration) {
+    if (editor && boardId) {
       loadBoard(boardId);
     }
-  }, [editor, boardId, isLiveCollaboration]);
+  }, [editor, boardId]);
 
   return (
     <BoardContext.Provider

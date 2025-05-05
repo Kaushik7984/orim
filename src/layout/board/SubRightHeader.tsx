@@ -47,18 +47,18 @@ const dummyMembers = [
     email: "jane@example.com",
     photoURL: "https://i.pravatar.cc/150?img=2",
   },
-  {
-    id: 3,
-    name: "Mike Johnson",
-    email: "mike@example.com",
-    photoURL: "https://i.pravatar.cc/150?img=3",
-  },
-  {
-    id: 4,
-    name: "Sarah Williams",
-    email: "sarah@example.com",
-    photoURL: "https://i.pravatar.cc/150?img=4",
-  },
+  // {
+  //   id: 3,
+  //   name: "Mike Johnson",
+  //   email: "mike@example.com",
+  //   photoURL: "https://i.pravatar.cc/150?img=3",
+  // },
+  // {
+  //   id: 4,
+  //   name: "Sarah Williams",
+  //   email: "sarah@example.com",
+  //   photoURL: "https://i.pravatar.cc/150?img=4",
+  // },
 ];
 
 const SubRightHeader = () => {
@@ -170,7 +170,7 @@ const SubRightHeader = () => {
           <Tooltip key={item.name} title={item.name}>
             <IconButton
               size='small'
-              className='hover:bg-[#fed2cf] transition-colors duration-200'
+              className='hover:bg-[#dde4fc] transition-colors duration-200'
             >
               {item.icon}
             </IconButton>

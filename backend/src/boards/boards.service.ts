@@ -1,7 +1,6 @@
 import {
   Injectable,
   NotFoundException,
-  UnauthorizedException,
   BadRequestException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -27,7 +26,7 @@ export class BoardsService {
 
   // Get all boards for a user
   getUserBoards(userId: string) {
-    return this.boardModel.find({ ownerId: userId });
+    return this.boardModel.find({ ownerId: userId }).sort({ createdAt: -1 });
   }
 
   // Get a specific board by ID
@@ -51,6 +50,11 @@ export class BoardsService {
 
     if (dto.canvasData && typeof dto.canvasData !== 'object') {
       throw new BadRequestException('Invalid canvas data format');
+    }
+
+    // Update title if provided
+    if (dto.title) {
+      board.title = dto.title;
     }
 
     // Update canvasData and other properties if provided

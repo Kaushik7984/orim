@@ -8,9 +8,15 @@ import {
   onAuthStateChanged,
   GoogleAuthProvider,
   signInWithPopup,
+  updateProfile as firebaseUpdateProfile,
 } from "firebase/auth";
 import { auth } from "@/config/firebase";
 import { setupTokenRefresh } from "@/lib/token-refresh";
+
+interface ProfileUpdateData {
+  displayName?: string;
+  photoURL?: string;
+}
 
 interface AuthContextType {
   user: User | null;
@@ -19,6 +25,7 @@ interface AuthContextType {
   signUp: (email: string, password: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
+  updateProfile: (data: ProfileUpdateData) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -32,26 +39,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(user);
       setLoading(false);
 
-      // Save token to localStorage when user changes
       if (user) {
         try {
           const token = await user.getIdToken();
           localStorage.setItem("token", token);
-          // console.log("Token saved to localStorage");
         } catch (error) {
           console.error("Error getting token:", error);
         }
       } else {
-        // Clear token when user logs out
         localStorage.removeItem("token");
-        // console.log("Token removed from localStorage");
       }
     });
 
     return () => unsubscribe();
   }, []);
 
-  // Set up token refresh when user is authenticated
   useEffect(() => {
     if (user) {
       const cleanup = setupTokenRefresh();
@@ -61,12 +63,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signIn = async (email: string, password: string) => {
     try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      // Token will be saved in the onAuthStateChanged listener
+      await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
       console.error("Error signing in:", error);
       throw error;
@@ -75,12 +72,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signUp = async (email: string, password: string) => {
     try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      // Token will be saved in the onAuthStateChanged listener
+      await createUserWithEmailAndPassword(auth, email, password);
     } catch (error) {
       console.error("Error signing up:", error);
       throw error;
@@ -90,8 +82,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signInWithGoogle = async () => {
     try {
       const provider = new GoogleAuthProvider();
-      const userCredential = await signInWithPopup(auth, provider);
-      // Token will be saved in the onAuthStateChanged listener
+      await signInWithPopup(auth, provider);
     } catch (error) {
       console.error("Error signing in with Google:", error);
       throw error;
@@ -101,10 +92,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const logout = async () => {
     try {
       await signOut(auth);
-      // Token will be removed in the onAuthStateChanged listener
     } catch (error) {
       console.error("Error signing out:", error);
       throw error;
+    }
+  };
+
+  const updateProfile = async (data: ProfileUpdateData) => {
+    if (user) {
+      try {
+        await firebaseUpdateProfile(user, {
+          displayName: data.displayName || user.displayName,
+          photoURL: data.photoURL || user.photoURL,
+        });
+        setUser((prevUser) => {
+          if (prevUser) {
+            return {
+              ...prevUser,
+              displayName: data.displayName || prevUser.displayName,
+              photoURL: data.photoURL || prevUser.photoURL,
+            };
+          }
+          return prevUser;
+        });
+      } catch (error) {
+        console.error("Error updating profile:", error);
+        throw error;
+      }
     }
   };
 
@@ -117,6 +131,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         signUp,
         signInWithGoogle,
         logout,
+        updateProfile,
       }}
     >
       {children}

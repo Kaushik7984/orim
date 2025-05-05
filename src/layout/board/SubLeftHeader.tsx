@@ -55,7 +55,7 @@ const SubLeftHeader = () => {
               transition={{ delay: i * 0.1 }}
               key={item.name}
               onClick={() => item.name === "Hide apps" && setOpen(!open)}
-              className='p-2 rounded-md hover:bg-[#fed2cf] duration-200 cursor-pointer'
+              className='p-2 rounded-md hover:bg-[#dde4fc] duration-200 cursor-pointer'
             >
               {item.icon}
             </motion.div>
@@ -64,7 +64,7 @@ const SubLeftHeader = () => {
       )}
       <div
         onClick={() => setOpen(!open)}
-        className='p-2 rounded-md hover:bg-[#fed2cf] duration-200 cursor-pointer'
+        className='p-2 rounded-md hover:bg-[#dde4fc] duration-200 cursor-pointer'
       >
         {icon}
       </div>
