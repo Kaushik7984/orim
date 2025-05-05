@@ -33,21 +33,13 @@ const DashboardSidebar = () => {
   ];
 
   return (
-    <Box
-      sx={{
-        width: 260,
-        flexShrink: 0,
-        borderRight: "1px solid",
-        borderColor: "divider",
-        bgcolor: "background.paper",
-        height: "calc(100vh - 56px)",
-        position: "sticky",
-        top: "56px",
-        overflow: "auto",
-      }}
-    >
+    <Box sx={{ color: "#333333" }}>
       <Box sx={{ p: 2 }}>
-        <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+        <Typography
+          variant='subtitle2'
+          color='text.secondary'
+          sx={{ mb: 1, fontWeight: 500 }}
+        >
           MAIN MENU
         </Typography>
         <List disablePadding>
@@ -59,12 +51,19 @@ const DashboardSidebar = () => {
                 sx={{
                   borderRadius: 1,
                   mb: 0.5,
+                  color: "#333333",
                   "&.Mui-selected": {
-                    bgcolor: "action.selected",
+                    bgcolor: "rgba(25, 118, 210, 0.08)",
+                    color: "#1976d2",
+                  },
+                  "&:hover": {
+                    bgcolor: "rgba(0, 0, 0, 0.04)",
                   },
                 }}
               >
-                <ListItemIcon sx={{ minWidth: 40 }}>{item.icon}</ListItemIcon>
+                <ListItemIcon sx={{ minWidth: 40, color: "inherit" }}>
+                  {item.icon}
+                </ListItemIcon>
                 <ListItemText primary={item.text} />
               </ListItemButton>
             </ListItem>
@@ -72,7 +71,7 @@ const DashboardSidebar = () => {
         </List>
       </Box>
 
-      <Divider />
+      <Divider sx={{ borderColor: "rgba(0, 0, 0, 0.1)" }} />
 
       <Box sx={{ p: 2 }}>
         <Box
@@ -83,11 +82,15 @@ const DashboardSidebar = () => {
             mb: 1,
           }}
         >
-          <Typography variant="subtitle2" color="text.secondary">
+          <Typography
+            variant='subtitle2'
+            color='text.secondary'
+            sx={{ fontWeight: 500 }}
+          >
             SPACES
           </Typography>
-          <IconButton size="small">
-            <AddIcon fontSize="small" />
+          <IconButton size='small' sx={{ color: "text.secondary" }}>
+            <AddIcon fontSize='small' />
           </IconButton>
         </Box>
         <List disablePadding>
@@ -99,12 +102,19 @@ const DashboardSidebar = () => {
                 sx={{
                   borderRadius: 1,
                   mb: 0.5,
+                  color: "#333333",
                   "&.Mui-selected": {
-                    bgcolor: "action.selected",
+                    bgcolor: "rgba(25, 118, 210, 0.08)",
+                    color: "#1976d2",
+                  },
+                  "&:hover": {
+                    bgcolor: "rgba(0, 0, 0, 0.04)",
                   },
                 }}
               >
-                <ListItemIcon sx={{ minWidth: 40 }}>{space.icon}</ListItemIcon>
+                <ListItemIcon sx={{ minWidth: 40, color: "inherit" }}>
+                  {space.icon}
+                </ListItemIcon>
                 <ListItemText primary={space.text} />
               </ListItemButton>
             </ListItem>
@@ -115,4 +125,4 @@ const DashboardSidebar = () => {
   );
 };
 
-export default DashboardSidebar; 
+export default DashboardSidebar;

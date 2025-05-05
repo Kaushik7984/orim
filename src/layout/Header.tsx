@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import {
   AppBar,
   Toolbar,
@@ -11,8 +11,8 @@ import {
   TextField,
   InputAdornment,
   styled,
-  Menu,
-  MenuItem,
+  Badge,
+  Tooltip,
 } from "@mui/material";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -20,42 +20,119 @@ import SearchIcon from "@mui/icons-material/Search";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import { useAuth } from "@/context/AuthContext";
+import Image from "next/image";
+
+// Import component files
+import UserMenu from "./header/UserMenu";
+import TemplateMenu from "./header/TemplateMenu";
+import MoreMenu from "./header/MoreMenu";
+import NotificationsMenu from "./header/NotificationsMenu";
+import HelpMenu from "./header/HelpMenu";
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
-  backgroundColor: "#fff",
-  color: theme.palette.text.primary,
-  boxShadow: "0 1px 0 rgba(0, 0, 0, 0.1)",
+  backgroundColor: "#ffffff",
+  color: "#333333",
+  boxShadow: "0 1px 3px rgba(0, 0, 0, 0.05)",
+  position: "static",
+  height: "64px",
+  borderBottom: "1px solid rgba(0, 0, 0, 0.08)",
 }));
 
 const StyledSearchInput = styled(TextField)(({ theme }) => ({
   "& .MuiInputBase-root": {
     height: 36,
-    backgroundColor: theme.palette.grey[100],
+    backgroundColor: "rgba(0, 0, 0, 0.04)",
     borderRadius: theme.shape.borderRadius,
     "&:hover": {
-      backgroundColor: theme.palette.grey[200],
+      backgroundColor: "rgba(0, 0, 0, 0.08)",
     },
     "& input": {
       padding: "8px 12px",
+      color: "#333333",
+    },
+    "& .MuiInputAdornment-root": {
+      color: "rgba(0, 0, 0, 0.5)",
     },
   },
   "& .MuiOutlinedInput-notchedOutline": {
     border: "none",
   },
+  "& .MuiInputBase-input::placeholder": {
+    color: "rgba(0, 0, 0, 0.5)",
+    opacity: 1,
+  },
+}));
+
+const NavButton = styled(Button, {
+  shouldForwardProp: (prop) => prop !== "active",
+})<{ active: boolean }>(({ theme, active }) => ({
+  color: active ? "#1976d2" : "#555555",
+  textTransform: "none",
+  fontWeight: active ? 500 : "normal",
+  "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
+  position: "relative",
+  "&::after": active
+    ? {
+        content: '""',
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: "2px",
+        backgroundColor: "#1976d2",
+      }
+    : {},
 }));
 
 const Header = () => {
   const router = useRouter();
+  const pathname = usePathname();
   const { user, logout } = useAuth();
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
+  // Menu anchor states
+  const [userAnchorEl, setUserAnchorEl] = useState<null | HTMLElement>(null);
+  const [templateAnchorEl, setTemplateAnchorEl] = useState<null | HTMLElement>(
+    null
+  );
+  const [notificationsAnchorEl, setNotificationsAnchorEl] =
+    useState<null | HTMLElement>(null);
+  const [helpAnchorEl, setHelpAnchorEl] = useState<null | HTMLElement>(null);
+  const [moreAnchorEl, setMoreAnchorEl] = useState<null | HTMLElement>(null);
+
+  // Notifications badge count
+  const [unreadCount, setUnreadCount] = useState(2);
+
+  const handleSearch = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Enter" && searchTerm.trim()) {
+        // router.push(`/search?q=${encodeURIComponent(searchTerm)}`);
+      }
+    },
+    [searchTerm, router]
+  );
+
+  // Handle menu opens
+  const handleUserMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setUserAnchorEl(event.currentTarget);
   };
 
-  const handleClose = () => {
-    setAnchorEl(null);
+  const handleTemplateMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setTemplateAnchorEl(event.currentTarget);
+  };
+
+  const handleNotificationsMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setNotificationsAnchorEl(event.currentTarget);
+  };
+
+  const handleHelpMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setHelpAnchorEl(event.currentTarget);
+  };
+
+  const handleMoreMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setMoreAnchorEl(event.currentTarget);
   };
 
   const handleLogout = async () => {
@@ -65,57 +142,92 @@ const Header = () => {
     } catch (error) {
       console.error("Error logging out:", error);
     }
-    handleClose();
+    setUserAnchorEl(null);
   };
 
   const handleJoinBoard = () => {
     router.push("/board/join-board");
   };
 
+  const isActive = (path: string) => {
+    if (path === "/") return pathname === "/";
+    return pathname.startsWith(path);
+  };
+
   return (
-    <StyledAppBar position='fixed'>
-      <Toolbar sx={{ minHeight: "56px !important" }}>
+    <StyledAppBar>
+      <Toolbar sx={{ minHeight: "64px !important" }}>
         {/* Logo Section */}
-        <Typography
-          variant='h6'
+        <Box
           component={Link}
           href='/'
           sx={{
-            textDecoration: "none",
-            color: "inherit",
-            fontWeight: "bold",
             display: "flex",
             alignItems: "center",
-            mr: 2,
-            fontSize: "1.5rem",
+            textDecoration: "none",
+            color: "inherit",
+            mr: 3,
           }}
         >
-          Orim
-        </Typography>
+          <Image
+            src='/orim.svg'
+            alt='Orim Logo'
+            width={80}
+            height={32}
+            className='cursor-pointer hover:opacity-90 transition-opacity'
+          />
+        </Box>
 
         {/* Navigation Section */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <Button
-            color='inherit'
+            component={Link}
+            href='/dashboard'
             sx={{
+              color: isActive("/dashboard") ? "#1976d2" : "#555555",
               textTransform: "none",
-              fontWeight: "normal",
-              "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
+              fontWeight: isActive("/dashboard") ? 500 : "normal",
+              "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
+              position: "relative",
+              ...(isActive("/dashboard") && {
+                "&::after": {
+                  content: '""',
+                  position: "absolute",
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  height: "2px",
+                  backgroundColor: "#1976d2",
+                },
+              }),
             }}
           >
-            Recent
-            <KeyboardArrowDownIcon />
+            My Boards
           </Button>
+
           <Button
-            color='inherit'
+            onClick={handleTemplateMenu}
             sx={{
+              color: isActive("/templates") ? "#1976d2" : "#555555",
               textTransform: "none",
-              fontWeight: "normal",
-              "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
+              fontWeight: isActive("/templates") ? 500 : "normal",
+              "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
             }}
+            endIcon={<KeyboardArrowDownIcon />}
           >
             Templates
-            <KeyboardArrowDownIcon />
+          </Button>
+          <Button
+            onClick={handleMoreMenu}
+            sx={{
+              color: "#555555",
+              textTransform: "none",
+              fontWeight: "normal",
+              "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
+            }}
+            endIcon={<MoreHorizIcon />}
+          >
+            More
           </Button>
         </Box>
 
@@ -123,7 +235,10 @@ const Header = () => {
         <StyledSearchInput
           placeholder='Search'
           size='small'
-          sx={{ ml: 2, width: 180 }}
+          // sx={{ ml: 2, width: 180 }}
+          // value={searchTerm}
+          // onChange={(e) => setSearchTerm(e.target.value)}
+          // onKeyDown={handleSearch}
           InputProps={{
             startAdornment: (
               <InputAdornment position='start'>
@@ -145,88 +260,121 @@ const Header = () => {
                 sx={{
                   textTransform: "none",
                   fontWeight: "normal",
-                  borderColor: "#2563eb",
-                  color: "#2563eb",
+                  color: "#1976d2",
                   "&:hover": {
-                    borderColor: "#1d4ed8",
-                    backgroundColor: "rgba(37, 99, 235, 0.04)",
+                    borderColor: "#1976d2",
+                    backgroundColor: "rgba(30, 64, 175, 0.04)",
                   },
                 }}
               >
                 Join Board
               </Button>
               <Button
+                component={Link}
+                href='/pricing'
                 variant='contained'
                 sx={{
-                  bgcolor: "#2563eb",
-                  "&:hover": { bgcolor: "#1d4ed8" },
+                  bgcolor: "#1976d2",
+                  color: "white",
+                  "&:hover": { bgcolor: "#1e3a8a" },
                   textTransform: "none",
                   fontWeight: "normal",
                 }}
               >
                 Upgrade
               </Button>
-              <IconButton size='small' sx={{ color: "text.secondary" }}>
-                <HelpOutlineIcon />
-              </IconButton>
-              <IconButton size='small' sx={{ color: "text.secondary" }}>
-                <NotificationsNoneIcon />
-              </IconButton>
-              <IconButton size='small' onClick={handleMenu}>
-                <Avatar
-                  sx={{
-                    width: 32,
-                    height: 32,
-                    bgcolor: "#2563eb",
-                    fontSize: "0.875rem",
-                  }}
-                  src={user.photoURL || undefined}
+              <Tooltip title='Help & Support'>
+                <IconButton
+                  size='small'
+                  sx={{ color: "text.secondary" }}
+                  onClick={handleHelpMenu}
                 >
-                  {user.displayName?.charAt(0) || "U"}
-                </Avatar>
-              </IconButton>
-              <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleClose}
-                anchorOrigin={{
-                  vertical: "bottom",
-                  horizontal: "right",
-                }}
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-              >
-                <MenuItem onClick={() => router.push("/profile")}>
-                  Profile
-                </MenuItem>
-                <MenuItem onClick={handleLogout}>Logout</MenuItem>
-              </Menu>
+                  <HelpOutlineIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title='Notifications'>
+                <IconButton
+                  size='small'
+                  sx={{ color: "text.secondary" }}
+                  onClick={handleNotificationsMenu}
+                >
+                  <Badge badgeContent={unreadCount} color='error'>
+                    <NotificationsNoneIcon />
+                  </Badge>
+                </IconButton>
+              </Tooltip>
+              <Tooltip title='Profile & Settings'>
+                <IconButton size='small' onClick={handleUserMenu}>
+                  <Avatar
+                    sx={{
+                      width: 32,
+                      height: 32,
+                      bgcolor: "#1e40af",
+                      color: "white",
+                      fontSize: "0.875rem",
+                    }}
+                    src={user.photoURL || undefined}
+                  >
+                    {user.displayName?.charAt(0) || "U"}
+                  </Avatar>
+                </IconButton>
+              </Tooltip>
+
+              {/* Menus */}
+              <UserMenu
+                anchorEl={userAnchorEl}
+                onClose={() => setUserAnchorEl(null)}
+                user={user}
+                onLogout={handleLogout}
+              />
+
+              <TemplateMenu
+                anchorEl={templateAnchorEl}
+                onClose={() => setTemplateAnchorEl(null)}
+              />
+
+              <MoreMenu
+                anchorEl={moreAnchorEl}
+                onClose={() => setMoreAnchorEl(null)}
+              />
+
+              <NotificationsMenu
+                anchorEl={notificationsAnchorEl}
+                onClose={() => setNotificationsAnchorEl(null)}
+                onUpdateUnreadCount={setUnreadCount}
+              />
+
+              <HelpMenu
+                anchorEl={helpAnchorEl}
+                onClose={() => setHelpAnchorEl(null)}
+              />
             </>
           ) : (
             <>
               <Button
-                color='inherit'
-                onClick={() => router.push("/auth/login")}
+                component={Link}
+                href='/auth/login'
                 sx={{
+                  color: "#555555",
                   textTransform: "none",
-                  fontWeight: "normal",
+                  "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
                 }}
               >
                 Login
               </Button>
               <Button
+                component={Link}
+                href='/auth/register'
                 variant='contained'
-                onClick={() => router.push("/auth/register")}
                 sx={{
-                  bgcolor: "#2563eb",
-                  "&:hover": { bgcolor: "#1d4ed8" },
+                  bgcolor: "#1e40af",
+                  color: "white",
+                  "&:hover": { bgcolor: "#1e3a8a" },
                   textTransform: "none",
                   fontWeight: "normal",
                 }}
               >
-                Sign Up
+                Register
               </Button>
             </>
           )}

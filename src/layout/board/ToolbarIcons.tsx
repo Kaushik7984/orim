@@ -201,7 +201,7 @@ export const items = [
             {shapes.map((shape) => (
               <div
                 key={shape.name}
-                className='rounded-md p-2 hover:bg-[#fed2cf] duration-200 cursor-pointer m-0.5 flex items-center justify-center'
+                className='rounded-md p-2 hover:bg-[#dde4fc] duration-200 cursor-pointer m-0.5 flex items-center justify-center'
               >
                 {shape.icon}
               </div>
@@ -234,7 +234,7 @@ export const items = [
           {lines.map((line) => (
             <div
               key={line.name}
-              className='rounded-md p-2 hover:bg-[#fed2cf] duration-200 cursor-pointer m-[1px]'
+              className='rounded-md p-2 hover:bg-[#dde4fc] duration-200 cursor-pointer m-[1px]'
             >
               {line.icon}
             </div>

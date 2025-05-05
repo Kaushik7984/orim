@@ -79,12 +79,17 @@ const Dashboard = () => {
 
   const confirmRename = async () => {
     if (!selectedBoardId || !renameTitle.trim()) return;
+
     try {
-      await updateBoard(selectedBoardId, { title: renameTitle.trim() });
+      const response = await updateBoard(selectedBoardId, {
+        title: renameTitle.trim(),
+      });
+      console.log("Update response:", response);
       setRenameDialogOpen(false);
-      loadBoards();
+      await loadBoards();
     } catch (err) {
       console.error("Failed to rename board:", err);
+      alert("Failed to rename board. Please try again.");
     }
   };
 
@@ -93,7 +98,7 @@ const Dashboard = () => {
       (acc, char) => acc + char.charCodeAt(0),
       0
     );
-    const index = (hash % 10) + 1; // 1 to 10
+    const index = (hash % 10) + 1;
     return `/placeholders/${index}.svg`;
   };
 
@@ -114,8 +119,8 @@ const Dashboard = () => {
   }
 
   return (
-    <div className='container mx-auto px-6 py-10'>
-      <div className='flex justify-between items-center mb-6'>
+    <div className='container mx-auto px-4 sm:px-6 py-6 sm:py-10'>
+      <div className='flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4'>
         <Typography variant='h4' fontWeight={700}>
           My Boards
         </Typography>
@@ -131,7 +136,7 @@ const Dashboard = () => {
       </div>
 
       {!boards || boards.length === 0 ? (
-        <div className='flex flex-col items-center justify-center text-center py-12'>
+        <div className='flex flex-col items-center justify-center text-center py-8 sm:py-12'>
           <Image
             src='/elements.svg'
             alt='No boards'
@@ -144,14 +149,24 @@ const Dashboard = () => {
           </Typography>
         </div>
       ) : (
-        <Grid container spacing={4}>
+        <Grid container spacing={2} sx={{ mt: 1 }}>
           {boards.map((board) => (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={board._id}>
+            <Grid
+              item
+              xs={12}
+              sm={6}
+              md={4}
+              lg={2.4}
+              key={board._id}
+              sx={{
+                display: "flex",
+                maxWidth: { lg: "20%", xl: "20%" },
+                flexBasis: { lg: "20%", xl: "20%" },
+              }}
+            >
               <BoardCard
                 title={board.title || "Untitled"}
-                ownerEmail={
-                  board.ownerEmail ? board.ownerEmail.split("@")[0] : "You"
-                }
+                ownerEmail={board.ownerEmail}
                 createdAt={board.createdAt}
                 onClick={() => handleOpenBoard(board._id)}
                 onDelete={() => handleDeleteBoard(board._id)}
