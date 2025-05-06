@@ -62,7 +62,7 @@ export default function LoginPage() {
           align='center'
           fontWeight='bold'
         >
-          Sign in to Miro
+          Sign in to Orime
         </Typography>
 
         <Stack

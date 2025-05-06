@@ -27,43 +27,24 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import InviteDialog from "@/components/InviteDialog";
 import { useRouter } from "next/navigation";
 import { useBoard } from "@/context/BoardContext/useBoard";
+import { CursorPosition, getUserColor } from "@/utils/collaborationUtils";
+import { SocketService } from "@/lib/socket";
 
 const nunito = Nunito({
   subsets: ["latin-ext"],
   weight: ["700"],
 });
 
-// Dummy members data
-const dummyMembers = [
-  {
-    id: 1,
-    name: "John Doe",
-    email: "john@example.com",
-    photoURL: "https://i.pravatar.cc/150?img=1",
-  },
-  {
-    id: 2,
-    name: "Jane Smith",
-    email: "jane@example.com",
-    photoURL: "https://i.pravatar.cc/150?img=2",
-  },
-  // {
-  //   id: 3,
-  //   name: "Mike Johnson",
-  //   email: "mike@example.com",
-  //   photoURL: "https://i.pravatar.cc/150?img=3",
-  // },
-  // {
-  //   id: 4,
-  //   name: "Sarah Williams",
-  //   email: "sarah@example.com",
-  //   photoURL: "https://i.pravatar.cc/150?img=4",
-  // },
-];
+// Collaborator type definition
+type ActiveCollaborator = {
+  userId: string;
+  username: string;
+  color: string;
+  lastActive: number;
+};
 
 const SubRightHeader = () => {
   const router = useRouter();
-
   const { currentBoard } = useBoard();
   const { user, logout } = useAuth();
   const [isPresenting, setIsPresenting] = useState(false);
@@ -72,19 +53,101 @@ const SubRightHeader = () => {
   const [membersAnchorEl, setMembersAnchorEl] = useState<null | HTMLElement>(
     null
   );
+  const [collaborators, setCollaborators] = useState<ActiveCollaborator[]>([]);
+  const [hideCursors, setHideCursors] = useState(false);
+
+  // Track real-time collaborators
+  useEffect(() => {
+    if (!user || !currentBoard?._id) return;
+
+    // For tracking active collaborators
+    const activeCollaborators = new Map<string, ActiveCollaborator>();
+
+    // Listen for cursor movement to track active users
+    const cursorMoveListener = SocketService.on(
+      "cursor:move",
+      (data: CursorPosition) => {
+        if (data.userId === user.uid) return; // Skip self
+
+        activeCollaborators.set(data.userId, {
+          userId: data.userId,
+          username: data.username || "Anonymous",
+          color: data.color || getUserColor(data.userId),
+          lastActive: Date.now(),
+        });
+
+        updateCollaboratorsList();
+      }
+    );
+
+    // Listen for user left events
+    const userLeftListener = SocketService.on(
+      "board:user-left",
+      (data: { userId: string }) => {
+        activeCollaborators.delete(data.userId);
+        updateCollaboratorsList();
+      }
+    );
+
+    // Update the collaborators list from the map
+    const updateCollaboratorsList = () => {
+      const activeUsers = Array.from(activeCollaborators.values())
+        .filter((c) => c.userId !== user.uid) // Filter out self
+        .sort((a, b) => b.lastActive - a.lastActive); // Most recently active first
+
+      setCollaborators(activeUsers);
+    };
+
+    // Clean up inactive users every 10 seconds
+    const cleanupInterval = setInterval(() => {
+      const now = Date.now();
+      let updated = false;
+
+      activeCollaborators.forEach((collaborator, id) => {
+        // Remove if inactive for more than 30 seconds
+        if (now - collaborator.lastActive > 30000) {
+          activeCollaborators.delete(id);
+          updated = true;
+        }
+      });
+
+      if (updated) {
+        updateCollaboratorsList();
+      }
+    }, 10000);
+
+    return () => {
+      cursorMoveListener();
+      userLeftListener();
+      clearInterval(cleanupInterval);
+    };
+  }, [user, currentBoard]);
 
   const items = [
     {
-      name: "Hide collaborators' cursors",
+      name: hideCursors
+        ? "Show collaborators' cursors"
+        : "Hide collaborators' cursors",
       icon: <NearMeIcon />,
+      onClick: () => {
+        setHideCursors((prev) => !prev);
+        // Emit an event that the collaboration utilities can listen to
+        window.dispatchEvent(
+          new CustomEvent("toggle-cursors-visibility", {
+            detail: { hidden: !hideCursors },
+          })
+        );
+      },
     },
     {
       name: "Reactions",
       icon: <CelebrationIcon />,
+      onClick: () => {},
     },
     {
       name: "Comments",
       icon: <CommentIcon />,
+      onClick: () => {},
     },
   ];
 
@@ -115,15 +178,18 @@ const SubRightHeader = () => {
 
   const handleInviteClick = () => {
     setIsInviteDialogOpen(true);
-    const shareableLink = `${window.location.origin}/board/session/${boardId}`;
+    const sessionId = `${boardId}`;
+
     navigator.clipboard
-      .writeText(shareableLink)
+      .writeText(sessionId)
       .then(() => {
-        alert("Board link copied to clipboard!");
+        alert("Collaboration link copied to clipboard!");
+        router.push(sessionId);
       })
       .catch((err) => {
-        console.error("Error copying link: ", err);
+        console.error("Error copying session URL: ", err);
       });
+
     handleMenuClose();
   };
 
@@ -155,10 +221,6 @@ const SubRightHeader = () => {
 
   const boardId = currentBoard?._id || "";
 
-  const shareLink = boardId
-    ? `${window.location.origin}/board/session/${boardId}`
-    : "";
-
   return (
     <div
       className='flex flex-row items-center h-12 px-4 bg-white border-b rounded-md mr-2 border-gray-200'
@@ -171,6 +233,7 @@ const SubRightHeader = () => {
             <IconButton
               size='small'
               className='hover:bg-[#dde4fc] transition-colors duration-200'
+              onClick={item.onClick}
             >
               {item.icon}
             </IconButton>
@@ -195,10 +258,13 @@ const SubRightHeader = () => {
             },
           }}
         >
-          {dummyMembers.map((member) => (
-            <Tooltip key={member.id} title={member.name}>
-              <Avatar src={member.photoURL} alt={member.name}>
-                {member.name.charAt(0)}
+          {collaborators.map((collaborator) => (
+            <Tooltip key={collaborator.userId} title={collaborator.username}>
+              <Avatar
+                sx={{ bgcolor: collaborator.color }}
+                alt={collaborator.username}
+              >
+                {collaborator.username.charAt(0).toUpperCase()}
               </Avatar>
             </Tooltip>
           ))}
@@ -222,20 +288,34 @@ const SubRightHeader = () => {
             <div className='font-semibold text-gray-700'>Board Members</div>
           </MenuItem>
           <Divider />
-          {dummyMembers.map((member) => (
-            <MenuItem key={member.id} sx={{ minWidth: "200px" }}>
-              <Avatar
-                src={member.photoURL}
-                sx={{ width: 24, height: 24, mr: 1 }}
-              >
-                {member.name.charAt(0)}
-              </Avatar>
-              <div className='flex flex-col'>
-                <div className='text-sm'>{member.name}</div>
-                <div className='text-xs text-gray-500'>{member.email}</div>
-              </div>
-            </MenuItem>
-          ))}
+          {collaborators.length > 0 ? (
+            collaborators.map((collaborator) => (
+              <MenuItem key={collaborator.userId} sx={{ minWidth: "200px" }}>
+                <Avatar
+                  sx={{
+                    width: 24,
+                    height: 24,
+                    mr: 1,
+                    bgcolor: collaborator.color,
+                  }}
+                >
+                  {collaborator.username.charAt(0).toUpperCase()}
+                </Avatar>
+                <div className='flex flex-col'>
+                  <div className='text-sm'>{collaborator.username}</div>
+                  <div className='text-xs text-gray-500'>
+                    Active{" "}
+                    {Math.floor((Date.now() - collaborator.lastActive) / 1000) <
+                    10
+                      ? "now"
+                      : "recently"}
+                  </div>
+                </div>
+              </MenuItem>
+            ))
+          ) : (
+            <MenuItem sx={{ opacity: 0.7 }}>No collaborators yet</MenuItem>
+          )}
         </Menu>
       </div>
 
@@ -329,7 +409,6 @@ const SubRightHeader = () => {
         isOpen={isInviteDialogOpen}
         onClose={() => setIsInviteDialogOpen(false)}
         boardId={boardId}
-        shareLink={shareLink}
       />
     </div>
   );

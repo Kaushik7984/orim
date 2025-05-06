@@ -1,57 +1,69 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
-import {
-  connectSocket,
-  joinBoard,
-  onBoardUpdate,
-  offBoardUpdate,
-} from "@/lib/socket";
+import { getSocket } from "@/lib/socket";
 import Board from "@/layout/board/Board";
 import { BoardContent } from "@/types";
 
-export default function BoardPage({
-  params,
-}: {
-  params: { board_id: string };
-}) {
-  const { board_id } = params;
+const BoardPage = () => {
+  const params = useParams();
   const router = useRouter();
-
-  const boardRef = useRef<{
-    updateContent: (content: BoardContent) => void;
-  }>(null);
+  const [loading, setLoading] = useState(true);
+  const board_id = params.board_id as string;
+  const boardRef = useRef<any>(null);
 
   useEffect(() => {
-    let socketConnected = false;
-
-    try {
-      connectSocket();
-      socketConnected = true;
-
-      joinBoard(board_id);
-
-      const handleBoardUpdate = (content: BoardContent) => {
-        boardRef.current?.updateContent(content);
-      };
-
-      onBoardUpdate(handleBoardUpdate);
-
-      return () => {
-        if (socketConnected) {
-          offBoardUpdate();
-        }
-      };
-    } catch (error) {
-      console.error("Failed to initialize board socket:", error);
-      router.push("/dashboard");
+    // Check if user is authenticated
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.error("No token found");
+      router.push("/login");
+      return;
     }
+
+    async function initializeBoard() {
+      try {
+        // Get the socket and it will auto-connect
+        const socket = getSocket();
+        if (!socket) {
+          throw new Error("Failed to connect socket");
+        }
+
+        // For session mode, we just need to make sure a socket connection exists
+        // The actual board joining is handled by the useBoardSocket hook
+        setLoading(false);
+      } catch (error) {
+        console.error("Error initializing board:", error);
+        router.push("/board");
+      }
+    }
+
+    initializeBoard();
+
+    // Cleanup function
+    return () => {
+      const socket = getSocket();
+      if (socket) {
+        socket.emit("board:leave", { boardId: board_id });
+      }
+    };
   }, [board_id, router]);
 
+  if (loading) {
+    return (
+      <div className='h-screen flex items-center justify-center'>
+        <p>Loading board...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className='w-full h-full'>
+    <div className='h-screen'>
       <Board boardId={board_id} ref={boardRef} />
     </div>
   );
-}
+};
+
+export default BoardPage;

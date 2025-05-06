@@ -170,8 +170,8 @@ const Header = () => {
           }}
         >
           <Image
-            src='/orim.svg'
-            alt='Orim Logo'
+            src='/orime.svg'
+            alt='Orime Logo'
             width={80}
             height={32}
             className='cursor-pointer hover:opacity-90 transition-opacity'

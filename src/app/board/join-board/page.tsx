@@ -9,7 +9,7 @@ import {
   Container,
   Paper,
 } from "@mui/material";
-import { connectSocket, joinBoard } from "@/lib/socket";
+import { getSocket } from "@/lib/socket";
 
 const JoinBoardPage = () => {
   const [boardId, setBoardId] = useState("");
@@ -19,9 +19,11 @@ const JoinBoardPage = () => {
     if (!boardId.trim()) return;
 
     try {
-      connectSocket(); // only connects if not already
-      joinBoard(boardId.trim());
-      router.push(`/board/session/${boardId.trim()}`);
+      const socket = getSocket(); // This will auto-connect
+      if (socket) {
+        socket.emit("board:join", { boardId: boardId.trim() });
+        router.push(`/board/session/${boardId.trim()}`);
+      }
     } catch (error) {
       console.error("Failed to join board:", error);
       // Optionally show UI error message

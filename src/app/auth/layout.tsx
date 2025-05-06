@@ -41,15 +41,15 @@ export default function AuthLayout({
         />
         <Box sx={{ mb: 3, position: "relative" }}>
           <Image
-            src='/orim.svg'
-            alt='Orim Logo'
+            src='/orime.svg'
+            alt='Orime Logo'
             width={100}
             height={40}
             className='filter brightness-0 invert mb-4'
           />
         </Box>
         <Typography variant='h3' fontWeight='bold' align='center' mb={3}>
-          Orim Board
+          Orime Board
         </Typography>
         <Typography variant='h6' align='center' fontWeight='light'>
           Your collaborative workspace for teams and projects

@@ -122,7 +122,7 @@ const LeftFabricHeader = () => {
         className={`font-semibold text-2xl ${fira_sans.className} px-2 hover:bg-[#dde4fc] cursor-pointer rounded-md duration-200 mr-1`}
         onClick={() => router.push("/dashboard")}
       >
-        Orim
+        Orime
       </h1>
       {/* <span className='rounded-2xl bg-neutral-200 px-2 py-1 text-violet-950 text-sm mr-1'>
         free

@@ -67,7 +67,7 @@ export default function ProfileLayout({
         {/* Logo and branding */}
         <Box sx={{ mb: 4, position: "relative", textAlign: "center" }}>
           <Image
-            src='/orim.svg'
+            src='/orime.svg'
             alt='Orim Logo'
             width={100}
             height={40}

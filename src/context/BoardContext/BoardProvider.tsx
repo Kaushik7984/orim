@@ -1,14 +1,15 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
 import { FabricJSEditor } from "fabricjs-react";
+import { fabric } from "fabric";
 import { useShapes } from "@/utils/useShapes";
 import { boardAPI } from "@/lib/boardApi";
 import { useAuth } from "../AuthContext";
 import { BoardContextType, Board } from "@/types";
 import BoardContext from "./BoardContext";
-import { useBoardSocket } from "./useBoardSocket";
 import { useBoardAutoSave } from "./useBoardAutoSave";
 import { getSocket } from "@/lib/socket";
+import { usePen } from "@/utils/usePen";
 
 export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
@@ -25,17 +26,13 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
   const [path, setPath] = useState<string>("");
   const [username, setUsername] = useState<string>(user?.displayName || "");
 
-  // Track whether live collaboration is active
-  const [isLiveCollaboration, setIsLiveCollaboration] =
-    useState<boolean>(false);
-
   // Zoom and Pan
   const [zoomLevel, setZoomLevel] = useState<number>(1);
   const [isPanning, setIsPanning] = useState<boolean>(false);
   const enablePanMode = () => setIsPanning(true);
   const disablePanMode = () => setIsPanning(false);
 
-  // Shape tools
+  // Get basic shape tools
   const {
     addCircle,
     addRectangle,
@@ -44,12 +41,31 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     addPolygon,
     addText,
     addTextbox,
-    addPen,
+    disableDrawing,
   } = useShapes(editor, boardId);
 
-  useBoardSocket(user, boardId, editor, setNewJoin);
-  useBoardAutoSave(editor, boardId);
+  // Get pen tools
+  const { addPen, addHighlighter, addEraser, addColoredPen } = usePen(
+    editor,
+    boardId
+  );
 
+  // Detect if we're in session mode using the current URL path
+  const [isSessionMode, setIsSessionMode] = useState(false);
+
+  useEffect(() => {
+    // Check if the URL contains "/board/session/"
+    const isSession =
+      typeof window !== "undefined" &&
+      window.location.pathname.includes("/board/session/");
+    setIsSessionMode(isSession);
+  }, []);
+
+  // Board socket integration is now handled directly in Board.tsx using the collaborationUtils
+  // Pass isSessionMode to disable auto-save in session mode
+  useBoardAutoSave(editor, boardId, isSessionMode);
+
+  // Load all boards on dashboard
   const loadBoards = async () => {
     setLoading(true);
     try {
@@ -63,9 +79,8 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  //open board
   const loadBoard = async (id: string) => {
-    // if (isLiveCollaboration) return; // Skip API call if live collaboration is active
-
     setLoading(true);
     try {
       const response = await boardAPI.getBoard(id);
@@ -94,6 +109,7 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  //create new board
   const createBoard = useCallback(
     async (title: string) => {
       if (!user) throw new Error("User not authenticated");
@@ -146,37 +162,6 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  // const joinBoard = async (boardId: string) => {
-  //   if (!boardId || !user) return;
-
-  //   try {
-  //     const response = await boardAPI.getBoard(boardId);
-
-  //     if (editor && response?.canvasData) {
-  //       const canvasData =
-  //         typeof response.canvasData === "string"
-  //           ? response.canvasData
-  //           : JSON.stringify(response.canvasData);
-
-  //       editor.canvas.loadFromJSON(canvasData, () => {
-  //         editor.canvas.renderAll();
-  //       });
-  //     }
-
-  //     // Emit a "join-board" socket event when the user joins
-  //     socket?.emit("join-board", {
-  //       boardId,
-  //       username: user.displayName || "Anonymous",
-  //     });
-
-  //     // Set live collaboration flag to true
-  //     setIsLiveCollaboration(true); // Indicate that collaboration has started
-  //   } catch (err) {
-  //     console.error("Failed to join the board", err);
-  //     setError("Failed to join the board");
-  //   }
-  // };
-
   useEffect(() => {
     if (user) {
       setUsername(user.displayName || "");
@@ -210,30 +195,29 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
         editor,
         setEditor,
         user: user || undefined,
-        // joinBoard,
-        newJoin,
-        setNewJoin,
         addCircle,
         addRectangle,
         addTriangle,
-        addStraightLine,
-        addPolygon,
         addText,
         addTextbox,
+        addStraightLine,
+        addPolygon,
         addPen,
+        addHighlighter,
+        addEraser,
+        addColoredPen,
+        disableDrawing,
+        enablePanMode,
+        disablePanMode,
+        isPanning,
+        zoomLevel,
+        setZoomLevel,
         path,
         setPath,
         username,
         setUsername,
-        handleCanvasModified: () => {
-          // You can emit a socket event here or trigger a save
-          console.log("Canvas modified");
-        },
-        zoomLevel,
-        setZoomLevel,
-        enablePanMode,
-        disablePanMode,
-        isPanning,
+        setNewJoin,
+        newJoin,
       }}
     >
       {children}

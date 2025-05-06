@@ -56,8 +56,8 @@ export default function Footer() {
           {/* Logo and description */}
           <div className='col-span-2'>
             <Image
-              src='/orim.svg'
-              alt='Orim Logo'
+              src='/orime.svg'
+              alt='Orime Logo'
               width={100}
               height={40}
               className='filter brightness-0 invert mb-4'
@@ -121,7 +121,7 @@ export default function Footer() {
         </div>
 
         <div className='border-t border-gray-700 pt-6 text-center text-sm text-gray-500'>
-          © {currentYear} Orim. All rights reserved.
+          © {currentYear} Orime. All rights reserved.
         </div>
       </div>
     </footer>

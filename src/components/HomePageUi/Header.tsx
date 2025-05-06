@@ -46,8 +46,8 @@ export default function Header({ user }: HeaderProps) {
         <div className='flex items-center gap-8'>
           <Link href='/' className='flex items-center'>
             <Image
-              src='/orim.svg'
-              alt='Orim Logo'
+              src='/orime.svg'
+              alt='Orime Logo'
               width={100}
               height={40}
               className='cursor-pointer hover:opacity-90 transition-opacity'

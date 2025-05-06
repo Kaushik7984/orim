@@ -92,8 +92,6 @@ export interface BoardContextType {
   newJoin: string;
   setNewJoin: (username: string) => void;
 
-  handleCanvasModified: (event: any) => void;
-
   // Drawing tools
   addCircle: () => void;
   addRectangle: () => void;
@@ -102,7 +100,11 @@ export interface BoardContextType {
   addText: () => void;
   addPolygon: () => void;
   addTextbox: (color: string) => void;
-  addPen: () => void;
+  addPen: (color?: string, thickness?: number) => void;
+  addHighlighter: (color?: string, thickness?: number) => void;
+  addColoredPen: (color: string, thickness?: number) => void;
+  addEraser: () => void;
+  disableDrawing: () => void;
 
   // Zoom & Pan
   zoomLevel: number;

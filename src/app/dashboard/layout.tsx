@@ -38,7 +38,7 @@ export default function DashboardLayout({
           sx={{ p: 3, position: "relative", textAlign: "center", zIndex: 1 }}
         >
           <Image
-            src='/orim.svg'
+            src='/orime.svg'
             alt='Orim Logo'
             width={100}
             height={40}

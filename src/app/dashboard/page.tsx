@@ -84,7 +84,6 @@ const Dashboard = () => {
       const response = await updateBoard(selectedBoardId, {
         title: renameTitle.trim(),
       });
-      console.log("Update response:", response);
       setRenameDialogOpen(false);
       await loadBoards();
     } catch (err) {

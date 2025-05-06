@@ -28,7 +28,7 @@ export default function useZoomHandlers(editor: any) {
 
     const scaleX = container.clientWidth / canvas.getWidth();
     const scaleY = container.clientHeight / canvas.getHeight();
-    const scale = Math.min(scaleX, scaleY) * 0.9;
+    const scale = Math.min(scaleX, scaleY) * 1;
 
     canvas.setZoom(scale);
     canvas.setViewportTransform([scale, 0, 0, scale, 0, 0]);

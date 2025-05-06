@@ -14,14 +14,14 @@ export default function Testimonials() {
   const testimonials: Testimonial[] = [
     {
       quote:
-        "Orim has transformed how our product team collaborates. The real-time features make remote work feel seamless.",
+        "Orime has transformed how our product team collaborates. The real-time features make remote work feel seamless.",
       author: "Sarah Chen",
       role: "Product Manager",
       company: "Dropbox",
     },
     {
       quote:
-        "We've cut our planning time in half since adopting Orim. The templates are incredible and save us so much time.",
+        "We've cut our planning time in half since adopting Orime. The templates are incredible and save us so much time.",
       author: "Marcus Johnson",
       role: "CTO",
       company: "Figma",

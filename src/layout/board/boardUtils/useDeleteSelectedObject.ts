@@ -12,10 +12,14 @@ export const useDeleteSelectedObject = (canvas?: fabric.Canvas | null) => {
 
         if (activeGroup.length > 1) {
           activeGroup.forEach((obj) => canvas.remove(obj));
-          canvas.discardActiveObject().renderAll();
+          if (canvas) {
+            canvas.discardActiveObject().renderAll();
+          }
         } else if (activeObject) {
           canvas.remove(activeObject);
-          canvas.discardActiveObject().renderAll();
+          if (canvas) {
+            canvas.discardActiveObject().renderAll();
+          }
         }
       }
     };

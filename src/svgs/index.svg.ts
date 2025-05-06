@@ -1,4 +1,4 @@
-// export { default as Logo } from "./orim.svg";
+// export { default as Logo } from "./orime.svg";
 export { default as Frame_State } from "./framestate.svg";
 export { default as Create_Frame } from "./createframe.svg";
 export { default as Straight_Line } from "./straightline.svg";

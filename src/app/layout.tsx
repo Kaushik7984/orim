@@ -8,8 +8,11 @@ import ChatWidget from "../widgets/chat.widget";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "ORIM Board",
+  title: "Orime Board",
   description: "Collaborative whiteboard application",
+  icons: {
+    icon: "/favicon1.png",
+  },
 };
 
 export default function RootLayout({
@@ -25,7 +28,7 @@ export default function RootLayout({
             <div className='flex flex-col h-full'>
               <main className='flex-1 overflow-auto '>{children}</main>
 
-              <ChatWidget />
+              {/* <ChatWidget /> */}
 
               {/* <DebugToken /> */}
             </div>
