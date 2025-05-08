@@ -2,7 +2,7 @@
 import { Box, Container, Typography, Divider } from "@mui/material";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
 import Image from "next/image";
-import Header from "@/layout/Header";
+import Header from "@/components/dashboard/Header";
 
 export default function DashboardLayout({
   children,
@@ -20,7 +20,7 @@ export default function DashboardLayout({
       {/* Left Side Navigation - Full Height */}
       <Box
         sx={{
-          width: "250px",
+          width: "270px",
           bgcolor: "#ffffff",
           color: "#333333",
           position: "fixed",
@@ -58,7 +58,7 @@ export default function DashboardLayout({
       <Box
         sx={{
           flexGrow: 1,
-          marginLeft: "250px",
+          marginLeft: "270px",
           display: "flex",
           flexDirection: "column",
           bgcolor: "#ffffff",

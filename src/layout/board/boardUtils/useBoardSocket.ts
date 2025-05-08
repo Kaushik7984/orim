@@ -4,16 +4,6 @@ import { useAuth } from "@/context/AuthContext";
 import { fabric } from "fabric";
 import { initializeBoardCollaboration } from "@/utils/collaborationUtils";
 
-// Get API URL from environment
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
-
-/**
- * Custom hook to handle board WebSocket communication
- * @param editor - The canvas editor
- * @param initialBoardId - ID of the board
- * @param isOwner - Whether the current user is the board owner
- * @param isSessionMode - Whether the board is in session mode
- */
 export default function useBoardSocket(
   editor: any,
   initialBoardId: string,
@@ -30,8 +20,6 @@ export default function useBoardSocket(
 
     const canvas = editor.canvas;
     if (!canvas) return;
-
-    // console.log("Initializing collaboration with owner status:", isOwner);
 
     // For session mode and non-owner, request latest board state from server
     if (isSessionMode && !isOwner) {

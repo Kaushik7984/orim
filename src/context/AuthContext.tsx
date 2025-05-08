@@ -11,22 +11,7 @@ import {
   updateProfile as firebaseUpdateProfile,
 } from "firebase/auth";
 import { auth } from "@/config/firebase";
-import { setupTokenRefresh } from "@/lib/token-refresh";
-
-interface ProfileUpdateData {
-  displayName?: string;
-  photoURL?: string;
-}
-
-interface AuthContextType {
-  user: User | null;
-  loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
-  signInWithGoogle: () => Promise<void>;
-  logout: () => Promise<void>;
-  updateProfile: (data: ProfileUpdateData) => Promise<void>;
-}
+import { AuthContextType, ProfileUpdateData } from "@/types";
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -35,31 +20,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setLoading(false);
-
-      if (user) {
-        try {
-          const token = await user.getIdToken();
-          localStorage.setItem("token", token);
-        } catch (error) {
-          console.error("Error getting token:", error);
-        }
-      } else {
-        localStorage.removeItem("token");
-      }
     });
 
     return () => unsubscribe();
   }, []);
-
-  useEffect(() => {
-    if (user) {
-      const cleanup = setupTokenRefresh();
-      return cleanup;
-    }
-  }, [user]);
 
   const signIn = async (email: string, password: string) => {
     try {

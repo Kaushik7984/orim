@@ -68,7 +68,7 @@ const UserMenu: React.FC<UserMenuProps> = ({
       </MenuItem>
       <MenuItem
         onClick={() => {
-          // router.push("/settings");
+          router.push("/profile");
           onClose();
         }}
       >

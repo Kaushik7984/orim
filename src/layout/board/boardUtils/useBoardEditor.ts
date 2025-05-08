@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { fabric } from "fabric";
 
 export default function useBoardEditor(
   editor: any,

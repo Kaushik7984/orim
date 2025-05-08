@@ -10,15 +10,10 @@ interface HistoryState {
 
 const MAX_HISTORY_SIZE = 20; // Limit history size to prevent memory issues
 
-/**
- * Custom hook to manage canvas history for undo/redo operations
- */
 export const useCanvasHistory = (editor: FabricJSEditor | undefined) => {
-  // States to track history
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
 
-  // Use refs to avoid dependency issues in useEffect
   const historyRef = useRef<HistoryState[]>([]);
   const currentIndexRef = useRef(-1);
   const isProcessingHistoryRef = useRef(false);

@@ -23,12 +23,12 @@ export default function useZoomHandlers(editor: any) {
   const handleFitView = () => {
     if (!editor) return;
     const canvas = editor.canvas;
-    const container = canvas.getElement().parentElement;
+    const container = canvas.upperCanvasEl?.parentElement;
     if (!container) return;
 
     const scaleX = container.clientWidth / canvas.getWidth();
     const scaleY = container.clientHeight / canvas.getHeight();
-    const scale = Math.min(scaleX, scaleY) * 1;
+    const scale = Math.min(scaleX, scaleY);
 
     canvas.setZoom(scale);
     canvas.setViewportTransform([scale, 0, 0, scale, 0, 0]);
@@ -36,12 +36,13 @@ export default function useZoomHandlers(editor: any) {
   };
 
   useEffect(() => {
-    if (!editor) return;
+    if (!editor || !editor.canvas) return;
     const canvas = editor.canvas;
+    const canvasElement = canvas.upperCanvasEl;
 
     const handleWheel = (event: WheelEvent) => {
       if (!event.ctrlKey) return;
-      event.preventDefault();
+      event.preventDefault(); // prevent browser zooming
 
       const delta = -event.deltaY;
       const zoomStep = 0.02;
@@ -54,7 +55,6 @@ export default function useZoomHandlers(editor: any) {
       setZoomLevel(Math.round(newZoom * 100));
     };
 
-    const canvasElement = canvas.getElement();
     canvasElement.addEventListener("wheel", handleWheel, { passive: false });
 
     return () => {
@@ -62,5 +62,10 @@ export default function useZoomHandlers(editor: any) {
     };
   }, [editor]);
 
-  return { zoomLevel, handleZoomIn, handleZoomOut, handleFitView };
+  return {
+    zoomLevel,
+    handleZoomIn,
+    handleZoomOut,
+    handleFitView,
+  };
 }

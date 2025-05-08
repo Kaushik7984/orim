@@ -3,7 +3,6 @@ import { useState, useCallback } from "react";
 import {
   AppBar,
   Toolbar,
-  Typography,
   Button,
   Box,
   IconButton,
@@ -14,17 +13,17 @@ import {
   Badge,
   Tooltip,
 } from "@mui/material";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
 import SearchIcon from "@mui/icons-material/Search";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+
 import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 
-// Import component files
 import UserMenu from "./header/UserMenu";
 import TemplateMenu from "./header/TemplateMenu";
 import MoreMenu from "./header/MoreMenu";
@@ -172,8 +171,8 @@ const Header = () => {
           <Image
             src='/orime.svg'
             alt='Orime Logo'
-            width={80}
-            height={32}
+            width={120}
+            height={52}
             className='cursor-pointer hover:opacity-90 transition-opacity'
           />
         </Box>
@@ -230,23 +229,6 @@ const Header = () => {
             More
           </Button>
         </Box>
-
-        {/* Search Section */}
-        <StyledSearchInput
-          placeholder='Search'
-          size='small'
-          // sx={{ ml: 2, width: 180 }}
-          // value={searchTerm}
-          // onChange={(e) => setSearchTerm(e.target.value)}
-          // onKeyDown={handleSearch}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position='start'>
-                <SearchIcon fontSize='small' />
-              </InputAdornment>
-            ),
-          }}
-        />
 
         <Box sx={{ flexGrow: 1 }} />
 

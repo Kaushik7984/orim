@@ -1,6 +1,4 @@
 "use client";
-
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Header from "@/components/HomePageUi/Header";
@@ -17,12 +15,11 @@ const themeColors = {
   secondary: "#dde4fc", // Light blue for hover effects
   accent: "#f3f4f6", // Very light gray
   text: "#111827", // Dark text
-  background: "from-blue-50 to-indigo-100", // Gradient background
+  background: "from-blue-50 to-indigo-100",
 };
 
 export default function HomePage() {
   const { user } = useAuth();
-  const router = useRouter();
 
   return (
     <main

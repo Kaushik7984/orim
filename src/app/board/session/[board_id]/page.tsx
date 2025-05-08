@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { getSocket } from "@/lib/socket";
 import Board from "@/layout/board/Board";
-import { BoardContent } from "@/types";
+import { CircularProgress } from "@mui/material";
 
 const BoardPage = () => {
   const params = useParams();
@@ -19,7 +19,7 @@ const BoardPage = () => {
     const token = localStorage.getItem("token");
     if (!token) {
       console.error("No token found");
-      router.push("/login");
+      router.push("auth/login");
       return;
     }
 
@@ -36,7 +36,7 @@ const BoardPage = () => {
         setLoading(false);
       } catch (error) {
         console.error("Error initializing board:", error);
-        router.push("/board");
+        router.push("/dashboard");
       }
     }
 
@@ -53,8 +53,8 @@ const BoardPage = () => {
 
   if (loading) {
     return (
-      <div className='h-screen flex items-center justify-center'>
-        <p>Loading board...</p>
+      <div className='flex justify-center items-center h-screen'>
+        <CircularProgress />
       </div>
     );
   }

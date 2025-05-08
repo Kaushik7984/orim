@@ -9,7 +9,6 @@ import {
   Paper,
   useTheme,
 } from "@mui/material";
-import ReportProblemIcon from "@mui/icons-material/ReportProblem";
 import HomeIcon from "@mui/icons-material/Home";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
@@ -27,8 +26,6 @@ export default function GlobalError({
   // Log the error to an error reporting service
   useEffect(() => {
     console.error("Global Error:", error);
-    // Here you would send to your error tracking service
-    // Example: sendToErrorTracking(error);
   }, [error]);
 
   return (

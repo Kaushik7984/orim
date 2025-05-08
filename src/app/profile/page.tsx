@@ -9,7 +9,6 @@ import {
   Button,
   Typography,
   Box,
-  Divider,
   Alert,
   Avatar,
   Grid,
@@ -55,8 +54,9 @@ export default function ProfilePage() {
   const [success, setSuccess] = useState("");
   const [tabValue, setTabValue] = useState(0);
   const [emailNotifications, setEmailNotifications] = useState(true);
+
   const router = useRouter();
-  const { user, updateProfile } = useAuth();
+  const { user, updateProfile, logout } = useAuth();
 
   useEffect(() => {
     if (user) {
@@ -94,6 +94,15 @@ export default function ProfilePage() {
       setError(error.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      router.push("/auth/login");
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -261,7 +270,7 @@ export default function ProfilePage() {
                   <Button
                     variant='outlined'
                     color='error'
-                    onClick={() => router.push("/auth/logout")}
+                    onClick={() => handleLogout()}
                     sx={{ mt: 2 }}
                   >
                     Log Out

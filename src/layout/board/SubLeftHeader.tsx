@@ -38,7 +38,7 @@ const SubLeftHeader = () => {
 
   return (
     <div
-      className='flex flex-row rounded-md bg-white p-1 items-center transition-all overflow-hidden'
+      className='flex flex-row rounded-md bg-white 1 items-center transition-all overflow-hidden'
       style={{ boxShadow: "1px 1px 5px rgba(0, 0, 0, 0.3)" }}
     >
       {open && (

@@ -48,7 +48,7 @@ export default function Header({ user }: HeaderProps) {
             <Image
               src='/orime.svg'
               alt='Orime Logo'
-              width={100}
+              width={150}
               height={40}
               className='cursor-pointer hover:opacity-90 transition-opacity'
             />

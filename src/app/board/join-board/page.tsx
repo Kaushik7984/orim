@@ -19,14 +19,13 @@ const JoinBoardPage = () => {
     if (!boardId.trim()) return;
 
     try {
-      const socket = getSocket(); // This will auto-connect
+      const socket = getSocket();
       if (socket) {
         socket.emit("board:join", { boardId: boardId.trim() });
         router.push(`/board/session/${boardId.trim()}`);
       }
     } catch (error) {
       console.error("Failed to join board:", error);
-      // Optionally show UI error message
     }
   };
 

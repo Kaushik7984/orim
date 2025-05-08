@@ -16,7 +16,6 @@ import {
 import {
   MdPerson,
   MdSecurity,
-  MdSettings,
   MdApps,
   MdGroups,
   MdInsights,

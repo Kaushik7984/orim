@@ -5,15 +5,13 @@ import { fabric } from "fabric";
 import { useShapes } from "@/utils/useShapes";
 import { boardAPI } from "@/lib/boardApi";
 import { useAuth } from "../AuthContext";
-import { BoardContextType, Board } from "@/types";
+import { Board } from "@/types";
 import BoardContext from "./BoardContext";
 import { useBoardAutoSave } from "./useBoardAutoSave";
-import { getSocket } from "@/lib/socket";
 import { usePen } from "@/utils/usePen";
 
 export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
-  const socket = getSocket();
 
   const [boards, setBoards] = useState<Board[]>([]);
   const [currentBoard, setCurrentBoard] = useState<Board | null>(null);
@@ -32,7 +30,7 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
   const enablePanMode = () => setIsPanning(true);
   const disablePanMode = () => setIsPanning(false);
 
-  // Get basic shape tools
+  // Get shape tools
   const {
     addCircle,
     addRectangle,
@@ -49,6 +47,8 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     editor,
     boardId
   );
+
+  // useBoardAutoSave(editor, boardId);
 
   // Detect if we're in session mode using the current URL path
   const [isSessionMode, setIsSessionMode] = useState(false);

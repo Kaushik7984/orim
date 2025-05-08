@@ -9,14 +9,12 @@ import {
   Button,
   Typography,
   Box,
-  Divider,
   Alert,
   IconButton,
   Stack,
 } from "@mui/material";
 import { FcGoogle } from "react-icons/fc";
 import { FaMicrosoft, FaPlus } from "react-icons/fa";
-import { HiOutlineShieldCheck } from "react-icons/hi";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -71,9 +69,6 @@ export default function LoginPage() {
           justifyContent='center'
           sx={{ mb: 3 }}
         >
-          <IconButton size='large' color='default'>
-            <HiOutlineShieldCheck />
-          </IconButton>
           <IconButton size='large' onClick={handleGoogleSignIn}>
             <FcGoogle />
           </IconButton>

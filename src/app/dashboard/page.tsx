@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { useBoard } from "@/context/BoardContext/useBoard";
 import { useRouter } from "next/navigation";
+import BoardCard from "./BoardCard";
+import Image from "next/image";
 import {
   Button,
   Typography,
@@ -15,8 +17,6 @@ import {
   TextField,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import BoardCard from "./BoardCard";
-import Image from "next/image";
 
 const Dashboard = () => {
   const {
@@ -92,6 +92,7 @@ const Dashboard = () => {
     }
   };
 
+  //Set random Image for board
   const getPlaceholderById = (id: string) => {
     const hash = Array.from(id).reduce(
       (acc, char) => acc + char.charCodeAt(0),
@@ -177,7 +178,7 @@ const Dashboard = () => {
         </Grid>
       )}
 
-      {/* Create Board Dialog */}
+      {/* Create Board Dialog Open */}
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
         <DialogTitle>Create New Board</DialogTitle>
         <DialogContent>

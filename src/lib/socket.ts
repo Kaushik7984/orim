@@ -1,14 +1,9 @@
 import { io, Socket } from "socket.io-client";
 
-const SOCKET_URL =
-  // process.env.NEXT_PUBLIC_SOCKET_URL ||
-  // "http://localhost:3001" ||
-  "http://192.168.200.39:3001";
+const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL;
+// const SOCKET_URL = "http://192.168.200.39:3001";
 let socket: Socket | null = null;
 
-/**
- * Socket singleton that manages the connection and provides event helpers
- */
 export const SocketService = {
   // State properties
   _boardUpdateTimeout: null as NodeJS.Timeout | null,

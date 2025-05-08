@@ -30,7 +30,6 @@ export default function RegisterPage() {
     }
     try {
       await signUp(email, password);
-      // router.push("/board/join-board");
       router.push("/dashboard");
     } catch (error: any) {
       setError(error.message);
@@ -40,7 +39,7 @@ export default function RegisterPage() {
   const handleGoogleSignIn = async () => {
     try {
       await signInWithGoogle();
-      router.push("/board/join-board");
+      router.push("/dashboard");
     } catch (error: any) {
       setError(error.message);
     }

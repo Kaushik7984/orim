@@ -13,17 +13,7 @@ import StarBorderIcon from "@mui/icons-material/StarBorder";
 import { useState } from "react";
 import Image from "next/image";
 import { formatDistanceToNow } from "date-fns";
-
-interface BoardCardProps {
-  title: string;
-  ownerEmail?: string;
-  createdAt?: string;
-  onClick: () => void;
-  onDelete: () => void;
-  onEdit?: () => void;
-  backgroundImage?: string; // Path to SVG/PNG
-  isFavorited?: boolean;
-}
+import { BoardCardProps } from "@/types";
 
 const BoardCard: React.FC<BoardCardProps> = ({
   title,
@@ -181,6 +171,7 @@ const BoardCard: React.FC<BoardCardProps> = ({
         </Box>
       </CardContent>
 
+      {/* menu icon and delete and edit */}
       <Menu
         anchorEl={anchorEl}
         open={open}

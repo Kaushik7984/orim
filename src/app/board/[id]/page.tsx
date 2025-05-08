@@ -15,7 +15,7 @@ export default function BoardPage() {
       ? params.id[0]
       : null;
 
-  const { loadBoard, currentBoard, loading, error } = useBoard();
+  const { loadBoard, currentBoard, loading } = useBoard();
   const [hasTried, setHasTried] = useState(false);
 
   useEffect(() => {

@@ -48,6 +48,7 @@ const Toolbar = ({
 
     const canvas = editor.canvas;
     const canvasElement = canvas.getElement();
+    if (!canvasElement) return; // Additional check for canvasElement
 
     const handleDragOver = (e: DragEvent) => {
       e.preventDefault();
@@ -69,7 +70,6 @@ const Toolbar = ({
         const imgURL = event.target?.result;
         if (typeof imgURL === "string") {
           fabric.Image.fromURL(imgURL, (img) => {
-            // Scale image if it's too large
             const maxDimension = 500;
             if (img.width && img.height) {
               if (img.width > maxDimension || img.height > maxDimension) {
@@ -79,7 +79,6 @@ const Toolbar = ({
               }
             }
 
-            // Position image at drop point
             const pointer = canvas.getPointer(e);
             img.left = pointer.x;
             img.top = pointer.y;
@@ -159,7 +158,6 @@ const Toolbar = ({
     // Handle different tools
     switch (name) {
       case "Select":
-        // Set select mode (default Fabric.js behavior)
         disableDrawing && disableDrawing();
         if (editor?.canvas) {
           editor.canvas.isDrawingMode = false;
@@ -169,18 +167,13 @@ const Toolbar = ({
         addText && addText();
         break;
       case "Templates":
-        // Show templates sidebar
         setIsOpen(true);
         break;
       case "Sticky note":
-        // Just show the popover, don't create a note yet
-        // The note will be created when a color is selected
         break;
       case "Shapes":
-        // Keep open for submenu selection - no direct action needed
         break;
       case "Connection line":
-        // Keep open for submenu selection - no direct action needed
         break;
       case "Pen":
         addPen && addPen();
@@ -192,16 +185,13 @@ const Toolbar = ({
         addEraser && addEraser();
         break;
       case "Comment":
-        // Implement comment functionality
         break;
       case "Frame":
-        // Implement frame functionality
         break;
       case "Upload":
         handleFileUpload();
         break;
       case "More apps":
-        // Show more apps menu
         break;
       default:
         break;
@@ -312,7 +302,7 @@ const Toolbar = ({
   };
 
   return (
-    <motion.div className='flex flex-col items-center mt-12 ml-1'>
+    <motion.div className='flex flex-col items-center mt-12 ml-2'>
       <input
         type='file'
         ref={fileInputRef}

@@ -3,12 +3,11 @@ import { FabricJSEditor } from "fabricjs-react";
 import { boardAPI } from "@/lib/boardApi";
 import { SocketService } from "@/lib/socket";
 import { useAuth } from "../AuthContext";
-import axios from "axios";
 
 export const useBoardAutoSave = (
   editor?: FabricJSEditor,
   boardId?: string,
-  isSessionMode: boolean = false // Add parameter to detect session mode
+  isSessionMode: boolean = false
 ) => {
   const lastCanvasDataRef = useRef<string>("");
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -17,24 +16,21 @@ export const useBoardAutoSave = (
 
   // Check if current user is the board owner
   useEffect(() => {
-    if (!user || !boardId) return;
-
-    // Skip ownership check in session mode
-    if (isSessionMode) return;
+    if (!user || !boardId || isSessionMode) {
+      if (isSessionMode) {
+        console.log("Ownership check skipped in session mode");
+      }
+      return;
+    }
 
     const checkOwnership = async () => {
       try {
-        const API_URL =
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
-        const response = await axios.get(`${API_URL}/boards/${boardId}`);
-
-        if (response.data && response.data.ownerId === user.uid) {
-          setIsOwner(true);
-        }
+        const board = await boardAPI.getBoard(boardId);
+        setIsOwner(board.ownerId === user.uid);
       } catch (error) {
-        // If board doesn't exist yet, current user will be the owner
+        // If board doesn't exist, assume the current user will be the owner
         setIsOwner(true);
-        console.log("New board, setting current user as owner");
+        console.log("New board detected, setting current user as owner");
       }
     };
 
@@ -42,13 +38,24 @@ export const useBoardAutoSave = (
   }, [boardId, user, isSessionMode]);
 
   useEffect(() => {
-    if (!editor || !boardId) return;
-
-    // Skip autosave completely in session mode
-    if (isSessionMode) {
-      console.log("Autosave disabled in session mode");
+    if (!editor?.canvas || !boardId || isSessionMode) {
+      if (isSessionMode) {
+        console.log("Autosave disabled in session mode");
+      }
       return;
     }
+
+    const debounce = <T extends (...args: any[]) => void>(
+      callback: T,
+      delay: number
+    ) => {
+      return (...args: Parameters<T>) => {
+        if (saveTimeoutRef.current) {
+          clearTimeout(saveTimeoutRef.current);
+        }
+        saveTimeoutRef.current = setTimeout(() => callback(...args), delay);
+      };
+    };
 
     const saveCanvas = async () => {
       try {
@@ -58,87 +65,69 @@ export const useBoardAutoSave = (
         ]);
         const currentCanvasData = JSON.stringify(canvasJSON);
 
-        if (currentCanvasData !== lastCanvasDataRef.current) {
-          lastCanvasDataRef.current = currentCanvasData;
+        if (currentCanvasData === lastCanvasDataRef.current) {
+          return; // No changes to save
+        }
 
-          // Only the board owner should save to the database
-          if (isOwner) {
-            // Update the board on the server
-            await boardAPI.updateBoard(boardId, {
-              canvasData: JSON.parse(currentCanvasData),
-            });
-            console.log("Canvas saved to database (owner)");
-          }
+        lastCanvasDataRef.current = currentCanvasData;
 
-          // Send real-time update to collaborators regardless of owner status
-          if (user?.uid) {
+        // Save to database if the user is the owner
+        if (isOwner) {
+          await boardAPI.updateBoard(boardId, {
+            canvasData: JSON.parse(currentCanvasData),
+          });
+          console.log("Canvas saved to database (owner)");
+        }
+
+        // Emit real-time update to collaborators
+        if (user?.uid) {
+          try {
             SocketService.emitBoardUpdate(
               boardId,
               user.uid,
               JSON.parse(currentCanvasData),
               isOwner
             );
+            console.log(
+              `Canvas synchronized with collaborators (isOwner: ${isOwner})`
+            );
+          } catch (socketError) {
+            console.error("Failed to emit board update:", socketError);
           }
-
-          console.log(
-            `Canvas synchronized with collaborators (isOwner: ${isOwner}).`
-          );
         }
       } catch (err) {
-        console.error("Auto-save or sync failed:", err);
+        console.error("Auto-save failed:", err);
       }
     };
 
-    // Debounced auto-save: Save after 500ms of inactivity
-    const debounceSave = () => {
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-      }
+    const debouncedSave = debounce(saveCanvas, 500);
 
-      saveTimeoutRef.current = setTimeout(saveCanvas, 500);
-    };
+    // Handle all canvas changes
+    const handleCanvasChange = () => debouncedSave();
 
-    // Track all canvas changes that should trigger a save
-    const handleCanvasChange = () => {
-      debounceSave();
-    };
+    // Attach event listeners
+    const events = [
+      "object:modified",
+      "object:added",
+      "object:removed",
+      "path:created",
+      "object:rotating",
+      "object:scaling",
+      "object:moving",
+      "text:changed",
+      "selection:created",
+      "selection:updated",
+      "selection:cleared",
+    ];
 
-    // Listen to changes in the editor canvas
-    editor.canvas.on("object:modified", handleCanvasChange);
-    editor.canvas.on("object:added", handleCanvasChange);
-    editor.canvas.on("object:removed", handleCanvasChange);
-    editor.canvas.on("path:created", handleCanvasChange);
+    events.forEach((event) => editor.canvas.on(event, handleCanvasChange));
 
-    // Also listen for property changes that might happen during interactions
-    editor.canvas.on("object:rotating", handleCanvasChange);
-    editor.canvas.on("object:scaling", handleCanvasChange);
-    editor.canvas.on("object:moving", handleCanvasChange);
-
-    // Text changes
-    editor.canvas.on("text:changed", handleCanvasChange);
-
-    // Listen for selection changes (might want to sync selection state too)
-    editor.canvas.on("selection:created", handleCanvasChange);
-    editor.canvas.on("selection:updated", handleCanvasChange);
-    editor.canvas.on("selection:cleared", handleCanvasChange);
-
+    // Cleanup
     return () => {
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current);
       }
-
-      // Clean up all event listeners
-      editor.canvas.off("object:modified", handleCanvasChange);
-      editor.canvas.off("object:added", handleCanvasChange);
-      editor.canvas.off("object:removed", handleCanvasChange);
-      editor.canvas.off("path:created", handleCanvasChange);
-      editor.canvas.off("object:rotating", handleCanvasChange);
-      editor.canvas.off("object:scaling", handleCanvasChange);
-      editor.canvas.off("object:moving", handleCanvasChange);
-      editor.canvas.off("text:changed", handleCanvasChange);
-      editor.canvas.off("selection:created", handleCanvasChange);
-      editor.canvas.off("selection:updated", handleCanvasChange);
-      editor.canvas.off("selection:cleared", handleCanvasChange);
+      events.forEach((event) => editor.canvas.off(event, handleCanvasChange));
     };
   }, [editor, boardId, user, isOwner, isSessionMode]);
 };

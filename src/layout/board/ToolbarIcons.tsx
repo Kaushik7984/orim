@@ -309,11 +309,11 @@ const ShapesToolbar = ({
   onShapeSelect?: (name: string) => void;
 }) => {
   return (
-    <div className='flex flex-col gap-2 p-2'>
+    <div className='flex flex-col gap-1 p-2'>
       <div className='flex justify-between items-center border-b pb-2'>
         <span className='text-sm font-medium'>Shape Tools</span>
       </div>
-      <div className='grid grid-cols-3 gap-2 py-2'>
+      <div className='grid grid-cols-3 gap-1 py-2'>
         {shapes.map((shape) => (
           <div
             key={shape.name}

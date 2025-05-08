@@ -31,7 +31,7 @@ export interface BoardRef {
   updateContent: (content: BoardContent) => void;
 }
 
-// Toast notification for collaboration events
+// Toast notification for collaboration events - updated to top right position
 const CollaborationToast = ({ boardId }: { boardId: string }) => {
   const [notifications, setNotifications] = useState<
     { id: string; message: string; color: string }[]
@@ -85,13 +85,17 @@ const CollaborationToast = ({ boardId }: { boardId: string }) => {
   if (notifications.length === 0) return null;
 
   return (
-    <div className='fixed bottom-4 left-4 flex flex-col gap-2 z-20'>
+    <div className='fixed top-16 right-4 flex flex-col gap-2 z-50'>
       {notifications.map(({ id, message, color }) => (
         <div
           key={id}
-          className='bg-white/95 rounded-md shadow-md px-4 py-3 text-sm font-medium animate-fade-in max-w-xs'
-          style={{ borderLeft: `4px solid ${color}` }}
+          className='bg-white rounded-md shadow-md px-4 py-2.5 text-sm font-medium animate-slide-in flex items-center'
+          style={{ borderLeft: `3px solid ${color}` }}
         >
+          <div
+            className='w-2 h-2 rounded-full mr-2'
+            style={{ backgroundColor: color }}
+          />
           {message}
         </div>
       ))}
@@ -99,130 +103,130 @@ const CollaborationToast = ({ boardId }: { boardId: string }) => {
   );
 };
 
-// Animation styles for notifications
+// Animation styles for notifications - updated with slide-in from right
 const animationStyles = `
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
   }
   
-  .animate-fade-in {
-    animation: fadeIn 0.3s ease-out forwards;
+  .animate-slide-in {
+    animation: slideIn 0.3s ease-out forwards;
   }
 `;
 
 // Collaboration avatars component - improved to use CursorPosition type
-const CollaboratorAvatars = ({ boardId }: { boardId: string }) => {
-  const [activeUsers, setActiveUsers] = useState<
-    { userId: string; username: string; color: string; lastActive: number }[]
-  >([]);
-  const { user } = useAuth();
+// const CollaboratorAvatars = ({ boardId }: { boardId: string }) => {
+//   const [activeUsers, setActiveUsers] = useState<
+//     { userId: string; username: string; color: string; lastActive: number }[]
+//   >([]);
+//   const { user } = useAuth();
 
-  useEffect(() => {
-    if (!boardId || !user) return;
+//   useEffect(() => {
+//     if (!boardId || !user) return;
 
-    // For tracking active collaborators
-    const collaborators = new Map<
-      string,
-      {
-        userId: string;
-        username: string;
-        color: string;
-        lastActive: number;
-      }
-    >();
+//     // For tracking active collaborators
+//     const collaborators = new Map<
+//       string,
+//       {
+//         userId: string;
+//         username: string;
+//         color: string;
+//         lastActive: number;
+//       }
+//     >();
 
-    // Listen for cursor movement to track active users
-    const cursorMoveListener = SocketService.on(
-      "cursor:move",
-      (data: CursorPosition) => {
-        if (data.userId === user.uid) return; // Skip self
+//     // Listen for cursor movement to track active users
+//     const cursorMoveListener = SocketService.on(
+//       "cursor:move",
+//       (data: CursorPosition) => {
+//         if (data.userId === user.uid) return; // Skip self
 
-        collaborators.set(data.userId, {
-          userId: data.userId,
-          username: data.username || "Anonymous",
-          color: data.color || getUserColor(data.userId),
-          lastActive: Date.now(),
-        });
+//         collaborators.set(data.userId, {
+//           userId: data.userId,
+//           username: data.username || "Anonymous",
+//           color: data.color || getUserColor(data.userId),
+//           lastActive: Date.now(),
+//         });
 
-        updateCollaboratorsList();
-      }
-    );
+//         updateCollaboratorsList();
+//       }
+//     );
 
-    // Listen for user left events
-    const userLeftListener = SocketService.on(
-      "board:user-left",
-      (data: { userId: string }) => {
-        collaborators.delete(data.userId);
-        updateCollaboratorsList();
-      }
-    );
+//     // Listen for user left events
+//     const userLeftListener = SocketService.on(
+//       "board:user-left",
+//       (data: { userId: string }) => {
+//         collaborators.delete(data.userId);
+//         updateCollaboratorsList();
+//       }
+//     );
 
-    // Update the collaborators list from the map
-    const updateCollaboratorsList = () => {
-      const activeList = Array.from(collaborators.values())
-        .filter((c) => c.userId !== user.uid) // Filter out self
-        .sort((a, b) => b.lastActive - a.lastActive); // Most recently active first
+//     // Update the collaborators list from the map
+//     const updateCollaboratorsList = () => {
+//       const activeList = Array.from(collaborators.values())
+//         .filter((c) => c.userId !== user.uid) // Filter out self
+//         .sort((a, b) => b.lastActive - a.lastActive); // Most recently active first
 
-      setActiveUsers(activeList);
-    };
+//       setActiveUsers(activeList);
+//     };
 
-    // Clean up inactive users every 10 seconds
-    const cleanupInterval = setInterval(() => {
-      const now = Date.now();
-      let updated = false;
+//     // Clean up inactive users every 10 seconds
+//     const cleanupInterval = setInterval(() => {
+//       const now = Date.now();
+//       let updated = false;
 
-      collaborators.forEach((collaborator, id) => {
-        // Remove if inactive for more than 30 seconds
-        if (now - collaborator.lastActive > 30000) {
-          collaborators.delete(id);
-          updated = true;
-        }
-      });
+//       collaborators.forEach((collaborator, id) => {
+//         // Remove if inactive for more than 30 seconds
+//         if (now - collaborator.lastActive > 30000) {
+//           collaborators.delete(id);
+//           updated = true;
+//         }
+//       });
 
-      if (updated) {
-        updateCollaboratorsList();
-      }
-    }, 10000);
+//       if (updated) {
+//         updateCollaboratorsList();
+//       }
+//     }, 10000);
 
-    return () => {
-      cursorMoveListener();
-      userLeftListener();
-      clearInterval(cleanupInterval);
-    };
-  }, [boardId, user]);
+//     return () => {
+//       cursorMoveListener();
+//       userLeftListener();
+//       clearInterval(cleanupInterval);
+//     };
+//   }, [boardId, user]);
 
-  if (activeUsers.length === 0) return null;
+//   if (activeUsers.length === 0) return null;
 
-  return (
-    <div className='absolute top-4 right-4 flex items-center bg-white/90 rounded-full px-3 py-1.5 shadow-md z-10'>
-      <div className='mr-2 text-sm font-medium text-gray-600'>
-        {activeUsers.length}{" "}
-        {activeUsers.length === 1 ? "collaborator" : "collaborators"}
-      </div>
-      <div className='flex -space-x-2'>
-        {activeUsers.slice(0, 3).map((user, i) => (
-          <div
-            key={user.userId}
-            className='w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-medium border-2 border-white'
-            style={{
-              backgroundColor: user.color,
-              zIndex: 10 - i,
-            }}
-            title={user.username}
-          >
-            {user.username.substring(0, 1).toUpperCase()}
-          </div>
-        ))}
-        {activeUsers.length > 3 && (
-          <div className='w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium border-2 border-white'>
-            +{activeUsers.length - 3}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
+//   return (
+//     <div className='absolute top-4 right-4 flex items-center bg-white/90 rounded-full px-3 py-1.5 shadow-md z-10'>
+//       <div className='mr-2 text-sm font-medium text-gray-600'>
+//         {activeUsers.length}{" "}
+//         {activeUsers.length === 1 ? "collaborator" : "collaborators"}
+//       </div>
+//       <div className='flex -space-x-2'>
+//         {activeUsers.slice(0, 3).map((user, i) => (
+//           <div
+//             key={user.userId}
+//             className='w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-medium border-2 border-white'
+//             style={{
+//               backgroundColor: user.color,
+//               zIndex: 10 - i,
+//             }}
+//             title={user.username}
+//           >
+//             {user.username.substring(0, 1).toUpperCase()}
+//           </div>
+//         ))}
+//         {activeUsers.length > 3 && (
+//           <div className='w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium border-2 border-white'>
+//             +{activeUsers.length - 3}
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// };
 
 const Board = forwardRef<BoardRef, BoardProps>(
   ({ boardId: initialBoardId }, ref) => {
@@ -267,7 +271,7 @@ const Board = forwardRef<BoardRef, BoardProps>(
           <FabricSidebar editor={editor} />
           <div className='flex-1 bg-[#f5f5f5] relative'>
             <FabricJSCanvas className='h-full w-full' onReady={onReady} />
-            <CollaboratorAvatars boardId={initialBoardId} />
+            {/* <CollaboratorAvatars boardId={initialBoardId} /> */}
             <CollaborationToast boardId={initialBoardId} />
             <ZoomPanel
               zoomLevel={zoomLevel}
