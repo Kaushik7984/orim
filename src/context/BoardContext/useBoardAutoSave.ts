@@ -71,18 +71,14 @@ export const useBoardAutoSave = (
           }
 
           // Send real-time update to collaborators regardless of owner status
-          if (user?.uid) {
-            SocketService.emitBoardUpdate(
-              boardId,
-              user.uid,
-              JSON.parse(currentCanvasData),
-              isOwner
-            );
-          }
-
-          console.log(
-            `Canvas synchronized with collaborators (isOwner: ${isOwner}).`
-          );
+          // if (user?.uid) {
+          //   SocketService.emitBoardUpdate(
+          //     boardId,
+          //     user.uid,
+          //     JSON.parse(currentCanvasData),
+          //     isOwner
+          //   );
+          // }
         }
       } catch (err) {
         console.error("Auto-save or sync failed:", err);

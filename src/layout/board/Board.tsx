@@ -20,7 +20,6 @@ import useZoomHandlers from "./boardUtils/useZoomHandlers";
 import { useDeleteSelectedObject } from "./boardUtils/useDeleteSelectedObject";
 import { useAuth } from "@/context/AuthContext";
 import { getSocket } from "@/lib/socket";
-import { CursorPosition, getUserColor } from "@/utils/collaborationUtils";
 import { SocketService } from "@/lib/socket";
 
 interface BoardProps {
@@ -132,23 +131,6 @@ const CollaboratorAvatars = ({ boardId }: { boardId: string }) => {
       }
     >();
 
-    // Listen for cursor movement to track active users
-    const cursorMoveListener = SocketService.on(
-      "cursor:move",
-      (data: CursorPosition) => {
-        if (data.userId === user.uid) return; // Skip self
-
-        collaborators.set(data.userId, {
-          userId: data.userId,
-          username: data.username || "Anonymous",
-          color: data.color || getUserColor(data.userId),
-          lastActive: Date.now(),
-        });
-
-        updateCollaboratorsList();
-      }
-    );
-
     // Listen for user left events
     const userLeftListener = SocketService.on(
       "board:user-left",
@@ -186,7 +168,7 @@ const CollaboratorAvatars = ({ boardId }: { boardId: string }) => {
     }, 10000);
 
     return () => {
-      cursorMoveListener();
+      // cursorMoveListener();
       userLeftListener();
       clearInterval(cleanupInterval);
     };

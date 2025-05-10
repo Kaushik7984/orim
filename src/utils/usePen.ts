@@ -40,7 +40,7 @@ export const usePen = (
   const cleanupCanvasListeners = () => {
     if (!editor?.canvas) return;
 
-    editor.canvas._currentDrawingMode = undefined;
+    // editor.canvas._currentDrawingMode = undefined;
     editor.canvas.isDrawingMode = false;
 
     // Remove all tool-related listeners

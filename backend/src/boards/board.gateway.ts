@@ -33,14 +33,14 @@ export class BoardGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleConnection(client: Socket) {
     console.log(`Client connected: ${client.id}`);
 
-    client.on('board:join', (data) => this.handleJoinBoard(client, data));
+    client.on('board:join', (data) => this.handleJoinBoard(client, data)); //for join board
     client.on('board:leave', (data) => this.handleLeaveBoard(client, data));
-    client.on('board:update', (data) => this.handleBoardUpdate(client, data));
-    client.on('board:get-users', (data) => this.handleGetUsers(client, data));
-    client.on('cursor:move', (data) => this.handleCursorMove(client, data));
-    client.on('shape:add', (data) => this.handleShapeAdd(client, data));
-    client.on('shape:modify', (data) => this.handleShapeModify(client, data));
-    client.on('shape:delete', (data) => this.handleShapeDelete(client, data));
+    // client.on('board:update', (data) => this.handleBoardUpdate(client, data));
+    // client.on('board:get-users', (data) => this.handleGetUsers(client, data));
+    client.on('cursor:move', (data) => this.handleCursorMove(client, data)); // for cursor move
+    client.on('shape:add', (data) => this.handleShapeAdd(client, data)); // live sync(add shapes on board)
+    client.on('shape:modify', (data) => this.handleShapeModify(client, data)); //live sync (change position of shape)
+    client.on('shape:delete', (data) => this.handleShapeDelete(client, data)); //live sync (delete shape)
   }
 
   // Handle client disconnection and cleanup user from board
@@ -154,83 +154,83 @@ export class BoardGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   // Handle real-time board update from user
-  @SubscribeMessage('board:update')
-  async handleBoardUpdate(
-    client: Socket,
-    @MessageBody()
-    data: {
-      boardId: string;
-      canvasData: Record<string, unknown>;
-      userId: string;
-      isOwner?: boolean;
-    },
-  ) {
-    const { boardId, canvasData, userId, isOwner } = data;
+  // @SubscribeMessage('board:update')
+  // async handleBoardUpdate(
+  //   client: Socket,
+  //   @MessageBody()
+  //   data: {
+  //     boardId: string;
+  //     canvasData: Record<string, unknown>;
+  //     userId: string;
+  //     isOwner?: boolean;
+  //   },
+  // ) {
+  //   const { boardId, canvasData, userId, isOwner } = data;
 
-    if (!canvasData) return;
+  //   if (!canvasData) return;
 
-    try {
-      // Only persist update to database if it comes from the board owner
-      const isActualOwner = isOwner || this.boardOwners.get(boardId) === userId;
+  //   try {
+  //     // Only persist update to database if it comes from the board owner
+  //     const isActualOwner = isOwner || this.boardOwners.get(boardId) === userId;
 
-      if (isActualOwner) {
-        // Persist update to database
-        await this.boardsService.updateBoard(boardId, { canvasData });
-        console.log(`Board updated by owner ${userId} and saved to database`);
-      } else {
-        console.log(
-          `Canvas update from non-owner ${userId} - not saving to database`,
-        );
-      }
+  //     if (isActualOwner) {
+  //       // Persist update to database
+  //       await this.boardsService.updateBoard(boardId, { canvasData });
+  //       console.log(`Board updated by owner ${userId} and saved to database`);
+  //     } else {
+  //       console.log(
+  //         `Canvas update from non-owner ${userId} - not saving to database`,
+  //       );
+  //     }
 
-      // Broadcast update to other users regardless of who sent it
-      client.to(boardId).emit('board:update', { canvasData, userId });
+  //     // Broadcast update to other users regardless of who sent it
+  //     client.to(boardId).emit('board:update', { canvasData, userId });
 
-      console.log(`Board update broadcast from ${userId} on board ${boardId}`);
-    } catch (error) {
-      console.error('Error updating board:', error);
-      client.emit('error', { message: 'Error updating the board' });
-    }
-  }
+  //     console.log(`Board update broadcast from ${userId} on board ${boardId}`);
+  //   } catch (error) {
+  //     console.error('Error updating board:', error);
+  //     client.emit('error', { message: 'Error updating the board' });
+  //   }
+  // }
 
   // Handle requests for the latest board state (for session mode collaborators)
-  @SubscribeMessage('board:request-latest-state')
-  async handleRequestLatestState(
-    client: Socket,
-    @MessageBody() data: { boardId: string },
-  ) {
-    const { boardId } = data;
+  // @SubscribeMessage('board:request-latest-state')
+  // async handleRequestLatestState(
+  //   client: Socket,
+  //   @MessageBody() data: { boardId: string },
+  // ) {
+  //   const { boardId } = data;
 
-    if (!boardId) {
-      client.emit('error', { message: 'Invalid boardId' });
-      return;
-    }
+  //   if (!boardId) {
+  //     client.emit('error', { message: 'Invalid boardId' });
+  //     return;
+  //   }
 
-    try {
-      // Get user info for the requesting client
-      const userInfo = this.socketToUser.get(client.id);
+  //   try {
+  //     // Get user info for the requesting client
+  //     const userInfo = this.socketToUser.get(client.id);
 
-      // Fetch the latest board state from the database
-      const board = await this.boardsService.findBoardById(boardId);
+  //     // Fetch the latest board state from the database
+  //     const board = await this.boardsService.findBoardById(boardId);
 
-      if (board?.canvasData) {
-        // If user is a collaborator and not the owner, send them the latest state
-        if (userInfo && userInfo.boardId === boardId) {
-          console.log(
-            `Sending latest board state to user ${userInfo.userId} for board ${boardId}`,
-          );
-          client.emit('board:sync', board.canvasData);
-        }
-      } else {
-        console.log(`No canvas data found for board ${boardId}`);
-      }
-    } catch (error) {
-      console.error('Error fetching latest board state:', error);
-      client.emit('error', {
-        message: 'Error fetching the latest board state',
-      });
-    }
-  }
+  //     if (board?.canvasData) {
+  //       // If user is a collaborator and not the owner, send them the latest state
+  //       if (userInfo && userInfo.boardId === boardId) {
+  //         console.log(
+  //           `Sending latest board state to user ${userInfo.userId} for board ${boardId}`,
+  //         );
+  //         client.emit('board:sync', board.canvasData);
+  //       }
+  //     } else {
+  //       console.log(`No canvas data found for board ${boardId}`);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error fetching latest board state:', error);
+  //     client.emit('error', {
+  //       message: 'Error fetching the latest board state',
+  //     });
+  //   }
+  // }
 
   // Handle shape add event
   @SubscribeMessage('shape:add')
@@ -340,40 +340,6 @@ export class BoardGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client.to(boardId).emit('shape:delete', { objectId, userId });
   }
 
-  // Get all active users in a board
-  @SubscribeMessage('board:get-users')
-  handleGetUsers(client: Socket, @MessageBody() data: { boardId: string }) {
-    const { boardId } = data;
-
-    if (!boardId) {
-      client.emit('error', { message: 'Invalid boardId' });
-      return;
-    }
-
-    try {
-      // Create a list of active users for this board
-      const usersList: Array<{ userId: string; username: string }> = [];
-
-      for (const [, userData] of this.socketToUser.entries()) {
-        if (userData.boardId === boardId) {
-          usersList.push({
-            userId: userData.userId,
-            username: userData.username || 'Anonymous',
-          });
-        }
-      }
-
-      // Send the list back to the requester
-      client.emit('board:user-list', { users: usersList });
-      console.log(
-        `Sent user list for board ${boardId}: ${usersList.length} users`,
-      );
-    } catch (error) {
-      console.error('Error getting users:', error);
-      client.emit('error', { message: 'Error getting board users' });
-    }
-  }
-
   // Handle user cursor movement
   @SubscribeMessage('cursor:move')
   handleCursorMove(
@@ -394,6 +360,42 @@ export class BoardGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     // Using volatile ensures unreliable, low-latency delivery - perfect for cursor updates
     // This will drop packets if the client is not ready to receive, preventing queue buildup
+
     client.to(boardId).volatile.emit('cursor:move', data);
+    // client.to(boardId).emit('cursor:move', data);
   }
+
+  // Get all active users in a board
+  // @SubscribeMessage('board:get-users')
+  // handleGetUsers(client: Socket, @MessageBody() data: { boardId: string }) {
+  //   const { boardId } = data;
+
+  //   if (!boardId) {
+  //     client.emit('error', { message: 'Invalid boardId' });
+  //     return;
+  //   }
+
+  //   try {
+  //     // Create a list of active users for this board
+  //     const usersList: Array<{ userId: string; username: string }> = [];
+
+  //     for (const [, userData] of this.socketToUser.entries()) {
+  //       if (userData.boardId === boardId) {
+  //         usersList.push({
+  //           userId: userData.userId,
+  //           username: userData.username || 'Anonymous',
+  //         });
+  //       }
+  //     }
+
+  //     // Send the list back to the requester
+  //     // client.emit('board:user-list', { users: usersList });
+  //     console.log(
+  //       `Sent user list for board ${boardId}: ${usersList.length} users`,
+  //     );
+  //   } catch (error) {
+  //     console.error('Error getting users:', error);
+  //     client.emit('error', { message: 'Error getting board users' });
+  //   }
+  // }
 }

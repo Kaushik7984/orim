@@ -1,13 +1,7 @@
-/**
- * Ultra-simplified Collaboration Utilities
- * Focused on minimal overhead and maximum performance
- */
-
 import { fabric } from "fabric";
 import { SocketService } from "@/lib/socket";
 import { User } from "firebase/auth";
 
-// Basic cursor data type
 export type CursorPosition = {
   userId: string;
   username: string;
@@ -16,13 +10,10 @@ export type CursorPosition = {
   color: string;
 };
 
-// Lightweight cursor storage
 const cursorObjects = new Map<string, fabric.Object>();
-const CURSOR_Z_INDEX = 999; // Make sure cursors stay on top
+const CURSOR_Z_INDEX = 999; //cursors stay on top
 
-/**
- * Initializes board collaboration for a user
- */
+// Initializes board collaboration for a user
 export function initializeBoardCollaboration(
   boardId: string,
   user: User | null,
@@ -52,7 +43,6 @@ export function initializeBoardCollaboration(
     "cursor:move",
     (data: CursorPosition) => {
       if (data.userId !== user.uid) {
-        // Skip self
         if (cursorsVisible) {
           updateCursor(canvas, data);
         }
@@ -88,14 +78,14 @@ export function initializeBoardCollaboration(
   );
 
   // Handle canvas updates
-  const canvasUpdateCleanup = SocketService.on(
-    "board:update",
-    (data: { canvasData: any }) => {
-      updateCanvas(canvas, data.canvasData);
-    }
-  );
+  // const canvasUpdateCleanup = SocketService.on(
+  //   "board:update",
+  //   (data: { canvasData: any }) => {
+  //     updateCanvas(canvas, data.canvasData);
+  //   }
+  // );
 
-  // Handle shape events
+  //shape:add on //work
   const shapeAddCleanup = SocketService.on(
     "shape:add",
     (data: { shape: any }) => {
@@ -103,6 +93,7 @@ export function initializeBoardCollaboration(
     }
   );
 
+  // shape:modify on  //work
   const shapeModifyCleanup = SocketService.on(
     "shape:modify",
     (data: { objectId: string; props: any }) => {
@@ -110,6 +101,7 @@ export function initializeBoardCollaboration(
     }
   );
 
+  // shape:delete on  //work
   const shapeDeleteCleanup = SocketService.on(
     "shape:delete",
     (data: { objectId: string }) => {
@@ -218,36 +210,36 @@ export function initializeBoardCollaboration(
     };
 
     // Handle new shapes
-    const handleObjectAdded = (e: any) => {
-      const obj = e.target;
-      if (!obj || obj.data?.isCursor) return;
+    // const handleObjectAdded = (e: any) => {
+    //   const obj = e.target;
+    //   if (!obj || obj.data?.isCursor) return;
 
-      // Skip paths (handled separately)
-      if (obj instanceof fabric.Path && !(obj as any).id) return;
+    //   // Skip paths (handled separately)
+    //   if (obj instanceof fabric.Path && !(obj as any).id) return;
 
-      // IMPORTANT: Skip objects that were added by the socket event
-      // This prevents duplicates - we only emit objects created by the user
-      if (obj.__fromSocket) {
-        // console.log("Skipping object from socket:", (obj as any).id, obj.type);
-        return;
-      }
+    //   // IMPORTANT: Skip objects that were added by the socket event
+    //   // This prevents duplicates - we only emit objects created by the user
+    //   if (obj.__fromSocket) {
+    //     // console.log("Skipping object from socket:", (obj as any).id, obj.type);
+    //     return;
+    //   }
 
-      // console.log("User added shape, emitting:", (obj as any).id, obj.type);
+    //   // console.log("User added shape, emitting:", (obj as any).id, obj.type);
 
-      // Ensure object has an ID
-      if (!(obj as any).id) (obj as any).id = generateId();
+    //   // Ensure object has an ID
+    //   if (!(obj as any).id) (obj as any).id = generateId();
 
-      // Track when this object was added (for preservation during sync)
-      (obj as any)._addedTime = Date.now();
+    //   // Track when this object was added (for preservation during sync)
+    //   (obj as any)._addedTime = Date.now();
 
-      SocketService.emitShapeAdd(
-        boardId,
-        obj.toObject(["id"]),
-        obj instanceof fabric.Path ? "path" : "object",
-        user.uid,
-        isOwner
-      );
-    };
+    //   // SocketService.emitShapeAdd(
+    //   //   boardId,
+    //   //   obj.toObject(["id"]),
+    //   //   obj instanceof fabric.Path ? "path" : "object",
+    //   //   user.uid,
+    //   //   isOwner
+    //   // );
+    // };
 
     // Handle object deletion
     const handleObjectRemoved = (e: any) => {
@@ -269,7 +261,7 @@ export function initializeBoardCollaboration(
     canvas.on("mouse:over", handleMouseEnter);
     canvas.on("mouse:out", handleMouseOut);
     canvas.on("object:modified", handleObjectModified);
-    canvas.on("object:added", handleObjectAdded);
+    // canvas.on("object:added", handleObjectAdded);
     canvas.on("object:removed", handleObjectRemoved);
 
     // Return cleanup function
@@ -278,7 +270,7 @@ export function initializeBoardCollaboration(
       canvas.off("mouse:over", handleMouseEnter);
       canvas.off("mouse:out", handleMouseOut);
       canvas.off("object:modified", handleObjectModified);
-      canvas.off("object:added", handleObjectAdded);
+      // canvas.off("object:added", handleObjectAdded);
       canvas.off("object:removed", handleObjectRemoved);
 
       // Clear any pending timeouts
@@ -303,7 +295,7 @@ export function initializeBoardCollaboration(
   const cleanup = () => {
     cursorMoveCleanup();
     userLeaveCleanup();
-    canvasUpdateCleanup();
+    // canvasUpdateCleanup();
     shapeAddCleanup();
     shapeModifyCleanup();
     shapeDeleteCleanup();
@@ -342,8 +334,6 @@ function cleanupCursors(canvas: fabric.Canvas) {
   // Force render update
   canvas.requestRenderAll();
 }
-
-/* Ultra lightweight cursor implementation */
 
 function updateCursor(canvas: fabric.Canvas, data: CursorPosition) {
   if (!canvas) return;
@@ -457,78 +447,76 @@ function removeCursor(canvas: fabric.Canvas, userId: string) {
   }
 }
 
-/* Object update functions - keeping them minimal */
+// function updateCanvas(canvas: fabric.Canvas, canvasData: any) {
+//   if (!canvas || !canvasData) return;
 
-function updateCanvas(canvas: fabric.Canvas, canvasData: any) {
-  if (!canvas || !canvasData) return;
+//   // Track objects added in the last 2 seconds to preserve them
+//   const recentlyAddedObjects = canvas.getObjects().filter((obj: any) => {
+//     // Skip cursors
+//     if (obj.data?.isCursor) return false;
 
-  // Track objects added in the last 2 seconds to preserve them
-  const recentlyAddedObjects = canvas.getObjects().filter((obj: any) => {
-    // Skip cursors
-    if (obj.data?.isCursor) return false;
+//     // If the object was added in the last 2 seconds, keep it
+//     const now = Date.now();
+//     return obj._addedTime && now - obj._addedTime < 2000;
+//   });
 
-    // If the object was added in the last 2 seconds, keep it
-    const now = Date.now();
-    return obj._addedTime && now - obj._addedTime < 2000;
-  });
+//   // If we have recent objects, let's preserve them
+//   if (recentlyAddedObjects.length > 0) {
+//     // console.log(
+//     //   `Preserving ${recentlyAddedObjects.length} recent objects during sync`
+//     // );
+//   }
 
-  // If we have recent objects, let's preserve them
-  if (recentlyAddedObjects.length > 0) {
-    // console.log(
-    //   `Preserving ${recentlyAddedObjects.length} recent objects during sync`
-    // );
-  }
+//   // Save current zoom and pan
+//   const zoom = canvas.getZoom();
+//   const vpt = canvas.viewportTransform ? [...canvas.viewportTransform] : null;
 
-  // Save current zoom and pan
-  const zoom = canvas.getZoom();
-  const vpt = canvas.viewportTransform ? [...canvas.viewportTransform] : null;
+//   // Save existing cursors to restore after loading canvas
+//   const cursorsToRestore = new Map();
+//   cursorObjects.forEach((cursor, userId) => {
+//     cursorsToRestore.set(userId, cursor);
+//   });
 
-  // Save existing cursors to restore after loading canvas
-  const cursorsToRestore = new Map();
-  cursorObjects.forEach((cursor, userId) => {
-    cursorsToRestore.set(userId, cursor);
-  });
+//   // Filter out any cursors from the data before loading
+//   if (canvasData.objects) {
+//     canvasData.objects = canvasData.objects.filter(
+//       (obj: any) => !obj.data || !obj.data.isCursor
+//     );
+//   }
 
-  // Filter out any cursors from the data before loading
-  if (canvasData.objects) {
-    canvasData.objects = canvasData.objects.filter(
-      (obj: any) => !obj.data || !obj.data.isCursor
-    );
-  }
+//   // Disable rendering during load
+//   canvas.renderOnAddRemove = false;
 
-  // Disable rendering during load
-  canvas.renderOnAddRemove = false;
+//   // Load canvas data
+//   canvas.loadFromJSON(canvasData, () => {
+//     if (!canvas) return;
 
-  // Load canvas data
-  canvas.loadFromJSON(canvasData, () => {
-    if (!canvas) return;
+//     // Restore zoom and pan
+//     if (vpt) {
+//       canvas.setViewportTransform(vpt);
+//       canvas.setZoom(zoom);
+//     }
 
-    // Restore zoom and pan
-    if (vpt) {
-      canvas.setViewportTransform(vpt);
-      canvas.setZoom(zoom);
-    }
+//     // Restore cursors
+//     cleanupCursors(canvas); // First remove any cursors that might have been loaded
+//     cursorsToRestore.forEach((cursor, userId) => {
+//       canvas.add(cursor);
+//       cursor.moveTo(CURSOR_Z_INDEX);
+//     });
 
-    // Restore cursors
-    cleanupCursors(canvas); // First remove any cursors that might have been loaded
-    cursorsToRestore.forEach((cursor, userId) => {
-      canvas.add(cursor);
-      cursor.moveTo(CURSOR_Z_INDEX);
-    });
+//     // Re-add the recently added objects to preserve user's immediate changes
+//     recentlyAddedObjects.forEach((obj) => {
+//       // Only add if an object with the same ID doesn't already exist
+//       if ((obj as any).id && !findObjectById(canvas, (obj as any).id)) {
+//         canvas.add(obj);
+//       }
+//     });
 
-    // Re-add the recently added objects to preserve user's immediate changes
-    recentlyAddedObjects.forEach((obj) => {
-      // Only add if an object with the same ID doesn't already exist
-      if ((obj as any).id && !findObjectById(canvas, (obj as any).id)) {
-        canvas.add(obj);
-      }
-    });
-
-    // Re-enable rendering and update
-    canvas.renderOnAddRemove = true;
-    canvas.requestRenderAll();
-  });
-}
+//     // Re-enable rendering and update
+//     canvas.renderOnAddRemove = true;
+//     canvas.requestRenderAll();
+//   });
+// }
 
 function addShape(canvas: fabric.Canvas, shape: any) {
   if (!canvas || !shape) return;
@@ -537,10 +525,10 @@ function addShape(canvas: fabric.Canvas, shape: any) {
   if (shape.data && shape.data.isCursor) return;
 
   // Check if we already have this object on the canvas (by id)
-  if (shape.id && findObjectById(canvas, shape.id)) {
-    // console.log("Object already exists, skipping:", shape.id);
-    return;
-  }
+  // if (shape.id && findObjectById(canvas, shape.id)) {
+  //   // console.log("Object already exists, skipping:", shape.id);
+  //   return;
+  // }
 
   // console.log("Adding shape from socket:", shape.id, shape.type);
 
