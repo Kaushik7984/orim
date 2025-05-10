@@ -1,9 +1,9 @@
 "use client";
 
 import NearMeIcon from "@mui/icons-material/NearMe";
+import NearMeOutlinedIcon from "@mui/icons-material/NearMeOutlined";
 import CelebrationIcon from "@mui/icons-material/Celebration";
 import CommentIcon from "@mui/icons-material/Comment";
-import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import {
   Avatar,
@@ -15,7 +15,7 @@ import {
   Tooltip,
   IconButton,
 } from "@mui/material";
-import { useContext, useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Nunito } from "next/font/google";
 import { useAuth } from "@/context/AuthContext";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
@@ -60,10 +60,8 @@ const SubRightHeader = () => {
   useEffect(() => {
     if (!user || !currentBoard?._id) return;
 
-    // For tracking active collaborators
     const activeCollaborators = new Map<string, ActiveCollaborator>();
 
-    // Listen for cursor movement to track active users
     const cursorMoveListener = SocketService.on(
       "cursor:move",
       (data: CursorPosition) => {
@@ -80,7 +78,6 @@ const SubRightHeader = () => {
       }
     );
 
-    // Listen for user left events
     const userLeftListener = SocketService.on(
       "board:user-left",
       (data: { userId: string }) => {
@@ -89,22 +86,19 @@ const SubRightHeader = () => {
       }
     );
 
-    // Update the collaborators list from the map
     const updateCollaboratorsList = () => {
       const activeUsers = Array.from(activeCollaborators.values())
-        .filter((c) => c.userId !== user.uid) // Filter out self
-        .sort((a, b) => b.lastActive - a.lastActive); // Most recently active first
+        .filter((c) => c.userId !== user.uid)
+        .sort((a, b) => b.lastActive - a.lastActive);
 
       setCollaborators(activeUsers);
     };
 
-    // Clean up inactive users every 10 seconds
     const cleanupInterval = setInterval(() => {
       const now = Date.now();
       let updated = false;
 
       activeCollaborators.forEach((collaborator, id) => {
-        // Remove if inactive for more than 30 seconds
         if (now - collaborator.lastActive > 30000) {
           activeCollaborators.delete(id);
           updated = true;
@@ -128,10 +122,13 @@ const SubRightHeader = () => {
       name: hideCursors
         ? "Show collaborators' cursors"
         : "Hide collaborators' cursors",
-      icon: <NearMeIcon />,
+      icon: hideCursors ? (
+        <NearMeOutlinedIcon sx={{ color: "#555" }} />
+      ) : (
+        <NearMeIcon sx={{ color: "#008000" }} />
+      ),
       onClick: () => {
         setHideCursors((prev) => !prev);
-        // Emit an event that the collaboration utilities can listen to
         window.dispatchEvent(
           new CustomEvent("toggle-cursors-visibility", {
             detail: { hidden: !hideCursors },
@@ -174,23 +171,6 @@ const SubRightHeader = () => {
 
   const handleMembersMenuClose = () => {
     setMembersAnchorEl(null);
-  };
-
-  const handleInviteClick = () => {
-    setIsInviteDialogOpen(true);
-    const sessionId = `${boardId}`;
-
-    navigator.clipboard
-      .writeText(sessionId)
-      .then(() => {
-        alert("Collaboration link copied to clipboard!");
-        router.push(sessionId);
-      })
-      .catch((err) => {
-        console.error("Error copying session URL: ", err);
-      });
-
-    handleMenuClose();
   };
 
   const handleLogout = async () => {
@@ -240,89 +220,13 @@ const SubRightHeader = () => {
 
       <Divider orientation='vertical' flexItem className='mx-4' />
 
-      {/* Center Section - Members */}
-      <div className='flex items-center'>
-        <AvatarGroup
-          max={4}
-          onClick={handleMembersMenuOpen}
-          sx={{
-            cursor: "pointer",
-            "& .MuiAvatar-root": {
-              width: 28,
-              height: 28,
-              fontSize: "0.875rem",
-              border: "2px solid white",
-            },
-          }}
-        >
-          {collaborators.map((collaborator) => (
-            <Tooltip key={collaborator.userId} title={collaborator.username}>
-              <Avatar
-                sx={{ bgcolor: collaborator.color }}
-                alt={collaborator.username}
-              >
-                {collaborator.username.charAt(0).toUpperCase()}
-              </Avatar>
-            </Tooltip>
-          ))}
-        </AvatarGroup>
-
-        {/* Members Menu */}
-        <Menu
-          anchorEl={membersAnchorEl}
-          open={Boolean(membersAnchorEl)}
-          onClose={handleMembersMenuClose}
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "right",
-          }}
-          transformOrigin={{
-            vertical: "top",
-            horizontal: "right",
-          }}
-        >
-          <MenuItem sx={{ pointerEvents: "none" }}>
-            <div className='font-semibold text-gray-700'>Board Members</div>
-          </MenuItem>
-          <Divider />
-          {collaborators.length > 0 ? (
-            collaborators.map((collaborator) => (
-              <MenuItem key={collaborator.userId} sx={{ minWidth: "200px" }}>
-                <Avatar
-                  sx={{
-                    width: 24,
-                    height: 24,
-                    mr: 1,
-                    bgcolor: collaborator.color,
-                  }}
-                >
-                  {collaborator.username.charAt(0).toUpperCase()}
-                </Avatar>
-                <div className='flex flex-col'>
-                  <div className='text-sm'>{collaborator.username}</div>
-                  <div className='text-xs text-gray-500'>
-                    Active{" "}
-                    {Math.floor((Date.now() - collaborator.lastActive) / 1000) <
-                    10
-                      ? "now"
-                      : "recently"}
-                  </div>
-                </div>
-              </MenuItem>
-            ))
-          ) : (
-            <MenuItem sx={{ opacity: 0.7 }}>No collaborators yet</MenuItem>
-          )}
-        </Menu>
-      </div>
-
       <div className='flex-grow' />
 
       {/* Right Section */}
-      <div className='flex items-center space-x-2'>
+      <div className='flex items-center space-x-2 pl-3'>
         {/* Share Button */}
         <button
-          onClick={handleInviteClick}
+          onClick={() => setIsInviteDialogOpen(true)}
           className='flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors duration-200'
         >
           <ShareIcon className='w-4 h-4 mr-1' />
@@ -341,6 +245,83 @@ const SubRightHeader = () => {
           <PlayArrowIcon className='w-4 h-4 mr-1' />
           {isPresenting ? "Exit" : "Present"}
         </button>
+
+        {/* Collaborator Section - Members */}
+        <div className='flex items-center pl-3'>
+          <AvatarGroup
+            max={4}
+            onClick={handleMembersMenuOpen}
+            sx={{
+              cursor: "pointer",
+              "& .MuiAvatar-root": {
+                width: 28,
+                height: 28,
+                fontSize: "0.875rem",
+                border: "2px solid white",
+              },
+            }}
+          >
+            {collaborators.map((collaborator) => (
+              <Tooltip key={collaborator.userId} title={collaborator.username}>
+                <Avatar
+                  sx={{ bgcolor: collaborator.color }}
+                  alt={collaborator.username}
+                >
+                  {collaborator.username.charAt(0).toUpperCase()}
+                </Avatar>
+              </Tooltip>
+            ))}
+          </AvatarGroup>
+
+          {/* Members Menu */}
+          <Menu
+            anchorEl={membersAnchorEl}
+            open={Boolean(membersAnchorEl)}
+            onClose={handleMembersMenuClose}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "right",
+            }}
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "right",
+            }}
+          >
+            <MenuItem sx={{ pointerEvents: "none" }}>
+              <div className='font-semibold text-gray-700'>Board Members</div>
+            </MenuItem>
+            <Divider />
+            {collaborators.length > 0 ? (
+              collaborators.map((collaborator) => (
+                <MenuItem key={collaborator.userId} sx={{ minWidth: "200px" }}>
+                  <Avatar
+                    sx={{
+                      width: 24,
+                      height: 24,
+                      mr: 1,
+                      bgcolor: collaborator.color,
+                    }}
+                  >
+                    {collaborator.username.charAt(0).toUpperCase()}
+                  </Avatar>
+                  <div className='flex flex-col'>
+                    <div className='text-sm'>{collaborator.username}</div>
+                    <div className='text-xs text-gray-500'>
+                      Active{" "}
+                      {Math.floor(
+                        (Date.now() - collaborator.lastActive) / 1000
+                      ) < 10
+                        ? "now"
+                        : "recently"}
+                    </div>
+                  </div>
+                </MenuItem>
+              ))
+            ) : (
+              <MenuItem sx={{ opacity: 0.7 }}>No collaborators yet</MenuItem>
+            )}
+          </Menu>
+        </div>
 
         {/* User Menu */}
         <div
@@ -364,7 +345,7 @@ const SubRightHeader = () => {
         <Menu
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
-          onClose={handleMenuClose}
+          onClose={() => setIsInviteDialogOpen(true)}
           anchorOrigin={{
             vertical: "bottom",
             horizontal: "right",
@@ -376,7 +357,7 @@ const SubRightHeader = () => {
         >
           {user ? (
             <>
-              <MenuItem onClick={handleInviteClick}>
+              <MenuItem onClick={() => setIsInviteDialogOpen(true)}>
                 <PersonAddIcon fontSize='small' className='mr-2' />
                 Invite
               </MenuItem>
@@ -392,14 +373,6 @@ const SubRightHeader = () => {
             </MenuItem>
           )}
         </Menu>
-
-        {/* Notifications */}
-        <IconButton
-          size='small'
-          className='hover:bg-gray-100 transition-colors duration-200'
-        >
-          <NotificationsNoneIcon className='w-5 h-5' />
-        </IconButton>
       </div>
 
       <InviteDialog
