@@ -18,7 +18,6 @@ const Toolbar = ({
   const boardContext = useContext(BoardContext);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Extract all the shape creation functions from the context
   const {
     addCircle,
     addRectangle,
@@ -35,10 +34,8 @@ const Toolbar = ({
     editor,
   } = boardContext || {};
 
-  // Use canvas history hook for undo/redo
   const { undo, redo, canUndo, canRedo } = useCanvasHistory(editor);
 
-  // Create a state to track the active pen color and thickness
   const [activePenColor, setActivePenColor] = useState("#000000");
   const [activePenThickness, setActivePenThickness] = useState(3);
 
@@ -148,18 +145,14 @@ const Toolbar = ({
 
   // Function to handle tool selection
   const handleToolSelect = (name: string) => {
-    // Only disable previous drawing mode if we're switching to a different tool
     if (activeItem !== name && editor?.canvas) {
       disableDrawing && disableDrawing();
     }
 
-    // Set the active item for visual indication in the toolbar
     setActiveItem(name);
 
-    // Handle different tools
     switch (name) {
       case "Select":
-        // Set select mode (default Fabric.js behavior)
         disableDrawing && disableDrawing();
         if (editor?.canvas) {
           editor.canvas.isDrawingMode = false;
@@ -169,18 +162,13 @@ const Toolbar = ({
         addText && addText();
         break;
       case "Templates":
-        // Show templates sidebar
-        setIsOpen(true);
+        // setIsOpen(true);
         break;
       case "Sticky note":
-        // Just show the popover, don't create a note yet
-        // The note will be created when a color is selected
         break;
       case "Shapes":
-        // Keep open for submenu selection - no direct action needed
         break;
       case "Connection line":
-        // Keep open for submenu selection - no direct action needed
         break;
       case "Pen":
         addPen && addPen();
@@ -192,16 +180,13 @@ const Toolbar = ({
         addEraser && addEraser();
         break;
       case "Comment":
-        // Implement comment functionality
         break;
       case "Frame":
-        // Implement frame functionality
         break;
       case "Upload":
         handleFileUpload();
         break;
       case "More apps":
-        // Show more apps menu
         break;
       default:
         break;
@@ -235,7 +220,7 @@ const Toolbar = ({
       case "Curved line":
       case "directional line":
         setActiveItem("Connection line");
-        addStraightLine && addStraightLine(); // For now, use straight line for all connection types
+        addStraightLine && addStraightLine();
         break;
       case "Polygon":
         setActiveItem("Shapes");
@@ -280,10 +265,8 @@ const Toolbar = ({
     penName: string,
     options?: { color?: string; thickness?: number }
   ) => {
-    // Set the active item for visual indication in the toolbar
     setActiveItem("Pen");
 
-    // Update the active pen color and thickness if provided
     if (options?.color) {
       setActivePenColor(options.color);
     }

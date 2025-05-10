@@ -1,14 +1,11 @@
 import { io, Socket } from "socket.io-client";
 
-const SOCKET_URL =
-  process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3001";
-// "http://192.168.200.130:3001";
+const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL;
 let socket: Socket | null = null;
 
 export const SocketService = {
   _boardUpdateTimeout: null as NodeJS.Timeout | null,
 
-  // Core connection methods
   connect() {
     if (socket) return socket;
 
@@ -26,7 +23,6 @@ export const SocketService = {
       transports: ["websocket"],
     });
 
-    // Setup default handlers
     socket.on("connect_error", (err) => {
       console.error("Socket connection error:", err);
     });
@@ -47,7 +43,6 @@ export const SocketService = {
     return socket || this.connect();
   },
 
-  // Board room methods
   joinBoard(
     boardId: string,
     userId: string,
@@ -68,83 +63,9 @@ export const SocketService = {
     socket.emit("board:leave", { boardId, userId });
   },
 
-  // Utility to remove duplicate shapes from outgoing canvasData
-  // cleanCanvasDataForSync(canvasData: any): any {
-  //   if (!canvasData || !canvasData.objects) return canvasData;
+  // emit emitShapeAdd used in useshape and usePen instead of here
 
-  //   // Filter out cursor objects
-  //   const objects = canvasData.objects.filter(
-  //     (obj: any) => !obj.data || !obj.data.isCursor
-  //   );
-
-  //   // Create a map to track objects by ID to remove duplicates
-  //   const uniqueObjects = new Map();
-
-  //   // Keep only the last instance of each object ID
-  //   objects.forEach((obj: any) => {
-  //     if (obj.id) {
-  //       uniqueObjects.set(obj.id, obj);
-  //     }
-  //   });
-
-  //   // Convert back to array
-  //   const cleanedObjects = Array.from(uniqueObjects.values());
-
-  //   // Return cleaned canvas data
-  //   return {
-  //     ...canvasData,
-  //     objects: cleanedObjects,
-  //   };
-  // },
-
-  // Canvas/drawing event methods
-  // emitBoardUpdate(
-  //   boardId: string,
-  //   userId: string,
-  //   canvasData: any,
-  //   isOwner: boolean = false
-  // ) {
-  //   const socket = this.getSocket();
-  //   if (!socket) return;
-
-  //   // Prevent flooding with rapid updates
-  //   if (this._boardUpdateTimeout) {
-  //     clearTimeout(this._boardUpdateTimeout);
-  //   }
-
-  //   // Delay update emission to prevent overwriting local changes
-  //   this._boardUpdateTimeout = setTimeout(() => {
-  //     // Clean up canvas data before sending
-  //     const cleanedCanvasData = this.cleanCanvasDataForSync(canvasData);
-  //     socket.emit("board:update", {
-  //       boardId,
-  //       canvasData: cleanedCanvasData,
-  //       userId,
-  //       isOwner,
-  //     });
-
-  //     this._boardUpdateTimeout = null;
-  //   }, 500);
-  // },
-
-  // emit in useshape and usePen instead of here
-  // emitShapeAdd(
-  //   boardId: string,
-  //   shape: any,
-  //   type: string,
-  //   userId: string,
-  //   isOwner: boolean = false
-  // ) {
-  //   const socket = this.getSocket();
-  //   if (!socket) return;
-
-  //   // Don't emit cursor objects
-  //   if (shape && shape.data && shape.data.isCursor) return;
-
-  //   // socket.emit("shape:add", { boardId, shape, type, userId, isOwner });
-  // },
-
-  //shape:modify emit   //work
+  //shape:modify emit
   emitShapeModify(
     boardId: string,
     objectId: string,
@@ -155,13 +76,12 @@ export const SocketService = {
     const socket = this.getSocket();
     if (!socket) return;
 
-    // Don't emit cursor modifications
     if (props && props.data && props.data.isCursor) return;
 
     socket.emit("shape:modify", { boardId, objectId, props, userId, isOwner });
   },
 
-  //shape:delete emit   //work
+  //shape:delete emit
   emitShapeDelete(
     boardId: string,
     objectId: string,
@@ -174,7 +94,7 @@ export const SocketService = {
     socket.emit("shape:delete", { boardId, objectId, userId, isOwner });
   },
 
-  //cursor:move emit   //work
+  //cursor:move emit
   emitCursorMove(
     boardId: string,
     userId: string,

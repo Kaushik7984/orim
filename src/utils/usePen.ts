@@ -3,12 +3,10 @@ import { FabricJSEditor } from "fabricjs-react";
 import { getSocket } from "@/lib/socket";
 import { fabric } from "fabric";
 
-// Define extended event types for fabric
 interface IPathCreatedEvent extends fabric.IEvent<Event> {
   path: fabric.Path;
 }
 
-// Default pen settings
 export const DEFAULT_PEN_COLOR = "#000000";
 export const DEFAULT_HIGHLIGHTER_COLOR = "rgba(255, 255, 0, 0.3)";
 export const PEN_COLORS = [
@@ -40,7 +38,7 @@ export const usePen = (
   const cleanupCanvasListeners = () => {
     if (!editor?.canvas) return;
 
-    // editor.canvas._currentDrawingMode = undefined;
+    editor.canvas._currentDrawingMode = undefined;
     editor.canvas.isDrawingMode = false;
 
     // Remove all tool-related listeners
@@ -96,7 +94,7 @@ export const usePen = (
     }
   };
 
-  const addPen = (color = DEFAULT_PEN_COLOR, thickness = 3) => {
+  const addPen = (color = DEFAULT_PEN_COLOR, thickness = 23) => {
     setupDrawingMode(color, thickness, "path");
   };
 
