@@ -67,7 +67,7 @@ const SubRightHeader = () => {
     const cursorMoveListener = SocketService.on(
       "cursor:move",
       (data: CursorPosition) => {
-        if (data.userId === user.uid) return; // Skip self
+        if (data.userId === user.uid) return;
 
         activeCollaborators.set(data.userId, {
           userId: data.userId,
@@ -197,9 +197,7 @@ const SubRightHeader = () => {
     try {
       await logout();
       handleMenuClose();
-    } catch (error) {
-      // Handle logout error silently
-    }
+    } catch (error) {}
   };
 
   const handleLogin = () => {
@@ -207,7 +205,6 @@ const SubRightHeader = () => {
     handleMenuClose();
   };
 
-  // Exit presentation if user manually exits fullscreen
   useEffect(() => {
     const onFullScreenChange = () => {
       if (!document.fullscreenElement) {

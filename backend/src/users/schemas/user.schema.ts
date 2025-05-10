@@ -1,20 +1,17 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Document } from 'mongoose';
 
-export type UserDocument = User &
-  Document & {
-    _id: Types.ObjectId;
-  };
+export type UserDocument = User & Document;
 
 @Schema({ timestamps: true })
 export class User {
   @Prop({ required: true, unique: true })
   firebaseUid: string;
 
-  @Prop({ required: true, unique: true })
+  @Prop({ required: true })
   email: string;
 
-  @Prop()
+  @Prop({ required: true })
   name: string;
 
   @Prop()

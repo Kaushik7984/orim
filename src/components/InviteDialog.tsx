@@ -49,7 +49,7 @@ export default function InviteDialog({
       return;
     }
 
-    if (!boardId || boardId.trim() === "") {
+    if (!boardId) {
       setError("Board ID is required");
       return;
     }
@@ -58,23 +58,21 @@ export default function InviteDialog({
       setIsLoading(true);
       const hasValidToken = await ensureValidToken();
       if (!hasValidToken) {
-        toast.error("Authentication error. Please try logging in again.");
+        toast.error("Auth error. Please login again.");
         return;
       }
 
-      const invitationData = {
+      await api.post("/mail/invite", {
         email,
         boardId,
         message: message || undefined,
-      };
+      });
 
-      await api.post("/invitations", invitationData);
-
-      toast.success("Invitation sent successfully!");
+      toast.success("Invitation email sent!");
       onClose();
     } catch (error: any) {
       setError(error.response?.data?.message || "Failed to send invitation");
-      toast.error("Failed to send invitation. Please try again.");
+      toast.error("Email send failed. Try again.");
     } finally {
       setIsLoading(false);
     }
@@ -99,7 +97,7 @@ export default function InviteDialog({
             htmlFor='share-link'
             className='block text-sm font-medium text-gray-700 mb-1'
           >
-            Shareable Link
+            Board Id:
           </label>
           <div className='flex items-center gap-2'>
             <input

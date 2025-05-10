@@ -222,7 +222,7 @@ const Board = forwardRef<BoardRef, BoardProps>(
     useBoardEditor(editor, boardContext, initialBoardId);
 
     // Pass isSessionMode to useBoardSocket
-    useBoardSocket(editor, initialBoardId, false, isSessionMode);
+    useBoardSocket(editor, initialBoardId, false);
 
     useDeleteSelectedObject(editor?.canvas);
 

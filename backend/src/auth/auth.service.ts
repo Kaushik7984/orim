@@ -1,5 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
+import { UsersService } from '@/users/users.service';
 import { UserDocument } from '../users/schemas/user.schema';
 import admin from '../config/firebase.config';
 
