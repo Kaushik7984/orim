@@ -63,7 +63,7 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Board socket integration is now handled directly in Board.tsx using the collaborationUtils
   // Pass isSessionMode to disable auto-save in session mode
-  useBoardAutoSave(editor, boardId, isSessionMode);
+  useBoardAutoSave(editor, boardId);
 
   // Load all boards on dashboard
   const loadBoards = async () => {

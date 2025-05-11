@@ -91,12 +91,12 @@ export class BoardGateway implements OnGatewayConnection, OnGatewayDisconnect {
       });
 
       // If this user is the board owner, track them
-      if (isOwner) {
-        this.boardOwners.set(boardId, userId);
-        console.log(
-          `User ${username || userId} is the owner of board ${boardId}`,
-        );
-      }
+      // if (isOwner) {
+      //   this.boardOwners.set(boardId, userId);
+      //   console.log(
+      //     `User ${username || userId} is the owner of board ${boardId}`,
+      //   );
+      // }
 
       // Notify others in the board room
       client.to(boardId).emit('board:user-joined', {
@@ -111,7 +111,7 @@ export class BoardGateway implements OnGatewayConnection, OnGatewayDisconnect {
         client.emit('board:sync', board.canvasData);
       }
 
-      client.emit('board:joined-successfully', { boardId });
+      // client.emit('board:joined-successfully', { boardId });
       console.log(`User ${username || userId} joined board ${boardId}`);
     } catch (error) {
       console.error('Error joining board:', error);
