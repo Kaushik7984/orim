@@ -1,8 +1,7 @@
 "use client";
-import { Box, Container, Typography, Divider } from "@mui/material";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
-import Image from "next/image";
-import Header from "@/layout/Header";
+import Header from "@/components/dashboard/Header";
+import { Box, Divider } from "@mui/material";
 
 export default function DashboardLayout({
   children,
@@ -32,7 +31,6 @@ export default function DashboardLayout({
           boxShadow: "2px 0 5px rgba(0, 0, 0, 0.03)",
         }}
       >
-    
         <Divider sx={{ borderColor: "rgba(0, 0, 0, 0.1)" }} />
 
         <Box sx={{ position: "relative", zIndex: 1 }}>

@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useBoard } from "@/context/BoardContext/useBoard";
-import { useParams } from "next/navigation";
-import { CircularProgress } from "@mui/material";
 import Board from "@/layout/board/Board";
+import { CircularProgress } from "@mui/material";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function BoardPage() {
   const params = useParams();
@@ -34,7 +34,7 @@ export default function BoardPage() {
 
   if (loading || !currentBoard) {
     return (
-      <div className='flex justify-center items-center h-screen'>
+      <div className="flex justify-center items-center h-screen">
         <CircularProgress />
       </div>
     );

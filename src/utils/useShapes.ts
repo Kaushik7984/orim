@@ -1,8 +1,8 @@
 "use client";
+import { getSocket } from "@/lib/socket";
 import { fabric } from "fabric";
 import { FabricJSEditor } from "fabricjs-react";
 import { useEffect, useRef } from "react";
-import { getSocket } from "@/lib/socket";
 
 const generateObjectId = () =>
   `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
@@ -57,7 +57,6 @@ export const useShapes = (
     canvas.isDrawingMode = false;
     isDrawing.current = false;
 
-    // Clear event listeners
     canvas.off("mouse:down");
     canvas.off("mouse:move");
     canvas.off("mouse:up");
@@ -108,23 +107,19 @@ export const useShapes = (
 
     const canvas = editor.canvas;
 
-    // Disable collaboration events while drawing
     if (canvas._toggleCollaboration?.deactivate) {
       canvas._toggleCollaboration.deactivate();
     }
 
-    // Set up drawing mode
     canvas.isDrawingMode = false;
     isDrawing.current = false;
 
-    // Handle mouse down - start shape drawing
     canvas.on("mouse:down", (o) => {
       const pointer = canvas.getPointer(o.e);
       isDrawing.current = true;
       startX.current = pointer.x;
       startY.current = pointer.y;
 
-      // Create initial shape
       const shape = createInitialShape(pointer);
       (shape as any).selectable = false;
       currentShape.current = shape;
@@ -132,19 +127,16 @@ export const useShapes = (
       canvas.renderAll();
     });
 
-    // Handle mouse move - update shape dimensions
     canvas.on("mouse:move", (o) => {
       if (!isDrawing.current || !currentShape.current) return;
 
       const pointer = canvas.getPointer(o.e);
       const shape = currentShape.current;
 
-      // Update shape based on mouse movement
       updateShape(shape, { x: startX.current, y: startY.current }, pointer);
       canvas.renderAll();
     });
 
-    // Handle mouse up - finalize the shape
     canvas.on("mouse:up", () => {
       if (!isDrawing.current || !currentShape.current) return;
 
@@ -157,19 +149,16 @@ export const useShapes = (
       (shape as any).id = generateObjectId();
       (shape as any).__userCreated = true;
 
-      // Emit the shape
       emitShape(shape, type);
 
       canvas.setActiveObject(shape);
       canvas.renderAll();
       currentShape.current = null;
 
-      // Reset event listeners
       canvas.off("mouse:down");
       canvas.off("mouse:move");
       canvas.off("mouse:up");
 
-      // Re-enable collaboration
       if (canvas._toggleCollaboration?.activate) {
         canvas._toggleCollaboration.activate();
       }

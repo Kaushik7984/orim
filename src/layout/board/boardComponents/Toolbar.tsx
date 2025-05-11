@@ -1,11 +1,11 @@
-import React, { useContext, useState, useEffect, useRef } from "react";
-import { items } from "./ToolbarIcons";
+import BoardContext from "@/context/BoardContext/BoardContext";
+import { Tooltip } from "@mui/material";
+import { fabric } from "fabric";
 import { motion } from "framer-motion";
 import { LayoutPanelLeft, Redo, Undo } from "lucide-react";
-import { Tooltip } from "@mui/material";
-import BoardContext from "@/context/BoardContext/BoardContext";
-import useCanvasHistory from "./boardUtils/useCanvasHistory";
-import { fabric } from "fabric";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import useCanvasHistory from "../boardUtils/useCanvasHistory";
+import { items } from "./ToolbarIcons";
 
 const Toolbar = ({
   setIsOpen,
@@ -99,50 +99,6 @@ const Toolbar = ({
     };
   }, [editor]);
 
-  // Handle file upload from the toolbar button
-  const handleFileUpload = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!editor?.canvas || !e.target.files || e.target.files.length === 0)
-      return;
-
-    const file = e.target.files[0];
-    if (!file.type.match(/image.*/)) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const imgURL = event.target?.result;
-      if (typeof imgURL === "string") {
-        fabric.Image.fromURL(imgURL, (img) => {
-          // Scale image if it's too large
-          const maxDimension = 500;
-          if (img.width && img.height) {
-            if (img.width > maxDimension || img.height > maxDimension) {
-              const scaleFactor =
-                maxDimension / Math.max(img.width, img.height);
-              img.scale(scaleFactor);
-            }
-          }
-
-          // Position image at center of canvas
-          const center = editor.canvas.getCenter();
-          img.left = center.left;
-          img.top = center.top;
-
-          editor.canvas.add(img);
-          editor.canvas.setActiveObject(img);
-          editor.canvas.renderAll();
-        });
-      }
-    };
-    reader.readAsDataURL(file);
-
-    // Reset the input so the same file can be uploaded again
-    e.target.value = "";
-  };
-
   // Function to handle tool selection
   const handleToolSelect = (name: string) => {
     if (activeItem !== name && editor?.canvas) {
@@ -184,7 +140,7 @@ const Toolbar = ({
       case "Frame":
         break;
       case "Upload":
-        handleFileUpload();
+        // handleFileUpload();
         break;
       case "More apps":
         break;
@@ -237,12 +193,11 @@ const Toolbar = ({
     }
   };
 
-  // Helper to render icon - handles both JSX elements and functional components
+  // Helper to render icon
   const renderIcon = (item: any) => {
     if (typeof item.icon === "function") {
       return item.icon({
         onClick: (e: React.MouseEvent) => {
-          // For icons with popover submenus, we need to stop propagation
           if (
             item.name === "Shapes" ||
             item.name === "Connection line" ||
@@ -295,20 +250,20 @@ const Toolbar = ({
   };
 
   return (
-    <motion.div className='flex flex-col items-center mt-12 ml-1'>
+    <motion.div className="flex flex-col items-center mt-12 ml-1">
       <input
-        type='file'
+        type="file"
         ref={fileInputRef}
         style={{ display: "none" }}
-        accept='image/*'
-        onChange={handleFileSelected}
+        accept="image/*"
+        // onChange={handleFileSelected}
       />
       <div
-        className='flex flex-col rounded-md bg-white items-center'
+        className="flex flex-col rounded-md bg-white items-center"
         style={{ boxShadow: "1px 1px 5px rgba(0, 0, 0, 0.3)" }}
       >
         {items.map((item) => (
-          <Tooltip key={item.name} title={item.name} placement='right' arrow>
+          <Tooltip key={item.name} title={item.name} placement="right" arrow>
             <div
               onClick={() => handleToolSelect(item.name)}
               className={`rounded-md p-2 duration-200 cursor-pointer m-0.5 ${
@@ -322,10 +277,10 @@ const Toolbar = ({
       </div>
 
       <div
-        className='mt-4 flex flex-col items-center rounded-md bg-white'
+        className="mt-4 flex flex-col items-center rounded-md bg-white"
         style={{ boxShadow: "1px 1px 5px rgba(0, 0, 0, 0.3)" }}
       >
-        <Tooltip title='Undo' placement='right' arrow>
+        <Tooltip title="Undo" placement="right" arrow>
           <div
             className={`rounded-md p-2 hover:bg-[#dde4fc] duration-200 cursor-pointer m-0.5 ${
               !canUndo ? "opacity-50" : ""
@@ -335,7 +290,7 @@ const Toolbar = ({
             <Undo />
           </div>
         </Tooltip>
-        <Tooltip title='Redo' placement='right' arrow>
+        <Tooltip title="Redo" placement="right" arrow>
           <div
             className={`rounded-md p-2 hover:bg-[#dde4fc] duration-200 cursor-pointer ${
               !canRedo ? "opacity-50" : ""
@@ -347,7 +302,7 @@ const Toolbar = ({
         </Tooltip>
       </div>
 
-      <Tooltip title='Toggle Sidebar' placement='right' arrow>
+      <Tooltip title="Toggle Sidebar" placement="right" arrow>
         <div
           onClick={() => setIsOpen(!isOpen)}
           className={`rounded-md p-2.5 duration-200 cursor-pointer mt-1 ${

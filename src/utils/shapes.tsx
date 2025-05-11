@@ -1,9 +1,9 @@
-import React, { FC, useContext } from "react";
 import BoardContext from "@/context/BoardContext/BoardContext";
 import { BoardContextType } from "@/types";
-import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 import ChangeHistoryIcon from "@mui/icons-material/ChangeHistory";
 import CropDinIcon from "@mui/icons-material/CropDin";
+import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
+import { FC, useContext } from "react";
 import { CgShapeRhombus } from "react-icons/cg";
 
 export const CircleIcon: FC = () => {

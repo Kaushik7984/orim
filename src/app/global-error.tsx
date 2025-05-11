@@ -1,19 +1,18 @@
 "use client";
 
-import { useEffect } from "react";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import HomeIcon from "@mui/icons-material/Home";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import {
   Box,
   Button,
   Container,
-  Typography,
   Paper,
+  Typography,
   useTheme,
 } from "@mui/material";
-import ReportProblemIcon from "@mui/icons-material/ReportProblem";
-import HomeIcon from "@mui/icons-material/Home";
-import RefreshIcon from "@mui/icons-material/Refresh";
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { motion } from "framer-motion";
+import { useEffect } from "react";
 
 export default function GlobalError({
   error,
@@ -24,11 +23,8 @@ export default function GlobalError({
 }) {
   const theme = useTheme();
 
-  // Log the error to an error reporting service
   useEffect(() => {
     console.error("Global Error:", error);
-    // Here you would send to your error tracking service
-    // Example: sendToErrorTracking(error);
   }, [error]);
 
   return (
@@ -56,9 +52,9 @@ export default function GlobalError({
             transition={{ duration: 0.5, delay: 0.2 }}
           >
             <Typography
-              variant='h1'
-              component='div'
-              align='center'
+              variant="h1"
+              component="div"
+              align="center"
               sx={{
                 fontSize: { xs: "3.5rem", sm: "4.5rem", md: "5.5rem" },
                 fontWeight: 800,
@@ -183,8 +179,8 @@ export default function GlobalError({
               }}
             >
               <Typography
-                variant='h3'
-                component='h1'
+                variant="h3"
+                component="h1"
                 gutterBottom
                 sx={{
                   fontWeight: 700,
@@ -200,8 +196,8 @@ export default function GlobalError({
               </Typography>
 
               <Typography
-                variant='body1'
-                color='text.secondary'
+                variant="body1"
+                color="text.secondary"
                 sx={{
                   mb: 4,
                   fontSize: { xs: "1rem", md: "1.125rem" },
@@ -229,8 +225,8 @@ export default function GlobalError({
                     boxShadow: "0 6px 20px rgba(30, 64, 175, 0.3)",
                   }}
                   whileTap={{ scale: 0.95 }}
-                  variant='contained'
-                  size='large'
+                  variant="contained"
+                  size="large"
                   startIcon={<RefreshIcon />}
                   onClick={() => reset()}
                   sx={{
@@ -259,8 +255,8 @@ export default function GlobalError({
                   component={motion.button}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  variant='outlined'
-                  size='large'
+                  variant="outlined"
+                  size="large"
                   startIcon={<HomeIcon />}
                   onClick={() => (window.location.href = "/")}
                   sx={{
@@ -286,7 +282,7 @@ export default function GlobalError({
 
               {error.digest && (
                 <Typography
-                  variant='caption'
+                  variant="caption"
                   sx={{
                     display: "block",
                     mt: 4,

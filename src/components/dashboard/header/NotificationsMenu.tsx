@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import {
-  Popover,
   Box,
-  Typography,
   Button,
   Divider,
   List,
   ListItem,
   ListItemText,
+  Popover,
+  Typography,
 } from "@mui/material";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
 
 interface Notification {
   id: number;
@@ -32,7 +32,6 @@ const NotificationsMenu: React.FC<NotificationsMenuProps> = ({
 }) => {
   const router = useRouter();
 
-  // Mock notifications
   const [notifications, setNotifications] = useState<Notification[]>([
     {
       id: 1,
@@ -58,7 +57,6 @@ const NotificationsMenu: React.FC<NotificationsMenuProps> = ({
   ]);
 
   useEffect(() => {
-    // Update the unread count whenever notifications change
     const unreadCount = notifications.filter((n) => !n.read).length;
     onUpdateUnreadCount(unreadCount);
   }, [notifications, onUpdateUnreadCount]);
@@ -94,8 +92,8 @@ const NotificationsMenu: React.FC<NotificationsMenuProps> = ({
           alignItems: "center",
         }}
       >
-        <Typography variant='h6'>Notifications</Typography>
-        <Button size='small' onClick={handleMarkAllRead}>
+        <Typography variant="h6">Notifications</Typography>
+        <Button size="small" onClick={handleMarkAllRead}>
           Mark all read
         </Button>
       </Box>
@@ -112,7 +110,7 @@ const NotificationsMenu: React.FC<NotificationsMenuProps> = ({
                 "&:hover": { bgcolor: "rgba(0, 0, 0, 0.04)" },
               }}
               secondaryAction={
-                <Typography variant='caption' color='text.secondary'>
+                <Typography variant="caption" color="text.secondary">
                   {notification.time}
                 </Typography>
               }
@@ -129,7 +127,7 @@ const NotificationsMenu: React.FC<NotificationsMenuProps> = ({
           ))
         ) : (
           <ListItem>
-            <ListItemText primary='No notifications' />
+            <ListItemText primary="No notifications" />
           </ListItem>
         )}
       </List>

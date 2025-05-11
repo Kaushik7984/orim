@@ -1,6 +1,6 @@
+import { fabric } from "fabric"; 
 import { FabricJSEditor } from "fabricjs-react";
 import { User as FirebaseUser } from "firebase/auth";
-import { fabric } from "fabric"; // Needed for fabric.ICanvasOptions
 
 // Extend Firebase user type
 export interface AppUser extends FirebaseUser {

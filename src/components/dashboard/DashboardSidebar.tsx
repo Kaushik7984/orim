@@ -1,24 +1,23 @@
 "use client";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import AddIcon from "@mui/icons-material/Add";
+import ExploreOutlinedIcon from "@mui/icons-material/ExploreOutlined";
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+import SearchIcon from "@mui/icons-material/Search";
+import StarBorderIcon from "@mui/icons-material/StarBorder";
 import {
+  Avatar,
   Box,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  ListItemButton,
   Divider,
-  Typography,
   IconButton,
   InputBase,
-  Avatar,
-  Tooltip,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Typography
 } from "@mui/material";
-import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import StarBorderIcon from "@mui/icons-material/StarBorder";
-import AddIcon from "@mui/icons-material/Add";
-import SearchIcon from "@mui/icons-material/Search";
-import ExploreOutlinedIcon from "@mui/icons-material/ExploreOutlined";
 import { usePathname, useRouter } from "next/navigation";
 
 const DashboardSidebar = () => {
@@ -33,7 +32,7 @@ const DashboardSidebar = () => {
     },
     {
       text: "Home",
-      icon: <HomeOutlinedIcon fontSize='medium' />,
+      icon: <HomeOutlinedIcon fontSize="medium" />,
       path: "/dashboard",
     },
     { text: "Recent", icon: <AccessTimeIcon />, path: "/dashboard/recent" },
@@ -49,7 +48,6 @@ const DashboardSidebar = () => {
         bgcolor: "white",
       }}
     >
-      {/* Software Development header */}
       <Box
         sx={{
           p: 2,
@@ -74,8 +72,8 @@ const DashboardSidebar = () => {
           </Avatar>
           <Box sx={{ maxWidth: 160, overflow: "hidden" }}>
             <Typography
-              variant='caption'
-              color='text.secondary'
+              variant="caption"
+              color="text.secondary"
               sx={{
                 display: "block",
                 fontSize: "0.75rem",
@@ -99,13 +97,11 @@ const DashboardSidebar = () => {
             </Typography>
           </Box>
         </Box>
-        <IconButton size='small'>
-          <AddIcon fontSize='small' />
+        <IconButton size="small">
+          <AddIcon fontSize="small" />
         </IconButton>
       </Box>
-      {/* <Divider /> */}
 
-      {/* Search field */}
       <Box sx={{ px: 2, mt: 3, mb: 2 }}>
         <Box
           sx={{
@@ -118,13 +114,12 @@ const DashboardSidebar = () => {
         >
           <SearchIcon sx={{ color: "#757575", fontSize: 20 }} />
           <InputBase
-            placeholder='Search by title or topic'
+            placeholder="Search by title or topic"
             sx={{ ml: 1, flex: 1, fontSize: "0.875rem" }}
           />
         </Box>
       </Box>
 
-      {/* Main menu items */}
       <List sx={{ px: 1 }}>
         {mainMenuItems.map((item) => (
           <ListItem key={item.text} disablePadding>
@@ -162,7 +157,6 @@ const DashboardSidebar = () => {
 
       <Divider sx={{ my: 1.5 }} />
 
-      {/* Spaces section */}
       <Box
         sx={{
           px: 3,
@@ -177,9 +171,9 @@ const DashboardSidebar = () => {
         >
           Spaces
         </Typography>
-        <IconButton size='small'>
+        <IconButton size="small">
           <AddIcon
-            fontSize='small'
+            fontSize="small"
             sx={{
               color: "#606060",
             }}

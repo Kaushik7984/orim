@@ -1,20 +1,20 @@
 "use client";
 
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import HomeIcon from "@mui/icons-material/Home";
+import SearchOffIcon from "@mui/icons-material/SearchOff";
+import EmojiSadIcon from "@mui/icons-material/SentimentDissatisfied";
 import {
   Box,
   Button,
   Container,
-  Typography,
   Paper,
+  Typography,
   useTheme,
 } from "@mui/material";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import SearchOffIcon from "@mui/icons-material/SearchOff";
-import HomeIcon from "@mui/icons-material/Home";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import EmojiSadIcon from "@mui/icons-material/SentimentDissatisfied";
-import { motion } from "framer-motion";
 
 export default function NotFound() {
   const router = useRouter();
@@ -26,7 +26,7 @@ export default function NotFound() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
-      maxWidth='lg'
+      maxWidth="lg"
       sx={{
         py: { xs: 8, md: 12 },
         minHeight: "calc(100vh - 64px)",
@@ -43,9 +43,9 @@ export default function NotFound() {
         transition={{ duration: 0.5, delay: 0.2 }}
       >
         <Typography
-          variant='h1'
-          component='div'
-          align='center'
+          variant="h1"
+          component="div"
+          align="center"
           sx={{
             fontSize: { xs: "4rem", sm: "5rem", md: "6rem" },
             fontWeight: 800,
@@ -205,8 +205,8 @@ export default function NotFound() {
           }}
         >
           <Typography
-            variant='h3'
-            component='h1'
+            variant="h3"
+            component="h1"
             gutterBottom
             sx={{
               fontWeight: 700,
@@ -221,8 +221,8 @@ export default function NotFound() {
           </Typography>
 
           <Typography
-            variant='body1'
-            color='text.secondary'
+            variant="body1"
+            color="text.secondary"
             sx={{
               mb: 4,
               fontSize: { xs: "1rem", md: "1.125rem" },
@@ -250,8 +250,8 @@ export default function NotFound() {
                 boxShadow: "0 6px 20px rgba(30, 64, 175, 0.3)",
               }}
               whileTap={{ scale: 0.95 }}
-              variant='contained'
-              size='large'
+              variant="contained"
+              size="large"
               startIcon={<HomeIcon />}
               onClick={() => router.push("/")}
               sx={{
@@ -279,8 +279,8 @@ export default function NotFound() {
               component={motion.button}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              variant='outlined'
-              size='large'
+              variant="outlined"
+              size="large"
               startIcon={<ArrowBackIcon />}
               onClick={() => router.back()}
               sx={{
@@ -305,7 +305,7 @@ export default function NotFound() {
           </Box>
 
           <Typography
-            variant='body2'
+            variant="body2"
             sx={{
               mt: 4,
               color: "text.secondary",
@@ -315,7 +315,7 @@ export default function NotFound() {
           >
             If you believe this is an error, please{" "}
             <Link
-              href='/help/contact'
+              href="/help/contact"
               style={{
                 color: "#1e40af",
                 textDecoration: "none",
