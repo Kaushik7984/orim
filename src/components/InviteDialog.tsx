@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { ensureValidToken } from "@/lib/auth-utils";
-import api from "@/lib/api";
 import { toast } from "react-hot-toast";
+import { boardAPI } from "@/lib/boardApi";
 
 interface InviteDialogProps {
   boardId: string;
@@ -38,36 +37,27 @@ export default function InviteDialog({
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-
+  
     if (!user) {
       toast.error("You must be logged in to send invitations");
       return;
     }
-
+  
     if (!validateEmail(email)) {
       setError("Please enter a valid email address");
       return;
     }
-
+  
     if (!boardId) {
       setError("Board ID is required");
       return;
     }
-
+  
     try {
       setIsLoading(true);
-      const hasValidToken = await ensureValidToken();
-      if (!hasValidToken) {
-        toast.error("Auth error. Please login again.");
-        return;
-      }
-
-      await api.post("/mail/invite", {
-        email,
-        boardId,
-        message: message || undefined,
-      });
-
+  
+      await boardAPI.sendBoardInvite({ email, boardId, message });
+  
       toast.success("Invitation email sent!");
       onClose();
     } catch (error: any) {
@@ -77,6 +67,7 @@ export default function InviteDialog({
       setIsLoading(false);
     }
   };
+  
 
   if (!isOpen) {
     return null;

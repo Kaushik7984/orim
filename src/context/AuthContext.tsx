@@ -11,7 +11,6 @@ import {
   updateProfile as firebaseUpdateProfile,
 } from "firebase/auth";
 import { auth } from "@/config/firebase";
-import { setupTokenRefresh } from "@/lib/token-refresh";
 
 interface ProfileUpdateData {
   displayName?: string;
@@ -54,12 +53,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    if (user) {
-      const cleanup = setupTokenRefresh();
-      return cleanup;
-    }
-  }, [user]);
 
   const signIn = async (email: string, password: string) => {
     try {
