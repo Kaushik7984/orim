@@ -1,5 +1,5 @@
-import { fabric } from "fabric";
 import { SocketService } from "@/lib/socket";
+import { fabric } from "fabric";
 import { User } from "firebase/auth";
 
 export type CursorPosition = {

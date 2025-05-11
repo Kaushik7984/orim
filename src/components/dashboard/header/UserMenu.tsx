@@ -1,6 +1,6 @@
-import React from "react";
+import { Box, Divider, Menu, MenuItem, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { Menu, MenuItem, Box, Typography, Divider } from "@mui/material";
+import React from "react";
 
 interface UserMenuProps {
   anchorEl: HTMLElement | null;
@@ -42,10 +42,10 @@ const UserMenu: React.FC<UserMenuProps> = ({
       }}
     >
       <Box sx={{ px: 2, py: 1 }}>
-        <Typography variant='subtitle1' fontWeight={500}>
+        <Typography variant="subtitle1" fontWeight={500}>
           {user.displayName || "User"}
         </Typography>
-        <Typography variant='body2' color='text.secondary'>
+        <Typography variant="body2" color="text.secondary">
           {user.email}
         </Typography>
       </Box>

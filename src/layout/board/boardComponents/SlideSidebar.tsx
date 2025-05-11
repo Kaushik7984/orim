@@ -1,10 +1,10 @@
-import { motion } from "framer-motion";
-import React, { useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
-import FrameState from "./FrameState";
-import ActivitiesState from "./ActivitiesState";
-import { Nunito } from "next/font/google";
 import { FabricJSEditor } from "fabricjs-react";
+import { motion } from "framer-motion";
+import { Nunito } from "next/font/google";
+import React, { useState } from "react";
+import ActivitiesState from "./ActivitiesState";
+import FrameState from "./FrameState";
 
 const nunito = Nunito({
   subsets: ["latin-ext"],
@@ -40,11 +40,11 @@ const SlideSidebar = ({
       initial={{ x: -1000 }}
       animate={{ x: isOpen ? 0 : -1000 }}
       transition={{ duration: 0.2 }}
-      className='mt-1 h-[88%] w-[300px] bg-white rounded-md mr-1 flex flex-col'
+      className="mt-1 h-[88%] w-[300px] bg-white rounded-md mr-1 flex flex-col"
       style={{ boxShadow: "1px 1px 5px rgba(0, 0, 0, 0.3)" }}
     >
-      <div className='w-full flex flex-row justify-between items-center  border-[0.5px] border-b-neutral-400 rounded-t-md'>
-        <div className='flex flex-row items-center px-3'>
+      <div className="w-full flex flex-row justify-between items-center  border-[0.5px] border-b-neutral-400 rounded-t-md">
+        <div className="flex flex-row items-center px-3">
           <p
             onClick={() => setActiveTab("frames")}
             className={`px-3 py-3 flex items-center justify-center ${
@@ -66,10 +66,10 @@ const SlideSidebar = ({
             Activities
           </p>
         </div>
-        <span className='px-2'>
+        <span className="px-2">
           <CloseIcon
             onClick={() => setAllModesOff()}
-            className='cursor-pointer hover:text-blue-600'
+            className="cursor-pointer hover:text-blue-600"
           />
         </span>
       </div>

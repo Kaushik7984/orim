@@ -1,9 +1,8 @@
+import { AuthProvider } from "@/context/AuthContext";
+import { BoardProvider } from "@/context/BoardContext/BoardProvider";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { AuthProvider } from "@/context/AuthContext";
-import { BoardProvider } from "@/context/BoardContext/BoardProvider";
-import ChatWidget from "../widgets/chat.widget";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,16 +20,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang='en' className='h-full'>
+    <html lang="en" className="h-full">
       <body className={`${inter.className} h-full`}>
         <AuthProvider>
           <BoardProvider>
-            <div className='flex flex-col h-full'>
-              <main className='flex-1 overflow-auto '>{children}</main>
-
-              {/* <ChatWidget /> */}
-
-              {/* <DebugToken /> */}
+            <div className="flex flex-col h-full">
+              <main className="flex-1 overflow-auto ">{children}</main>
             </div>
           </BoardProvider>
         </AuthProvider>

@@ -1,15 +1,15 @@
 "use client";
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import { getSocket } from "@/lib/socket";
 import {
-  Button,
-  TextField,
   Box,
-  Typography,
+  Button,
   Container,
   Paper,
+  TextField,
+  Typography,
 } from "@mui/material";
-import { getSocket } from "@/lib/socket";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 const JoinBoardPage = () => {
   const [boardId, setBoardId] = useState("");
@@ -31,26 +31,26 @@ const JoinBoardPage = () => {
   };
 
   return (
-    <Container maxWidth='sm' sx={{ mt: 8 }}>
+    <Container maxWidth="sm" sx={{ mt: 8 }}>
       <Paper elevation={3} sx={{ p: 4 }}>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-          <Typography variant='h4' component='h1' gutterBottom>
+          <Typography variant="h4" component="h1" gutterBottom>
             Join Board
           </Typography>
-          <Typography variant='body1' color='text.secondary'>
+          <Typography variant="body1" color="text.secondary">
             Enter a board ID to join an existing board or create a new one.
           </Typography>
           <TextField
             fullWidth
-            label='Board ID'
-            variant='outlined'
+            label="Board ID"
+            variant="outlined"
             value={boardId}
             onChange={(e) => setBoardId(e.target.value)}
-            placeholder='Enter board ID'
+            placeholder="Enter board ID"
           />
           <Button
-            variant='contained'
-            size='large'
+            variant="contained"
+            size="large"
             onClick={handleJoin}
             disabled={!boardId.trim()}
             sx={{
@@ -60,7 +60,7 @@ const JoinBoardPage = () => {
           >
             Join Board
           </Button>
-          <Typography variant='body2' color='text.secondary' align='center'>
+          <Typography variant="body2" color="text.secondary" align="center">
             You will be redirected to the board if it exists, or a new board
             will be created.
           </Typography>

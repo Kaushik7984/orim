@@ -24,7 +24,7 @@ import LoginIcon from "@mui/icons-material/Login";
 import PersonIcon from "@mui/icons-material/Person";
 import ShareIcon from "@mui/icons-material/Share";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import InviteDialog from "@/components/InviteDialog";
+import InviteDialog from "@/layout/board/boardComponents/InviteDialog";
 import { useRouter } from "next/navigation";
 import { useBoard } from "@/context/BoardContext/useBoard";
 import { CursorPosition, getUserColor } from "@/utils/collaborationUtils";
@@ -35,7 +35,6 @@ const nunito = Nunito({
   weight: ["700"],
 });
 
-// Collaborator type definition
 type ActiveCollaborator = {
   userId: string;
   username: string;
@@ -203,7 +202,6 @@ const SubRightHeader = () => {
       className='flex flex-row items-center h-12 px-4 bg-white border-b rounded-md mr-2 border-gray-200'
       style={{ boxShadow: "1px 1px 5px rgba(0, 0, 0, 0.3)" }}
     >
-      {/* Left Section */}
       <div className='flex items-center space-x-2'>
         {items.map((item) => (
           <Tooltip key={item.name} title={item.name}>
@@ -222,9 +220,7 @@ const SubRightHeader = () => {
 
       <div className='flex-grow' />
 
-      {/* Right Section */}
       <div className='flex items-center space-x-2 pl-3'>
-        {/* Share Button */}
         <button
           onClick={() => setIsInviteDialogOpen(true)}
           className='flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors duration-200'
@@ -233,7 +229,6 @@ const SubRightHeader = () => {
           Share
         </button>
 
-        {/* Present Button */}
         <button
           onClick={handleTogglePresentation}
           className={`flex items-center px-3 py-1.5 text-sm font-medium ${
@@ -246,7 +241,6 @@ const SubRightHeader = () => {
           {isPresenting ? "Exit" : "Present"}
         </button>
 
-        {/* Collaborator Section - Members */}
         <div className='flex items-center pl-3'>
           <AvatarGroup
             max={4}
@@ -273,7 +267,6 @@ const SubRightHeader = () => {
             ))}
           </AvatarGroup>
 
-          {/* Members Menu */}
           <Menu
             anchorEl={membersAnchorEl}
             open={Boolean(membersAnchorEl)}
@@ -323,7 +316,6 @@ const SubRightHeader = () => {
           </Menu>
         </div>
 
-        {/* User Menu */}
         <div
           className='flex items-center space-x-1 px-1 py-1 rounded-full border border-gray-300 cursor-pointer hover:bg-gray-50 transition-colors duration-200'
           onClick={handleMenuOpen}

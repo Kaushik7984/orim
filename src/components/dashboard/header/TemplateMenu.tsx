@@ -1,6 +1,6 @@
-import React from "react";
-import { useRouter } from "next/navigation";
 import { Menu, MenuItem } from "@mui/material";
+import { useRouter } from "next/navigation";
+import React from "react";
 
 interface TemplateMenuProps {
   anchorEl: HTMLElement | null;
@@ -10,7 +10,6 @@ interface TemplateMenuProps {
 const TemplateMenu: React.FC<TemplateMenuProps> = ({ anchorEl, onClose }) => {
   const router = useRouter();
 
-  // Mock templates
   const templates = [
     { id: 1, name: "Kanban Board" },
     { id: 2, name: "Scrum Board" },

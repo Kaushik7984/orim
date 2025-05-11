@@ -1,7 +1,7 @@
 import { FabricSidebarProps } from "@/types";
+import { motion } from "framer-motion";
 import { useState } from "react";
 import SlideSidebar from "./SlideSidebar";
-import { motion } from "framer-motion";
 import Toolbar from "./Toolbar";
 
 const FabricSidebar: React.FC<FabricSidebarProps> = ({ editor }) => {

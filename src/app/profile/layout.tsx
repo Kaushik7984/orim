@@ -1,27 +1,25 @@
-// app/profile/layout.tsx
 "use client";
 
-import React from "react";
 import {
   Box,
-  Typography,
   Container,
+  Divider,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
-  Divider,
   Paper,
+  Typography,
 } from "@mui/material";
+import Image from "next/image";
+import React from "react";
 import {
-  MdPerson,
-  MdSecurity,
-  MdSettings,
   MdApps,
   MdGroups,
   MdInsights,
+  MdPerson,
+  MdSecurity,
 } from "react-icons/md";
-import Image from "next/image";
 
 const sidebarItems = [
   { icon: <MdPerson />, label: "Users" },
@@ -38,7 +36,6 @@ export default function ProfileLayout({
 }) {
   return (
     <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: "#f5f7fa" }}>
-      {/* Left Side Navigation */}
       <Box
         sx={{
           width: "250px",
@@ -49,7 +46,6 @@ export default function ProfileLayout({
           overflow: "hidden",
         }}
       >
-        {/* Dot pattern background for left side */}
         <Box
           sx={{
             position: "absolute",
@@ -64,23 +60,18 @@ export default function ProfileLayout({
           }}
         />
 
-        {/* Logo and branding */}
         <Box sx={{ mb: 4, position: "relative", textAlign: "center" }}>
           <Image
-            src='/orime.svg'
-            alt='Orim Logo'
+            src="/orime.svg"
+            alt="Orim Logo"
             width={100}
             height={40}
-            className='filter brightness-0 invert mb-4'
+            className="filter brightness-0 invert mb-4"
           />
-          {/* <Typography variant='h6' fontWeight='bold' sx={{ mb: 1 }}>
-            Orim Board
-          </Typography> */}
         </Box>
 
         <Divider sx={{ mb: 3, borderColor: "rgba(255, 255, 255, 0.2)" }} />
 
-        {/* Navigation Menu */}
         <List>
           {sidebarItems.map((item) => (
             <ListItem
@@ -106,9 +97,7 @@ export default function ProfileLayout({
         </List>
       </Box>
 
-      {/* Right Side Content */}
       <Box sx={{ flexGrow: 1 }}>
-        {/* Header */}
         <Box
           sx={{
             bgcolor: "#fff",
@@ -118,13 +107,12 @@ export default function ProfileLayout({
             boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
           }}
         >
-          <Typography variant='h5' fontWeight='bold'>
+          <Typography variant="h5" fontWeight="bold">
             Profile Settings
           </Typography>
         </Box>
 
-        {/* Page Content */}
-        <Container maxWidth='lg' sx={{ mt: 4 }}>
+        <Container maxWidth="lg" sx={{ mt: 4 }}>
           <Paper elevation={0} sx={{ bgcolor: "#fff" }}>
             {children}
           </Paper>

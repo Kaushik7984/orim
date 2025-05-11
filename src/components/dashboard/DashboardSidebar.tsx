@@ -1,20 +1,23 @@
 "use client";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import AddIcon from "@mui/icons-material/Add";
+import ExploreOutlinedIcon from "@mui/icons-material/ExploreOutlined";
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+import SearchIcon from "@mui/icons-material/Search";
+import StarBorderIcon from "@mui/icons-material/StarBorder";
 import {
+  Avatar,
   Box,
+  Divider,
+  IconButton,
+  InputBase,
   List,
   ListItem,
+  ListItemButton,
   ListItemIcon,
   ListItemText,
-  ListItemButton,
-  Divider,
-  Typography,
-  IconButton,
+  Typography
 } from "@mui/material";
-import HomeIcon from "@mui/icons-material/Home";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
-import StarBorderIcon from "@mui/icons-material/StarBorder";
-import FolderIcon from "@mui/icons-material/Folder";
-import AddIcon from "@mui/icons-material/Add";
 import { usePathname, useRouter } from "next/navigation";
 
 const DashboardSidebar = () => {
@@ -22,104 +25,160 @@ const DashboardSidebar = () => {
   const pathname = usePathname();
 
   const mainMenuItems = [
-    { text: "Home", icon: <HomeIcon />, path: "/dashboard" },
+    {
+      text: "Explore",
+      icon: <ExploreOutlinedIcon />,
+      path: "/dashboard/explore",
+    },
+    {
+      text: "Home",
+      icon: <HomeOutlinedIcon fontSize="medium" />,
+      path: "/dashboard",
+    },
     { text: "Recent", icon: <AccessTimeIcon />, path: "/dashboard/recent" },
     { text: "Starred", icon: <StarBorderIcon />, path: "/dashboard/starred" },
   ];
 
-  const spaces = [
-    { text: "My Space", icon: <FolderIcon />, path: "/dashboard/space/1" },
-    { text: "Team Space", icon: <FolderIcon />, path: "/dashboard/space/2" },
-  ];
-
   return (
-    <Box sx={{ color: "#333333" }}>
-      <Box sx={{ p: 2 }}>
-        <Typography
-          variant='subtitle2'
-          color='text.secondary'
-          sx={{ mb: 1, fontWeight: 500 }}
-        >
-          MAIN MENU
-        </Typography>
-        <List disablePadding>
-          {mainMenuItems.map((item) => (
-            <ListItem key={item.text} disablePadding>
-              <ListItemButton
-                selected={pathname === item.path}
-                onClick={() => router.push(item.path)}
-                sx={{
-                  borderRadius: 1,
-                  mb: 0.5,
-                  color: "#333333",
-                  "&.Mui-selected": {
-                    bgcolor: "rgba(25, 118, 210, 0.08)",
-                    color: "#1976d2",
-                  },
-                  "&:hover": {
-                    bgcolor: "rgba(0, 0, 0, 0.04)",
-                  },
-                }}
-              >
-                <ListItemIcon sx={{ minWidth: 40, color: "inherit" }}>
-                  {item.icon}
-                </ListItemIcon>
-                <ListItemText primary={item.text} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
+    <Box
+      sx={{
+        width: "270px",
+        borderRight: "1px solid #eaeaea",
+        height: "100vh",
+        bgcolor: "white",
+      }}
+    >
+      <Box
+        sx={{
+          p: 2,
+          pb: 1.5,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Avatar
+            sx={{
+              width: 32,
+              height: 32,
+              bgcolor: "#D0E8FF",
+              color: "#0078D4",
+              fontSize: 14,
+              mr: 1.5,
+            }}
+          >
+            SD
+          </Avatar>
+          <Box sx={{ maxWidth: 160, overflow: "hidden" }}>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{
+                display: "block",
+                fontSize: "0.75rem",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              La Net Team Software Solutions Pvt. LTD.
+            </Typography>
+            <Typography
+              sx={{
+                fontWeight: 500,
+                fontSize: "0.95rem",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              Software Development
+            </Typography>
+          </Box>
+        </Box>
+        <IconButton size="small">
+          <AddIcon fontSize="small" />
+        </IconButton>
       </Box>
 
-      <Divider sx={{ borderColor: "rgba(0, 0, 0, 0.1)" }} />
-
-      <Box sx={{ p: 2 }}>
+      <Box sx={{ px: 2, mt: 3, mb: 2 }}>
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-between",
-            mb: 1,
+            bgcolor: "#f5f5f5",
+            borderRadius: "4px",
+            p: "2px 8px",
           }}
         >
-          <Typography
-            variant='subtitle2'
-            color='text.secondary'
-            sx={{ fontWeight: 500 }}
-          >
-            SPACES
-          </Typography>
-          <IconButton size='small' sx={{ color: "text.secondary" }}>
-            <AddIcon fontSize='small' />
-          </IconButton>
+          <SearchIcon sx={{ color: "#757575", fontSize: 20 }} />
+          <InputBase
+            placeholder="Search by title or topic"
+            sx={{ ml: 1, flex: 1, fontSize: "0.875rem" }}
+          />
         </Box>
-        <List disablePadding>
-          {spaces.map((space) => (
-            <ListItem key={space.text} disablePadding>
-              <ListItemButton
-                selected={pathname === space.path}
-                onClick={() => router.push(space.path)}
-                sx={{
-                  borderRadius: 1,
-                  mb: 0.5,
-                  color: "#333333",
-                  "&.Mui-selected": {
-                    bgcolor: "rgba(25, 118, 210, 0.08)",
-                    color: "#1976d2",
-                  },
+      </Box>
+
+      <List sx={{ px: 1 }}>
+        {mainMenuItems.map((item) => (
+          <ListItem key={item.text} disablePadding>
+            <ListItemButton
+              selected={pathname === item.path}
+              onClick={() => router.push(item.path)}
+              sx={{
+                borderRadius: 1,
+                py: 1,
+                "&.Mui-selected": {
+                  bgcolor: "#f0f0f0",
                   "&:hover": {
-                    bgcolor: "rgba(0, 0, 0, 0.04)",
+                    bgcolor: "#f0f0f0",
                   },
+                },
+                "&:hover": {
+                  bgcolor: "#f5f5f5",
+                },
+              }}
+            >
+              <ListItemIcon sx={{ minWidth: 36, color: "#606060" }}>
+                {item.icon}
+              </ListItemIcon>
+              <ListItemText
+                primary={item.text}
+                primaryTypographyProps={{
+                  fontSize: "0.9rem",
+                  fontWeight: pathname === item.path ? 500 : 400,
                 }}
-              >
-                <ListItemIcon sx={{ minWidth: 40, color: "inherit" }}>
-                  {space.icon}
-                </ListItemIcon>
-                <ListItemText primary={space.text} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
+              />
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List>
+
+      <Divider sx={{ my: 1.5 }} />
+
+      <Box
+        sx={{
+          px: 3,
+          py: 1,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <Typography
+          sx={{ fontSize: "0.8rem", fontWeight: 400, color: "#606060" }}
+        >
+          Spaces
+        </Typography>
+        <IconButton size="small">
+          <AddIcon
+            fontSize="small"
+            sx={{
+              color: "#606060",
+            }}
+          />
+        </IconButton>
       </Box>
     </Box>
   );

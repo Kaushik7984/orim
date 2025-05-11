@@ -1,21 +1,20 @@
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import {
-  Container,
-  Paper,
-  TextField,
-  Button,
-  Typography,
-  Box,
-  Divider,
   Alert,
+  Box,
+  Button,
+  Container,
   IconButton,
+  Paper,
   Stack,
+  TextField,
+  Typography
 } from "@mui/material";
-import { FcGoogle } from "react-icons/fc";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { FaMicrosoft, FaPlus } from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
 import { HiOutlineShieldCheck } from "react-icons/hi";
 
 export default function LoginPage() {
@@ -46,7 +45,7 @@ export default function LoginPage() {
 
   return (
     <Container
-      maxWidth='sm'
+      maxWidth="sm"
       sx={{
         mt: 10,
         display: "flex",
@@ -56,51 +55,51 @@ export default function LoginPage() {
     >
       <Paper elevation={1} sx={{ p: 5, borderRadius: 2, width: "100%" }}>
         <Typography
-          variant='h5'
-          component='h1'
+          variant="h5"
+          component="h1"
           gutterBottom
-          align='center'
-          fontWeight='bold'
+          align="center"
+          fontWeight="bold"
         >
           Sign in to Orime
         </Typography>
 
         <Stack
-          direction='row'
+          direction="row"
           spacing={2}
-          justifyContent='center'
+          justifyContent="center"
           sx={{ mb: 3 }}
         >
-          <IconButton size='large' color='default'>
+          <IconButton size="large" color="default">
             <HiOutlineShieldCheck />
           </IconButton>
-          <IconButton size='large' onClick={handleGoogleSignIn}>
+          <IconButton size="large" onClick={handleGoogleSignIn}>
             <FcGoogle />
           </IconButton>
-          <IconButton size='large' color='primary'>
+          <IconButton size="large" color="primary">
             <FaMicrosoft />
           </IconButton>
-          <IconButton size='large' color='default'>
+          <IconButton size="large" color="default">
             <FaPlus />
           </IconButton>
         </Stack>
 
         <Box
-          component='form'
+          component="form"
           onSubmit={handleSubmit}
           sx={{ display: "flex", flexDirection: "column", gap: 2 }}
         >
           {error && (
-            <Alert severity='error' onClose={() => setError("")}>
+            <Alert severity="error" onClose={() => setError("")}>
               {error}
             </Alert>
           )}
 
           <TextField
             fullWidth
-            label='Email'
-            type='email'
-            placeholder='name@company.com'
+            label="Email"
+            type="email"
+            placeholder="name@company.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -108,19 +107,19 @@ export default function LoginPage() {
 
           <TextField
             fullWidth
-            label='Password'
-            type='password'
-            placeholder='••••••••'
+            label="Password"
+            type="password"
+            placeholder="••••••••"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
 
           <Button
-            type='submit'
+            type="submit"
             fullWidth
-            variant='contained'
-            size='large'
+            variant="contained"
+            size="large"
             sx={{
               bgcolor: "#2563eb",
               borderRadius: 2,
@@ -133,9 +132,9 @@ export default function LoginPage() {
           </Button>
         </Box>
 
-        <Typography variant='body2' align='center' mt={2}>
+        <Typography variant="body2" align="center" mt={2}>
           <Button
-            variant='text'
+            variant="text"
             onClick={() => router.push("/auth/register")}
             sx={{ textTransform: "none" }}
           >

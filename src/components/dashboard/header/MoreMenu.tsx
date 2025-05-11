@@ -1,12 +1,12 @@
-import React from "react";
-import { useRouter } from "next/navigation";
-import { Menu, MenuItem, ListItemIcon, ListItemText } from "@mui/material";
-import HistoryIcon from "@mui/icons-material/History";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import StarIcon from "@mui/icons-material/Star";
 import GroupIcon from "@mui/icons-material/Group";
+import HistoryIcon from "@mui/icons-material/History";
 import InsightsIcon from "@mui/icons-material/Insights";
 import SettingsIcon from "@mui/icons-material/Settings";
+import StarIcon from "@mui/icons-material/Star";
+import { ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
+import { useRouter } from "next/navigation";
+import React from "react";
 
 interface MoreMenuProps {
   anchorEl: HTMLElement | null;
@@ -16,42 +16,41 @@ interface MoreMenuProps {
 const MoreMenu: React.FC<MoreMenuProps> = ({ anchorEl, onClose }) => {
   const router = useRouter();
 
-  // More menu items
   const moreMenuItems = [
     {
       id: 1,
       title: "Recently Viewed",
-      icon: <HistoryIcon fontSize='small' />,
+      icon: <HistoryIcon fontSize="small" />,
       path: "/recently-viewed",
     },
     {
       id: 2,
       title: "Favorites",
-      icon: <FavoriteIcon fontSize='small' />,
+      icon: <FavoriteIcon fontSize="small" />,
       path: "/favorites",
     },
     {
       id: 3,
       title: "Starred",
-      icon: <StarIcon fontSize='small' />,
+      icon: <StarIcon fontSize="small" />,
       path: "/starred",
     },
     {
       id: 4,
       title: "Teams",
-      icon: <GroupIcon fontSize='small' />,
+      icon: <GroupIcon fontSize="small" />,
       path: "/teams",
     },
     {
       id: 5,
       title: "Analytics",
-      icon: <InsightsIcon fontSize='small' />,
+      icon: <InsightsIcon fontSize="small" />,
       path: "/analytics",
     },
     {
       id: 6,
       title: "Settings",
-      icon: <SettingsIcon fontSize='small' />,
+      icon: <SettingsIcon fontSize="small" />,
       path: "/settings",
     },
   ];

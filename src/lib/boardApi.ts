@@ -95,4 +95,27 @@ export const boardAPI = {
       throw error;
     }
   },
+
+  sendBoardInvite: async ({
+    email,
+    boardId,
+    message,
+  }: {
+    email: string;
+    boardId: string;
+    message?: string;
+  }): Promise<void> => {
+    try {
+      const config = await getAuthHeaders();
+      await axios.post(
+        `${BASE_URL}/mail/invite`,
+        { email, boardId, message },
+        config
+      );
+    } catch (error) {
+      console.error("Failed to send invitation", error);
+      throw error;
+    }
+  },
+  
 };

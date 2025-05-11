@@ -1,35 +1,31 @@
 "use client";
-import { useState, useCallback } from "react";
-import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Button,
-  Box,
-  IconButton,
-  Avatar,
-  TextField,
-  InputAdornment,
-  styled,
-  Badge,
-  Tooltip,
-} from "@mui/material";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import SearchIcon from "@mui/icons-material/Search";
-import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
+import { useAuth } from "@/context/AuthContext";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import { useAuth } from "@/context/AuthContext";
+import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
+import {
+  AppBar,
+  Avatar,
+  Badge,
+  Box,
+  Button,
+  IconButton,
+  styled,
+  TextField,
+  Toolbar,
+  Tooltip
+} from "@mui/material";
 import Image from "next/image";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useCallback, useState } from "react";
 
-// Import component files
-import UserMenu from "./header/UserMenu";
-import TemplateMenu from "./header/TemplateMenu";
+import HelpMenu from "./header/HelpMenu";
 import MoreMenu from "./header/MoreMenu";
 import NotificationsMenu from "./header/NotificationsMenu";
-import HelpMenu from "./header/HelpMenu";
+import TemplateMenu from "./header/TemplateMenu";
+import UserMenu from "./header/UserMenu";
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   backgroundColor: "#ffffff",
@@ -102,7 +98,6 @@ const Header = () => {
   const [helpAnchorEl, setHelpAnchorEl] = useState<null | HTMLElement>(null);
   const [moreAnchorEl, setMoreAnchorEl] = useState<null | HTMLElement>(null);
 
-  // Notifications badge count
   const [unreadCount, setUnreadCount] = useState(2);
 
   const handleSearch = useCallback(
@@ -114,7 +109,6 @@ const Header = () => {
     [searchTerm, router]
   );
 
-  // Handle menu opens
   const handleUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setUserAnchorEl(event.currentTarget);
   };
@@ -157,10 +151,9 @@ const Header = () => {
   return (
     <StyledAppBar>
       <Toolbar sx={{ minHeight: "64px !important" }}>
-        {/* Logo Section */}
         <Box
           component={Link}
-          href='/'
+          href="/"
           sx={{
             display: "flex",
             alignItems: "center",
@@ -170,19 +163,18 @@ const Header = () => {
           }}
         >
           <Image
-            src='/orime.svg'
-            alt='Orime Logo'
+            src="/orime.svg"
+            alt="Orime Logo"
             width={80}
             height={32}
-            className='cursor-pointer hover:opacity-90 transition-opacity'
+            className="cursor-pointer hover:opacity-90 transition-opacity"
           />
         </Box>
 
-        {/* Navigation Section */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <Button
             component={Link}
-            href='/dashboard'
+            href="/dashboard"
             sx={{
               color: isActive("/dashboard") ? "#1976d2" : "#555555",
               textTransform: "none",
@@ -231,32 +223,14 @@ const Header = () => {
           </Button>
         </Box>
 
-        {/* Search Section */}
-        <StyledSearchInput
-          placeholder='Search'
-          size='small'
-          // sx={{ ml: 2, width: 180 }}
-          // value={searchTerm}
-          // onChange={(e) => setSearchTerm(e.target.value)}
-          // onKeyDown={handleSearch}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position='start'>
-                <SearchIcon fontSize='small' />
-              </InputAdornment>
-            ),
-          }}
-        />
-
         <Box sx={{ flexGrow: 1 }} />
 
-        {/* Right Section */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           {user ? (
             <>
               <Button
                 onClick={handleJoinBoard}
-                variant='outlined'
+                variant="outlined"
                 sx={{
                   textTransform: "none",
                   fontWeight: "normal",
@@ -271,8 +245,8 @@ const Header = () => {
               </Button>
               <Button
                 component={Link}
-                href='/pricing'
-                variant='contained'
+                href="/pricing"
+                variant="contained"
                 sx={{
                   bgcolor: "#1976d2",
                   color: "white",
@@ -283,28 +257,28 @@ const Header = () => {
               >
                 Upgrade
               </Button>
-              <Tooltip title='Help & Support'>
+              <Tooltip title="Help & Support">
                 <IconButton
-                  size='small'
+                  size="small"
                   sx={{ color: "text.secondary" }}
                   onClick={handleHelpMenu}
                 >
                   <HelpOutlineIcon />
                 </IconButton>
               </Tooltip>
-              <Tooltip title='Notifications'>
+              <Tooltip title="Notifications">
                 <IconButton
-                  size='small'
+                  size="small"
                   sx={{ color: "text.secondary" }}
                   onClick={handleNotificationsMenu}
                 >
-                  <Badge badgeContent={unreadCount} color='error'>
+                  <Badge badgeContent={unreadCount} color="error">
                     <NotificationsNoneIcon />
                   </Badge>
                 </IconButton>
               </Tooltip>
-              <Tooltip title='Profile & Settings'>
-                <IconButton size='small' onClick={handleUserMenu}>
+              <Tooltip title="Profile & Settings">
+                <IconButton size="small" onClick={handleUserMenu}>
                   <Avatar
                     sx={{
                       width: 32,
@@ -320,7 +294,6 @@ const Header = () => {
                 </IconButton>
               </Tooltip>
 
-              {/* Menus */}
               <UserMenu
                 anchorEl={userAnchorEl}
                 onClose={() => setUserAnchorEl(null)}
@@ -353,7 +326,7 @@ const Header = () => {
             <>
               <Button
                 component={Link}
-                href='/auth/login'
+                href="/auth/login"
                 sx={{
                   color: "#555555",
                   textTransform: "none",
@@ -364,8 +337,8 @@ const Header = () => {
               </Button>
               <Button
                 component={Link}
-                href='/auth/register'
-                variant='contained'
+                href="/auth/register"
+                variant="contained"
                 sx={{
                   bgcolor: "#1e40af",
                   color: "white",

@@ -1,7 +1,7 @@
 "use client";
-import { FabricJSEditor } from "fabricjs-react";
 import { getSocket } from "@/lib/socket";
 import { fabric } from "fabric";
+import { FabricJSEditor } from "fabricjs-react";
 
 interface IPathCreatedEvent extends fabric.IEvent<Event> {
   path: fabric.Path;
@@ -41,8 +41,7 @@ export const usePen = (
     editor.canvas._currentDrawingMode = undefined;
     editor.canvas.isDrawingMode = false;
 
-    // Remove all tool-related listeners
-    editor.canvas.off("mouse:down");
+     editor.canvas.off("mouse:down");
     editor.canvas.off("mouse:move");
     editor.canvas.off("mouse:up");
     editor.canvas.off("path:created");
@@ -51,8 +50,7 @@ export const usePen = (
   const setupDrawingMode = (color: string, width: number, type: string) => {
     if (!editor?.canvas) return;
 
-    // Clean up all previous tool modes
-    cleanupCanvasListeners();
+     cleanupCanvasListeners();
 
     editor.canvas.isDrawingMode = true;
     editor.canvas.freeDrawingBrush.width = width;

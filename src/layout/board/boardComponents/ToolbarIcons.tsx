@@ -1,14 +1,14 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 import { Nunito } from "next/font/google";
 
 import AddBoxIcon from "@mui/icons-material/AddBox";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
-import { Popover, PopoverContent, PopoverTrigger } from "@nextui-org/react";
-import StickyNote2OutlinedIcon from "@mui/icons-material/StickyNote2Outlined";
 import InterestsOutlinedIcon from "@mui/icons-material/InterestsOutlined";
+import StickyNote2OutlinedIcon from "@mui/icons-material/StickyNote2Outlined";
 import { Divider } from "@mui/material";
+import { Popover, PopoverContent, PopoverTrigger } from "@nextui-org/react";
 import {
   Brush,
   Crop,
@@ -28,20 +28,20 @@ import {
   Thickness,
 } from "@/svgs/index.svg";
 
-import {
-  CircleIcon,
-  PolygonIcon,
-  RectIcon,
-  TriangleIcon,
-} from "@/utils/shapes";
+import { PenIcon } from "@/utils/draw";
 import {
   CurvedLineIcon,
   DirectionalLineIcon,
   StraightArrowIcon,
   StraightLineIcon,
 } from "@/utils/lines";
-import { PenIcon } from "@/utils/draw";
-import { PEN_COLORS, PEN_THICKNESS, HIGHLIGHTER_COLORS } from "@/utils/usePen";
+import {
+  CircleIcon,
+  PolygonIcon,
+  RectIcon,
+  TriangleIcon,
+} from "@/utils/shapes";
+import { HIGHLIGHTER_COLORS, PEN_COLORS, PEN_THICKNESS } from "@/utils/usePen";
 
 const nunito = Nunito({
   subsets: ["latin-ext"],
@@ -109,19 +109,19 @@ const pens = [
   },
   {
     name: "Highlighter",
-    icon: <Highlighter className='w-[27px] h-[27px]' />,
+    icon: <Highlighter className="w-[27px] h-[27px]" />,
   },
   {
     name: "Smart draw",
-    icon: <Smart_Draw className='w-[27px] h-[27px]' />,
+    icon: <Smart_Draw className="w-[27px] h-[27px]" />,
   },
   {
     name: "Eraser",
-    icon: <Eraser className='w-[27px] h-[27px]' />,
+    icon: <Eraser className="w-[27px] h-[27px]" />,
   },
   {
     name: "Lasso",
-    icon: <Lasso className='w-[27px] h-[27px]' />,
+    icon: <Lasso className="w-[27px] h-[27px]" />,
   },
 ];
 
@@ -144,7 +144,6 @@ const stickyNotes = [
   "#800080",
 ];
 
-// Update the Pen toolbar display
 const PenToolbar = ({
   onPenSelect,
 }: {
@@ -162,7 +161,6 @@ const PenToolbar = ({
   const handlePenToolClick = (penName: string) => {
     setActiveToolName(penName);
 
-    // Set default color based on tool type
     if (penName === "Highlighter" && !selectedColor.includes("rgba")) {
       setSelectedColor(HIGHLIGHTER_COLORS[0]);
     }
@@ -180,7 +178,6 @@ const PenToolbar = ({
   const handleColorSelect = (color: string) => {
     setSelectedColor(color);
     setShowColorPicker(false);
-    // Apply the color to the current pen
     onPenSelect &&
       onPenSelect(
         activeToolName === "Highlighter" ? "Highlighter" : "ColorPen",
@@ -194,7 +191,6 @@ const PenToolbar = ({
   const handleThicknessSelect = (thickness: number) => {
     setSelectedThickness(thickness);
     setShowThicknessPicker(false);
-    // Apply the thickness to the current pen
     onPenSelect &&
       onPenSelect(
         activeToolName === "Highlighter" ? "Highlighter" : "ColorPen",
@@ -205,16 +201,15 @@ const PenToolbar = ({
       );
   };
 
-  // Choose colors based on current tool
   const availableColors =
     activeToolName === "Highlighter" ? HIGHLIGHTER_COLORS : PEN_COLORS;
 
   return (
-    <div className='flex flex-col gap-2 p-2'>
-      <div className='flex justify-between items-center border-b pb-2'>
-        <span className='text-sm font-medium'>Drawing Tools</span>
+    <div className="flex flex-col gap-2 p-2">
+      <div className="flex justify-between items-center border-b pb-2">
+        <span className="text-sm font-medium">Drawing Tools</span>
       </div>
-      <div className='grid grid-cols-2 gap-3 py-2'>
+      <div className="grid grid-cols-2 gap-3 py-2">
         {pens.map((pen) => (
           <div
             key={pen.name}
@@ -230,35 +225,35 @@ const PenToolbar = ({
             }}
           >
             {pen.icon}
-            <span className='text-xs mt-1'>{pen.name}</span>
+            <span className="text-xs mt-1">{pen.name}</span>
           </div>
         ))}
       </div>
-      <Divider className='text-neutral-500 w-full my-1' />
-      <div className='flex justify-between items-center'>
-        <div className='flex flex-col items-center relative'>
-          <span className='text-xs mb-1'>Thickness</span>
+      <Divider className="text-neutral-500 w-full my-1" />
+      <div className="flex justify-between items-center">
+        <div className="flex flex-col items-center relative">
+          <span className="text-xs mb-1">Thickness</span>
           <div
-            className='cursor-pointer'
+            className="cursor-pointer"
             onClick={() => setShowThicknessPicker(!showThicknessPicker)}
           >
-            <Thickness className='w-[27px] h-[27px]' />
+            <Thickness className="w-[27px] h-[27px]" />
           </div>
 
           {showThicknessPicker && (
-            <div className='absolute top-12 left-0 bg-white shadow-lg rounded-md p-2 z-10 w-32'>
-              <div className='flex flex-col gap-2'>
+            <div className="absolute top-12 left-0 bg-white shadow-lg rounded-md p-2 z-10 w-32">
+              <div className="flex flex-col gap-2">
                 {PEN_THICKNESS.map((thickness) => (
                   <div
                     key={thickness}
-                    className='flex items-center gap-2 p-1 hover:bg-gray-100 rounded cursor-pointer'
+                    className="flex items-center gap-2 p-1 hover:bg-gray-100 rounded cursor-pointer"
                     onClick={() => handleThicknessSelect(thickness)}
                   >
                     <div
-                      className='w-full h-0 border-t border-black'
+                      className="w-full h-0 border-t border-black"
                       style={{ borderTopWidth: `${thickness}px` }}
                     />
-                    <span className='text-xs'>{thickness}px</span>
+                    <span className="text-xs">{thickness}px</span>
                   </div>
                 ))}
               </div>
@@ -266,21 +261,21 @@ const PenToolbar = ({
           )}
         </div>
 
-        <div className='flex flex-col items-center relative'>
-          <span className='text-xs mb-1'>Color</span>
+        <div className="flex flex-col items-center relative">
+          <span className="text-xs mb-1">Color</span>
           <div
-            className='cursor-pointer'
+            className="cursor-pointer"
             onClick={() => setShowColorPicker(!showColorPicker)}
           >
             <div
-              className='w-[27px] h-[27px] rounded-full border border-gray-300'
+              className="w-[27px] h-[27px] rounded-full border border-gray-300"
               style={{ backgroundColor: selectedColor }}
             />
           </div>
 
           {showColorPicker && (
-            <div className='absolute top-12 right-0 bg-white shadow-lg rounded-md p-2 z-10 w-36'>
-              <div className='grid grid-cols-4 gap-2'>
+            <div className="absolute top-12 right-0 bg-white shadow-lg rounded-md p-2 z-10 w-36">
+              <div className="grid grid-cols-4 gap-2">
                 {availableColors.map((color) => (
                   <div
                     key={color}
@@ -302,36 +297,35 @@ const PenToolbar = ({
   );
 };
 
-// ShapesToolbar component for improved display
 const ShapesToolbar = ({
   onShapeSelect,
 }: {
   onShapeSelect?: (name: string) => void;
 }) => {
   return (
-    <div className='flex flex-col gap-2 p-2'>
-      <div className='flex justify-between items-center border-b pb-2'>
-        <span className='text-sm font-medium'>Shape Tools</span>
+    <div className="flex flex-col gap-2 p-2">
+      <div className="flex justify-between items-center border-b pb-2">
+        <span className="text-sm font-medium">Shape Tools</span>
       </div>
-      <div className='grid grid-cols-3 gap-2 py-2'>
+      <div className="grid grid-cols-3 gap-2 py-2">
         {shapes.map((shape) => (
           <div
             key={shape.name}
-            className='flex flex-col items-center justify-center rounded-md p-2 hover:bg-[#dde4fc] transition duration-200 cursor-pointer'
+            className="flex flex-col items-center justify-center rounded-md p-2 hover:bg-[#dde4fc] transition duration-200 cursor-pointer"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
               onShapeSelect && onShapeSelect(shape.name);
             }}
           >
-            <div className='flex items-center justify-center h-8'>
+            <div className="flex items-center justify-center h-8">
               {shape.icon}
             </div>
-            <span className='text-xs mt-1 text-center'>{shape.name}</span>
+            <span className="text-xs mt-1 text-center">{shape.name}</span>
           </div>
         ))}
       </div>
-      <div className='flex flex-col w-full gap-1 mt-2'>
+      <div className="flex flex-col w-full gap-1 mt-2">
         <button
           className={`w-full py-2 text-center bg-neutral-200 hover:bg-neutral-300 transition ${nunito.className} rounded-md text-sm`}
         >
@@ -342,32 +336,31 @@ const ShapesToolbar = ({
   );
 };
 
-// ConnectionLineToolbar component for improved display
 const ConnectionLineToolbar = ({
   onShapeSelect,
 }: {
   onShapeSelect?: (name: string) => void;
 }) => {
   return (
-    <div className='flex flex-col gap-2 p-2'>
-      <div className='flex justify-between items-center border-b pb-2'>
-        <span className='text-sm font-medium'>Connection Tools</span>
+    <div className="flex flex-col gap-2 p-2">
+      <div className="flex justify-between items-center border-b pb-2">
+        <span className="text-sm font-medium">Connection Tools</span>
       </div>
-      <div className='grid grid-cols-2 gap-2 py-2'>
+      <div className="grid grid-cols-2 gap-2 py-2">
         {lines.map((line) => (
           <div
             key={line.name}
-            className='flex flex-col items-center justify-center rounded-md p-2 hover:bg-[#dde4fc] transition duration-200 cursor-pointer'
+            className="flex flex-col items-center justify-center rounded-md p-2 hover:bg-[#dde4fc] transition duration-200 cursor-pointer"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
               onShapeSelect && onShapeSelect(line.name);
             }}
           >
-            <div className='flex items-center justify-center h-8'>
+            <div className="flex items-center justify-center h-8">
               {line.icon}
             </div>
-            <span className='text-xs mt-1 text-center'>{line.name}</span>
+            <span className="text-xs mt-1 text-center">{line.name}</span>
           </div>
         ))}
       </div>
@@ -375,18 +368,17 @@ const ConnectionLineToolbar = ({
   );
 };
 
-// StickyNoteToolbar component for improved display
 const StickyNoteToolbar = ({
   onShapeSelect,
 }: {
   onShapeSelect?: (name: string) => void;
 }) => {
   return (
-    <div className='flex flex-col gap-2 p-2'>
-      <div className='flex justify-between items-center border-b pb-2'>
-        <span className='text-sm font-medium'>Sticky Notes</span>
+    <div className="flex flex-col gap-2 p-2">
+      <div className="flex justify-between items-center border-b pb-2">
+        <span className="text-sm font-medium">Sticky Notes</span>
       </div>
-      <div className='grid grid-cols-2 gap-4 mt-2'>
+      <div className="grid grid-cols-2 gap-4 mt-2">
         {stickyNotes.map((color) => (
           <div
             key={color}
@@ -395,10 +387,10 @@ const StickyNoteToolbar = ({
               e.stopPropagation();
               onShapeSelect && onShapeSelect(`Sticky note:${color}`);
             }}
-            className='flex items-center justify-center'
+            className="flex items-center justify-center"
           >
             <div
-              className='w-12 h-12 flex items-center justify-center rounded-md hover:scale-110 transition cursor-pointer'
+              className="w-12 h-12 flex items-center justify-center rounded-md hover:scale-110 transition cursor-pointer"
               style={{
                 backgroundColor: color,
                 boxShadow: "0px 2px 4px rgba(0,0,0,0.2)",
@@ -406,7 +398,7 @@ const StickyNoteToolbar = ({
               }}
             >
               <span
-                className='text-xs text-center line-clamp-2 px-1'
+                className="text-xs text-center line-clamp-2 px-1"
                 style={{
                   color: color === "#FFFF00" ? "#333333" : "#000000",
                 }}
@@ -421,11 +413,10 @@ const StickyNoteToolbar = ({
   );
 };
 
-//Main ToolBar
 export const items = [
   {
     name: "Select",
-    icon: <MousePointer2 fill='#000' className='h-7 w-7' />,
+    icon: <MousePointer2 fill="#000" className="h-7 w-7" />,
   },
   {
     name: "Text",
@@ -438,13 +429,13 @@ export const items = [
   {
     name: "Sticky note",
     icon: ({ onClick, onShapeSelect }: any) => (
-      <Popover placement='right'>
+      <Popover placement="right">
         <PopoverTrigger>
           <div onClick={onClick}>
             <StickyNote2OutlinedIcon />
           </div>
         </PopoverTrigger>
-        <PopoverContent className='ml-1 bg-white rounded-md flex flex-col p-2 w-[220px] mt-20'>
+        <PopoverContent className="ml-1 bg-white rounded-md flex flex-col p-2 w-[220px] mt-20">
           <StickyNoteToolbar onShapeSelect={onShapeSelect} />
         </PopoverContent>
       </Popover>
@@ -453,13 +444,13 @@ export const items = [
   {
     name: "Shapes",
     icon: ({ onClick, onShapeSelect }: any) => (
-      <Popover placement='right'>
+      <Popover placement="right">
         <PopoverTrigger>
           <div onClick={onClick}>
             <InterestsOutlinedIcon />
           </div>
         </PopoverTrigger>
-        <PopoverContent className='ml-1 bg-white rounded-md flex flex-col p-2'>
+        <PopoverContent className="ml-1 bg-white rounded-md flex flex-col p-2">
           <ShapesToolbar onShapeSelect={onShapeSelect} />
         </PopoverContent>
       </Popover>
@@ -468,13 +459,13 @@ export const items = [
   {
     name: "Connection line",
     icon: ({ onClick, onShapeSelect }: any) => (
-      <Popover placement='right'>
+      <Popover placement="right">
         <PopoverTrigger>
           <div onClick={onClick}>
             <TrendingUpDown />
           </div>
         </PopoverTrigger>
-        <PopoverContent className='ml-1 bg-white rounded-md flex flex-col'>
+        <PopoverContent className="ml-1 bg-white rounded-md flex flex-col">
           <ConnectionLineToolbar onShapeSelect={onShapeSelect} />
         </PopoverContent>
       </Popover>
@@ -483,13 +474,13 @@ export const items = [
   {
     name: "Pen",
     icon: ({ onClick, onPenSelect }: any) => (
-      <Popover placement='right'>
+      <Popover placement="right">
         <PopoverTrigger>
           <div onClick={onClick}>
             <Brush />
           </div>
         </PopoverTrigger>
-        <PopoverContent className='ml-1 bg-white rounded-md flex flex-col p-1 gap-2'>
+        <PopoverContent className="ml-1 bg-white rounded-md flex flex-col p-1 gap-2">
           <PenToolbar onPenSelect={onPenSelect} />
         </PopoverContent>
       </Popover>

@@ -1,27 +1,25 @@
 "use client";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import {
-  Container,
-  Paper,
-  TextField,
-  Button,
-  Typography,
-  Box,
-  Divider,
   Alert,
   Avatar,
+  Box,
+  Button,
+  CircularProgress,
+  Container,
+  FormControlLabel,
   Grid,
   IconButton,
-  CircularProgress,
+  Paper,
+  Switch,
   Tab,
   Tabs,
-  Switch,
-  FormControlLabel,
+  TextField,
+  Typography
 } from "@mui/material";
+import { useEffect, useState } from "react";
 import { IoMdCamera } from "react-icons/io";
-import { MdPerson, MdSettings, MdNotifications } from "react-icons/md";
+import { MdNotifications, MdPerson, MdSettings } from "react-icons/md";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -33,7 +31,7 @@ function TabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
   return (
     <div
-      role='tabpanel'
+      role="tabpanel"
       hidden={value !== index}
       id={`profile-tabpanel-${index}`}
       {...other}
@@ -55,8 +53,7 @@ export default function ProfilePage() {
   const [success, setSuccess] = useState("");
   const [tabValue, setTabValue] = useState(0);
   const [emailNotifications, setEmailNotifications] = useState(true);
-  const router = useRouter();
-  const { user, updateProfile } = useAuth();
+  const { user, updateProfile, logout } = useAuth();
 
   useEffect(() => {
     if (user) {
@@ -99,27 +96,27 @@ export default function ProfilePage() {
 
   return (
     <Box sx={{ bgcolor: "#f5f7fa", py: 4 }}>
-      <Container maxWidth='md'>
+      <Container maxWidth="md">
         <Grid container spacing={3}>
           {/* Left Sidebar */}
           <Grid item xs={12} md={3}>
             <Paper sx={{ p: 2, borderRadius: 2, textAlign: "center" }}>
               <Box sx={{ position: "relative", display: "inline-block" }}>
                 <Avatar
-                  alt='User Avatar'
+                  alt="User Avatar"
                   src={avatarPreview}
                   sx={{ width: 100, height: 100, mx: "auto", mb: 2 }}
                 />
                 <input
-                  id='avatar-upload'
-                  type='file'
-                  accept='image/*'
+                  id="avatar-upload"
+                  type="file"
+                  accept="image/*"
                   onChange={handleAvatarChange}
                   style={{ display: "none" }}
                 />
-                <label htmlFor='avatar-upload'>
+                <label htmlFor="avatar-upload">
                   <IconButton
-                    component='span'
+                    component="span"
                     sx={{
                       position: "absolute",
                       bottom: 0,
@@ -133,16 +130,15 @@ export default function ProfilePage() {
                   </IconButton>
                 </label>
               </Box>
-              <Typography variant='h6' gutterBottom>
+              <Typography variant="h6" gutterBottom>
                 {name || "Your Name"}
               </Typography>
-              <Typography variant='body2' color='text.secondary' gutterBottom>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
                 {email}
               </Typography>
             </Paper>
           </Grid>
 
-          {/* Main Content */}
           <Grid item xs={12} md={9}>
             <Paper sx={{ borderRadius: 2 }}>
               <Tabs
@@ -155,14 +151,14 @@ export default function ProfilePage() {
                   bgcolor: "white",
                 }}
               >
-                <Tab icon={<MdPerson />} label='Personal Info' />
-                <Tab icon={<MdNotifications />} label='Preferences' />
-                <Tab icon={<MdSettings />} label='Account' />
+                <Tab icon={<MdPerson />} label="Personal Info" />
+                <Tab icon={<MdNotifications />} label="Preferences" />
+                <Tab icon={<MdSettings />} label="Account" />
               </Tabs>
 
               {error && (
                 <Alert
-                  severity='error'
+                  severity="error"
                   onClose={() => setError("")}
                   sx={{ m: 2 }}
                 >
@@ -171,7 +167,7 @@ export default function ProfilePage() {
               )}
               {success && (
                 <Alert
-                  severity='success'
+                  severity="success"
                   onClose={() => setSuccess("")}
                   sx={{ m: 2 }}
                 >
@@ -181,11 +177,11 @@ export default function ProfilePage() {
 
               <Box sx={{ p: 3 }}>
                 <TabPanel value={tabValue} index={0}>
-                  <Box component='form' onSubmit={handleSubmit}>
+                  <Box component="form" onSubmit={handleSubmit}>
                     <Grid container spacing={3}>
                       <Grid item xs={12} sm={6}>
                         <TextField
-                          label='Full Name'
+                          label="Full Name"
                           value={name}
                           onChange={(e) => setName(e.target.value)}
                           fullWidth
@@ -194,7 +190,7 @@ export default function ProfilePage() {
                       </Grid>
                       <Grid item xs={12} sm={6}>
                         <TextField
-                          label='Email'
+                          label="Email"
                           value={email}
                           disabled
                           fullWidth
@@ -202,7 +198,7 @@ export default function ProfilePage() {
                       </Grid>
                       <Grid item xs={12} sm={6}>
                         <TextField
-                          label='Job Title'
+                          label="Job Title"
                           value={jobTitle}
                           onChange={(e) => setJobTitle(e.target.value)}
                           fullWidth
@@ -210,7 +206,7 @@ export default function ProfilePage() {
                       </Grid>
                       <Grid item xs={12} sm={6}>
                         <TextField
-                          label='Company'
+                          label="Company"
                           value={company}
                           onChange={(e) => setCompany(e.target.value)}
                           fullWidth
@@ -218,8 +214,8 @@ export default function ProfilePage() {
                       </Grid>
                       <Grid item xs={12}>
                         <Button
-                          type='submit'
-                          variant='contained'
+                          type="submit"
+                          variant="contained"
                           disabled={loading}
                           sx={{
                             bgcolor: "#2563eb",
@@ -238,7 +234,7 @@ export default function ProfilePage() {
                 </TabPanel>
 
                 <TabPanel value={tabValue} index={1}>
-                  <Typography variant='h6' gutterBottom>
+                  <Typography variant="h6" gutterBottom>
                     Notification Settings
                   </Typography>
                   <FormControlLabel
@@ -250,18 +246,18 @@ export default function ProfilePage() {
                         }
                       />
                     }
-                    label='Email Notifications'
+                    label="Email Notifications"
                   />
                 </TabPanel>
 
                 <TabPanel value={tabValue} index={2}>
-                  <Typography variant='h6' gutterBottom>
+                  <Typography variant="h6" gutterBottom>
                     Account Settings
                   </Typography>
                   <Button
-                    variant='outlined'
-                    color='error'
-                    onClick={() => router.push("/auth/logout")}
+                    variant="outlined"
+                    color="error"
+                    onClick={() => logout()}
                     sx={{ mt: 2 }}
                   >
                     Log Out

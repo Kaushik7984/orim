@@ -1,26 +1,26 @@
+import { useBoard } from "@/context/BoardContext/useBoard";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import DownloadIcon from "@mui/icons-material/Download";
+import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 import {
-  Divider,
-  Menu,
-  MenuItem,
-  TextField,
+  Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  Button,
+  Divider,
+  Menu,
+  MenuItem,
+  TextField,
   Tooltip,
 } from "@mui/material";
-import { Fira_Sans } from "next/font/google";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
-import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import DownloadIcon from "@mui/icons-material/Download";
 import { Crown, Upload } from "lucide-react";
-import { useBoard } from "@/context/BoardContext/useBoard";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { Fira_Sans } from "next/font/google";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const fira_sans = Fira_Sans({
   subsets: ["latin"],
@@ -37,7 +37,6 @@ const LeftFabricHeader = () => {
   const [loading, setLoading] = useState(false);
   const [localBoardName, setLocalBoardName] = useState(boardName || "Untitled");
 
-  // Update local board name when boardName changes from context
   useEffect(() => {
     setLocalBoardName(boardName || "Untitled");
   }, [boardName]);
@@ -116,38 +115,37 @@ const LeftFabricHeader = () => {
 
   return (
     <div
-      className='flex flex-row rounded-md gap-3 bg-white border border-gray-200 pl-2 items-center ml-1 mt-1'
+      className="flex flex-row rounded-md gap-3 bg-white border border-gray-200 pl-2 items-center ml-1 mt-1"
       style={{ boxShadow: "1px 1px 5px rgba(0, 0, 0, 0.3)" }}
     >
       <Image
-        src='/orime.svg'
-        alt='Orime Logo'
+        src="/orime.svg"
+        alt="Orime Logo"
         width={100}
         height={32}
-        className='cursor-pointer hover:opacity-90 transition-opacity'
+        className="cursor-pointer hover:opacity-90 transition-opacity"
       />
 
-      <p className='rounded-md  hover:bg-[#dde4fc] duration-200 cursor-pointer text-sm pl-2'>
+      <p className="rounded-md  hover:bg-[#dde4fc] duration-200 cursor-pointer text-sm pl-2">
         {localBoardName}
       </p>
       <span
-        className='p-2 rounded-md hover:bg-[#dde4fc] duration-200 cursor-pointer'
+        className="p-2 rounded-md hover:bg-[#dde4fc] duration-200 cursor-pointer"
         onClick={handleMenuClick}
       >
         <MoreVertIcon />
       </span>
-      <span className='p-2 rounded-md hover:bg-[#dde4fc] duration-200 cursor-pointer'>
-        <Tooltip title='Export Board'>
+      <span className="p-2 rounded-md hover:bg-[#dde4fc] duration-200 cursor-pointer">
+        <Tooltip title="Export Board">
           <Upload />
         </Tooltip>
       </span>
-      <span className='p-2 rounded-md hover:bg-[#dde4fc] duration-200 cursor-pointer'>
-        <Tooltip title='Get Premium'>
-          <Crown color='#D4AF37' />
+      <span className="p-2 rounded-md hover:bg-[#dde4fc] duration-200 cursor-pointer">
+        <Tooltip title="Get Premium">
+          <Crown color="#D4AF37" />
         </Tooltip>
       </span>
 
-      {/* Menu */}
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
@@ -169,15 +167,15 @@ const LeftFabricHeader = () => {
         }}
       >
         <MenuItem onClick={handleRenameClick} sx={{ gap: 1.5 }}>
-          <DriveFileRenameOutlineIcon fontSize='small' />
+          <DriveFileRenameOutlineIcon fontSize="small" />
           Rename
         </MenuItem>
         <MenuItem onClick={handleDuplicateBoard} sx={{ gap: 1.5 }}>
-          <ContentCopyIcon fontSize='small' />
+          <ContentCopyIcon fontSize="small" />
           Duplicate
         </MenuItem>
         <MenuItem onClick={handleExportBoard} sx={{ gap: 1.5 }}>
-          <DownloadIcon fontSize='small' />
+          <DownloadIcon fontSize="small" />
           Export
         </MenuItem>
         <Divider />
@@ -185,7 +183,7 @@ const LeftFabricHeader = () => {
           onClick={handleDeleteBoard}
           sx={{ color: "error.main", gap: 1.5 }}
         >
-          <DeleteOutlineIcon fontSize='small' />
+          <DeleteOutlineIcon fontSize="small" />
           Delete
         </MenuItem>
       </Menu>
@@ -196,11 +194,11 @@ const LeftFabricHeader = () => {
         <DialogContent>
           <TextField
             autoFocus
-            margin='dense'
-            label='Board Name'
-            type='text'
+            margin="dense"
+            label="Board Name"
+            type="text"
             fullWidth
-            variant='outlined'
+            variant="outlined"
             value={newBoardName}
             onChange={(e) => setNewBoardName(e.target.value)}
           />
@@ -210,7 +208,7 @@ const LeftFabricHeader = () => {
           <Button
             onClick={handleRenameSubmit}
             disabled={!newBoardName.trim() || loading}
-            variant='contained'
+            variant="contained"
           >
             {loading ? "Saving..." : "Save"}
           </Button>

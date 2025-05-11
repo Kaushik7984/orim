@@ -1,18 +1,18 @@
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import StarBorderIcon from "@mui/icons-material/StarBorder";
 import {
+  Box,
   Card,
   CardContent,
-  Typography,
   IconButton,
   Menu,
   MenuItem,
-  Box,
   Tooltip,
+  Typography,
 } from "@mui/material";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
-import StarBorderIcon from "@mui/icons-material/StarBorder";
-import { useState } from "react";
-import Image from "next/image";
 import { formatDistanceToNow } from "date-fns";
+import Image from "next/image";
+import { useState } from "react";
 
 interface BoardCardProps {
   title: string;
@@ -21,7 +21,7 @@ interface BoardCardProps {
   onClick: () => void;
   onDelete: () => void;
   onEdit?: () => void;
-  backgroundImage?: string; // Path to SVG/PNG
+  backgroundImage?: string;
   isFavorited?: boolean;
 }
 
@@ -48,7 +48,6 @@ const BoardCard: React.FC<BoardCardProps> = ({
 
   const handleMenuClose = () => {
     setAnchorEl(null);
-    // Set a timeout to allow other click handlers to complete before resetting
     setTimeout(() => setIsMenuInteraction(false), 300);
   };
 
@@ -74,7 +73,6 @@ const BoardCard: React.FC<BoardCardProps> = ({
   return (
     <Card
       onClick={(e) => {
-        // Don't open the board if we're interacting with the menu
         if (anchorEl || isMenuInteraction) {
           e.stopPropagation();
           e.preventDefault();
@@ -112,7 +110,7 @@ const BoardCard: React.FC<BoardCardProps> = ({
 
         <IconButton
           onClick={handleMenuOpen}
-          size='small'
+          size="small"
           sx={{
             position: "absolute",
             top: 8,
@@ -132,7 +130,7 @@ const BoardCard: React.FC<BoardCardProps> = ({
         sx={{ p: 2, flexGrow: 1, display: "flex", flexDirection: "column" }}
       >
         <Typography
-          variant='body1'
+          variant="body1"
           fontWeight={600}
           sx={{
             mb: 1,
@@ -154,8 +152,8 @@ const BoardCard: React.FC<BoardCardProps> = ({
         >
           <Tooltip title={ownerEmail || "You"}>
             <Typography
-              variant='caption'
-              color='text.secondary'
+              variant="caption"
+              color="text.secondary"
               sx={{
                 maxWidth: "70%",
                 overflow: "hidden",
@@ -176,7 +174,7 @@ const BoardCard: React.FC<BoardCardProps> = ({
           </Tooltip>
 
           <IconButton sx={{ p: 0.5 }}>
-            <StarBorderIcon fontSize='small' />
+            <StarBorderIcon fontSize="small" />
           </IconButton>
         </Box>
       </CardContent>
