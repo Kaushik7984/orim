@@ -29,6 +29,7 @@
     "fabricjs-react": "^1.2.1",
     "firebase": "^11.6.0",
     "framer-motion": "^12.7.4",
+    "js-cookie": "^3.0.5",
     "lucide-react": "^0.492.0",
     "mongoose": "^8.13.2",
     "next": "14.0.4",

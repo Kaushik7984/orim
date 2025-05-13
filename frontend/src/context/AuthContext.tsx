@@ -11,21 +11,7 @@ import {
   updateProfile as firebaseUpdateProfile,
 } from "firebase/auth";
 import { auth } from "@/config/firebase";
-
-interface ProfileUpdateData {
-  displayName?: string;
-  photoURL?: string;
-}
-
-interface AuthContextType {
-  user: User | null;
-  loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
-  signInWithGoogle: () => Promise<void>;
-  logout: () => Promise<void>;
-  updateProfile: (data: ProfileUpdateData) => Promise<void>;
-}
+import { AuthContextType, ProfileUpdateData } from "@/types";
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -34,13 +20,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setUser(user);
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      setUser(firebaseUser);
       setLoading(false);
 
-      if (user) {
+      if (firebaseUser) {
         try {
-          const token = await user.getIdToken();
+          const token = await firebaseUser.getIdToken();
           localStorage.setItem("token", token);
         } catch (error) {
           console.error("Error getting token:", error);
@@ -52,7 +38,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     return () => unsubscribe();
   }, []);
-
 
   const signIn = async (email: string, password: string) => {
     try {
@@ -98,16 +83,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           displayName: data.displayName || user.displayName,
           photoURL: data.photoURL || user.photoURL,
         });
-        setUser((prevUser) => {
-          if (prevUser) {
-            return {
-              ...prevUser,
-              displayName: data.displayName || prevUser.displayName,
-              photoURL: data.photoURL || prevUser.photoURL,
-            };
-          }
-          return prevUser;
-        });
+
+        const updatedUser = auth.currentUser;
+        setUser(updatedUser);
       } catch (error) {
         console.error("Error updating profile:", error);
         throw error;

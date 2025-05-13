@@ -1,22 +1,13 @@
 "use client";
 
-import { useBoard } from "@/context/BoardContext/useBoard";
-import AddIcon from "@mui/icons-material/Add";
-import {
-  Button,
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Grid,
-  TextField,
-  Typography,
-} from "@mui/material";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import BoardCard from "../../components/dashboard/BoardCard";
+import { useRouter } from "next/navigation";
+import { useBoard } from "@/context/BoardContext/useBoard";
+import { CircularProgress, Typography } from "@mui/material";
+import DashboardSubHeader from "@/components/dashboard/DashboardSubHeader";
+import CreateBoardDialog from "@/components/dashboard/CreateBoardDialog";
+import RenameBoardDialog from "@/components/dashboard/RenameBoardDialog";
+import BoardList from "@/components/dashboard/BoardList";
 
 const Dashboard = () => {
   const {
@@ -59,9 +50,7 @@ const Dashboard = () => {
     }
   };
 
-  const handleOpenBoard = (boardId: string) => {
-    router.push(`/board/${boardId}`);
-  };
+  const handleOpenBoard = (boardId: string) => router.push(`/board/${boardId}`);
 
   const handleDeleteBoard = async (boardId: string) => {
     try {
@@ -91,29 +80,17 @@ const Dashboard = () => {
     if (!selectedBoardId || !renameTitle.trim()) return;
 
     try {
-      const response = await updateBoard(selectedBoardId, {
-        title: renameTitle.trim(),
-      });
+      await updateBoard(selectedBoardId, { title: renameTitle.trim() });
       setRenameDialogOpen(false);
       await loadBoards();
     } catch (err) {
       console.error("Failed to rename board:", err);
-      alert("Failed to rename board. Please try again.");
     }
-  };
-
-  const getPlaceholderById = (id: string) => {
-    const hash = Array.from(id).reduce(
-      (acc, char) => acc + char.charCodeAt(0),
-      0
-    );
-    const index = (hash % 10) + 1;
-    return `/placeholders/${index}.svg`;
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className='flex items-center justify-center h-screen'>
         <CircularProgress />
       </div>
     );
@@ -121,115 +98,37 @@ const Dashboard = () => {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-screen text-red-500">
-        <Typography variant="h6">{error}</Typography>
+      <div className='flex items-center justify-center h-screen text-red-500'>
+        <Typography variant='h6'>{error}</Typography>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-10">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
-        <Typography variant="h4" fontWeight={700}>
-          My Boards
-        </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={() => setOpenDialog(true)}
-          sx={{ borderRadius: "12px", textTransform: "none" }}
-        >
-          Create Board
-        </Button>
-      </div>
-
-      {!boards || boards.length === 0 ? (
-        <div className="flex flex-col items-center justify-center text-center py-8 sm:py-12">
-          <Image
-            src="/elements.svg"
-            alt="No boards"
-            width={400}
-            height={300}
-            priority
-          />
-          <Typography variant="h6" color="textSecondary" className="mt-4">
-            No boards yet. Create your first board to get started!
-          </Typography>
-        </div>
-      ) : (
-        <Grid container spacing={2} sx={{ mt: 1 }}>
-          {boards.map((board) => (
-            <Grid
-              item
-              xs={12}
-              sm={6}
-              md={4}
-              lg={2.4}
-              key={board._id}
-              sx={{
-                display: "flex",
-                maxWidth: { lg: "20%", xl: "20%" },
-                flexBasis: { lg: "20%", xl: "20%" },
-              }}
-            >
-              <BoardCard
-                title={board.title || "Untitled"}
-                ownerEmail={board.ownerEmail}
-                createdAt={board.createdAt}
-                onClick={() => handleOpenBoard(board._id)}
-                onDelete={() => handleDeleteBoard(board._id)}
-                onEdit={() => handleRenameBoard(board._id, board.title)}
-                onStar={() => handleStarBoard(board._id)}
-                backgroundImage={getPlaceholderById(board._id)}
-                isStarred={board.isStarred}
-              />
-            </Grid>
-          ))}
-        </Grid>
-      )}
-
-      {/* Create Board Dialog */}
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
-        <DialogTitle>Create New Board</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Board Name"
-            type="text"
-            fullWidth
-            value={boardTitle}
-            onChange={(e) => setBoardTitle(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-          <Button onClick={handleCreateBoard} disabled={creating}>
-            {creating ? "Creating..." : "Create"}
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Rename Board Dialog */}
-      <Dialog open={renameDialogOpen} onClose={() => setRenameDialogOpen(false)}>
-        <DialogTitle>Rename Board</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Board Name"
-            type="text"
-            fullWidth
-            value={renameTitle}
-            onChange={(e) => setRenameTitle(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setRenameDialogOpen(false)}>Cancel</Button>
-          <Button onClick={confirmRename}>Rename</Button>
-        </DialogActions>
-      </Dialog>
+    <div className='container mx-auto px-4 sm:px-6 py-6 sm:py-10'>
+      <DashboardSubHeader onCreateClick={() => setOpenDialog(true)} />
+      <BoardList
+        boards={boards}
+        onOpen={handleOpenBoard}
+        onDelete={handleDeleteBoard}
+        onRename={handleRenameBoard}
+        onStar={handleStarBoard}
+      />
+      <CreateBoardDialog
+        open={openDialog}
+        creating={creating}
+        boardTitle={boardTitle}
+        onChange={setBoardTitle}
+        onClose={() => setOpenDialog(false)}
+        onCreate={handleCreateBoard}
+      />
+      <RenameBoardDialog
+        open={renameDialogOpen}
+        title={renameTitle}
+        onChange={setRenameTitle}
+        onClose={() => setRenameDialogOpen(false)}
+        onConfirm={confirmRename}
+      />
     </div>
   );
 };

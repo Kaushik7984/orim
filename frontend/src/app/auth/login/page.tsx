@@ -1,21 +1,18 @@
 "use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import {
-  Alert,
-  Box,
-  Button,
   Container,
-  IconButton,
   Paper,
-  Stack,
   TextField,
-  Typography
+  Button,
+  Typography,
+  Box,
+  Divider,
+  Alert,
 } from "@mui/material";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { FaMicrosoft, FaPlus } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
-import { HiOutlineShieldCheck } from "react-icons/hi";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -45,102 +42,105 @@ export default function LoginPage() {
 
   return (
     <Container
-      maxWidth="sm"
+      maxWidth='sm'
       sx={{
-        mt: 10,
         display: "flex",
-        flexDirection: "column",
         alignItems: "center",
+        justifyContent: "center",
       }}
     >
-      <Paper elevation={1} sx={{ p: 5, borderRadius: 2, width: "100%" }}>
-        <Typography
-          variant="h5"
-          component="h1"
-          gutterBottom
-          align="center"
-          fontWeight="bold"
-        >
-          Sign in to Orime
-        </Typography>
-
-        <Stack
-          direction="row"
-          spacing={2}
-          justifyContent="center"
-          sx={{ mb: 3 }}
-        >
-          <IconButton size="large" color="default">
-            <HiOutlineShieldCheck />
-          </IconButton>
-          <IconButton size="large" onClick={handleGoogleSignIn}>
-            <FcGoogle />
-          </IconButton>
-          <IconButton size="large" color="primary">
-            <FaMicrosoft />
-          </IconButton>
-          <IconButton size="large" color="default">
-            <FaPlus />
-          </IconButton>
-        </Stack>
-
+      <Paper
+        elevation={1}
+        sx={{
+          p: 5,
+          borderRadius: 2,
+          width: "100%",
+          boxShadow: "1px 1px 5px rgba(0, 0, 0, 0.3)",
+        }}
+      >
         <Box
-          component="form"
+          component='form'
           onSubmit={handleSubmit}
           sx={{ display: "flex", flexDirection: "column", gap: 2 }}
         >
+          <Typography
+            variant='h5'
+            component='h1'
+            align='center'
+            fontWeight='bold'
+            gutterBottom
+          >
+            Sign in to your account
+          </Typography>
+
           {error && (
-            <Alert severity="error" onClose={() => setError("")}>
+            <Alert severity='error' onClose={() => setError("")}>
               {error}
             </Alert>
           )}
 
           <TextField
-            fullWidth
-            label="Email"
-            type="email"
-            placeholder="name@company.com"
+            label='Email'
+            type='email'
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            fullWidth
           />
 
           <TextField
-            fullWidth
-            label="Password"
-            type="password"
-            placeholder="••••••••"
+            label='Password'
+            type='password'
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            fullWidth
           />
 
           <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            size="large"
+            type='submit'
+            variant='contained'
+            size='large'
             sx={{
               bgcolor: "#2563eb",
               borderRadius: 2,
-              textTransform: "none",
               fontWeight: "bold",
+              textTransform: "none",
               "&:hover": { bgcolor: "#1d4ed8" },
             }}
           >
-            Continue with email
+            Sign In
           </Button>
-        </Box>
 
-        <Typography variant="body2" align="center" mt={2}>
+          <Divider>or</Divider>
+
           <Button
-            variant="text"
-            onClick={() => router.push("/auth/register")}
-            sx={{ textTransform: "none" }}
+            variant='outlined'
+            size='large'
+            startIcon={<FcGoogle size={24} />}
+            onClick={handleGoogleSignIn}
+            sx={{
+              textTransform: "none",
+              borderRadius: 2,
+              fontWeight: "medium",
+              borderColor: "divider",
+              "&:hover": { bgcolor: "action.hover" },
+            }}
           >
-            Don’t have an account? Sign up
+            Continue with Google
           </Button>
-        </Typography>
+
+          <Typography variant='body2' color='text.secondary' align='center'>
+            Don’t have an account?{" "}
+            <Button
+              variant='text'
+              onClick={() => router.push("/auth/register")}
+              sx={{ textTransform: "none" }}
+            >
+              Sign up
+            </Button>
+          </Typography>
+        </Box>
       </Paper>
     </Container>
   );

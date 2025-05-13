@@ -1,6 +1,6 @@
 import { fabric } from "fabric"; 
 import { FabricJSEditor } from "fabricjs-react";
-import { User as FirebaseUser } from "firebase/auth";
+import { User as FirebaseUser, User } from "firebase/auth";
 
 // Extend Firebase user type
 export interface AppUser extends FirebaseUser {
@@ -115,4 +115,19 @@ export interface BoardContextType {
   enablePanMode: () => void;
   disablePanMode: () => void;
   isPanning: boolean;
+}
+
+export interface ProfileUpdateData {
+  displayName?: string;
+  photoURL?: string;
+}
+
+export interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
+  logout: () => Promise<void>;
+  updateProfile: (data: ProfileUpdateData) => Promise<void>;
 }

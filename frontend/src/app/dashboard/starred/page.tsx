@@ -1,13 +1,10 @@
 "use client";
 
 import { useBoard } from "@/context/BoardContext/useBoard";
-import {
-  CircularProgress,
-  Typography,
-} from "@mui/material";
+import { CircularProgress, Typography } from "@mui/material";
 import Image from "next/image";
 import { useEffect } from "react";
-import BoardCard from "../../../components/dashboard/BoardCard";
+import BoardCard from "@/components/Board/BoardCard";
 import { Grid } from "@mui/material";
 
 const StarredBoards = () => {
@@ -71,7 +68,7 @@ const StarredBoards = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className='flex items-center justify-center h-screen'>
         <CircularProgress />
       </div>
     );
@@ -79,30 +76,30 @@ const StarredBoards = () => {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-screen text-red-500">
-        <Typography variant="h6">{error}</Typography>
+      <div className='flex items-center justify-center h-screen text-red-500'>
+        <Typography variant='h6'>{error}</Typography>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-10">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
-        <Typography variant="h4" fontWeight={700}>
+    <div className='container mx-auto px-4 sm:px-6 py-6 sm:py-10'>
+      <div className='flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4'>
+        <Typography variant='h4' fontWeight={700}>
           Starred Boards
         </Typography>
       </div>
 
       {!boards || boards.length === 0 ? (
-        <div className="flex flex-col items-center justify-center text-center py-8 sm:py-12">
+        <div className='flex flex-col items-center justify-center text-center py-8 sm:py-12'>
           <Image
-            src="/elements.svg"
-            alt="No starred boards"
+            src='/elements.svg'
+            alt='No starred boards'
             width={400}
             height={300}
             priority
           />
-          <Typography variant="h6" color="textSecondary" className="mt-4">
+          <Typography variant='h6' color='textSecondary' className='mt-4'>
             No starred boards yet. Star your favorite boards to see them here!
           </Typography>
         </div>
@@ -141,4 +138,4 @@ const StarredBoards = () => {
   );
 };
 
-export default StarredBoards; 
+export default StarredBoards;

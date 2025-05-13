@@ -2,9 +2,12 @@
 
 import Link from "next/link";
 import { useEffect, useRef } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function CallToAction() {
   const ctaRef = useRef<HTMLDivElement>(null);
+
+  const { user } = useAuth();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -50,7 +53,7 @@ export default function CallToAction() {
 
         <div className='flex flex-col sm:flex-row justify-center gap-4 max-w-md mx-auto'>
           <Link
-            href='/auth/register'
+            href={user ? "/dashboard" : "/auth/register"}
             className='inline-block px-8 py-4 bg-white font-semibold text-lg rounded-lg hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl'
             style={{ color: "#1e40af" }}
           >

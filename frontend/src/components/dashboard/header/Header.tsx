@@ -14,18 +14,16 @@ import {
   styled,
   TextField,
   Toolbar,
-  Tooltip
+  Tooltip,
 } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 
-import HelpMenu from "./header/HelpMenu";
-import MoreMenu from "./header/MoreMenu";
-import NotificationsMenu from "./header/NotificationsMenu";
-import TemplateMenu from "./header/TemplateMenu";
-import UserMenu from "./header/UserMenu";
+import MoreMenu from "./MoreMenu";
+import TemplateMenu from "./TemplateMenu";
+import UserMenu from "./UserMenu";
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   backgroundColor: "#ffffff",
@@ -34,52 +32,6 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
   position: "static",
   height: "64px",
   borderBottom: "1px solid rgba(0, 0, 0, 0.08)",
-}));
-
-const StyledSearchInput = styled(TextField)(({ theme }) => ({
-  "& .MuiInputBase-root": {
-    height: 36,
-    backgroundColor: "rgba(0, 0, 0, 0.04)",
-    borderRadius: theme.shape.borderRadius,
-    "&:hover": {
-      backgroundColor: "rgba(0, 0, 0, 0.08)",
-    },
-    "& input": {
-      padding: "8px 12px",
-      color: "#333333",
-    },
-    "& .MuiInputAdornment-root": {
-      color: "rgba(0, 0, 0, 0.5)",
-    },
-  },
-  "& .MuiOutlinedInput-notchedOutline": {
-    border: "none",
-  },
-  "& .MuiInputBase-input::placeholder": {
-    color: "rgba(0, 0, 0, 0.5)",
-    opacity: 1,
-  },
-}));
-
-const NavButton = styled(Button, {
-  shouldForwardProp: (prop) => prop !== "active",
-})<{ active: boolean }>(({ theme, active }) => ({
-  color: active ? "#1976d2" : "#555555",
-  textTransform: "none",
-  fontWeight: active ? 500 : "normal",
-  "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
-  position: "relative",
-  "&::after": active
-    ? {
-        content: '""',
-        position: "absolute",
-        bottom: 0,
-        left: 0,
-        right: 0,
-        height: "2px",
-        backgroundColor: "#1976d2",
-      }
-    : {},
 }));
 
 const Header = () => {
@@ -117,14 +69,6 @@ const Header = () => {
     setTemplateAnchorEl(event.currentTarget);
   };
 
-  const handleNotificationsMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setNotificationsAnchorEl(event.currentTarget);
-  };
-
-  const handleHelpMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setHelpAnchorEl(event.currentTarget);
-  };
-
   const handleMoreMenu = (event: React.MouseEvent<HTMLElement>) => {
     setMoreAnchorEl(event.currentTarget);
   };
@@ -153,7 +97,7 @@ const Header = () => {
       <Toolbar sx={{ minHeight: "64px !important" }}>
         <Box
           component={Link}
-          href="/"
+          href='/'
           sx={{
             display: "flex",
             alignItems: "center",
@@ -163,18 +107,18 @@ const Header = () => {
           }}
         >
           <Image
-            src="/orime.svg"
-            alt="Orime Logo"
+            src='/orime.svg'
+            alt='Orime Logo'
             width={80}
             height={32}
-            className="cursor-pointer hover:opacity-90 transition-opacity"
+            className='cursor-pointer hover:opacity-90 transition-opacity'
           />
         </Box>
 
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <Button
             component={Link}
-            href="/dashboard"
+            href='/dashboard'
             sx={{
               color: isActive("/dashboard") ? "#1976d2" : "#555555",
               textTransform: "none",
@@ -230,7 +174,7 @@ const Header = () => {
             <>
               <Button
                 onClick={handleJoinBoard}
-                variant="outlined"
+                variant='outlined'
                 sx={{
                   textTransform: "none",
                   fontWeight: "normal",
@@ -245,40 +189,32 @@ const Header = () => {
               </Button>
               <Button
                 component={Link}
-                href="/pricing"
-                variant="contained"
+                href='/pricing'
+                variant='contained'
                 sx={{
                   bgcolor: "#1976d2",
                   color: "white",
-                  "&:hover": { bgcolor: "#1e3a8a" },
+                  "&:hover": { bgcolor: "#1976dd" },
                   textTransform: "none",
                   fontWeight: "normal",
                 }}
               >
                 Upgrade
               </Button>
-              <Tooltip title="Help & Support">
-                <IconButton
-                  size="small"
-                  sx={{ color: "text.secondary" }}
-                  onClick={handleHelpMenu}
-                >
+              <Tooltip title='Help & Support'>
+                <IconButton size='small' sx={{ color: "text.secondary" }}>
                   <HelpOutlineIcon />
                 </IconButton>
               </Tooltip>
-              <Tooltip title="Notifications">
-                <IconButton
-                  size="small"
-                  sx={{ color: "text.secondary" }}
-                  onClick={handleNotificationsMenu}
-                >
-                  <Badge badgeContent={unreadCount} color="error">
+              <Tooltip title='Notifications'>
+                <IconButton size='small' sx={{ color: "text.secondary" }}>
+                  <Badge badgeContent={unreadCount} color='error'>
                     <NotificationsNoneIcon />
                   </Badge>
                 </IconButton>
               </Tooltip>
-              <Tooltip title="Profile & Settings">
-                <IconButton size="small" onClick={handleUserMenu}>
+              <Tooltip title='Profile & Settings'>
+                <IconButton size='small' onClick={handleUserMenu}>
                   <Avatar
                     sx={{
                       width: 32,
@@ -310,23 +246,12 @@ const Header = () => {
                 anchorEl={moreAnchorEl}
                 onClose={() => setMoreAnchorEl(null)}
               />
-
-              <NotificationsMenu
-                anchorEl={notificationsAnchorEl}
-                onClose={() => setNotificationsAnchorEl(null)}
-                onUpdateUnreadCount={setUnreadCount}
-              />
-
-              <HelpMenu
-                anchorEl={helpAnchorEl}
-                onClose={() => setHelpAnchorEl(null)}
-              />
             </>
           ) : (
             <>
               <Button
                 component={Link}
-                href="/auth/login"
+                href='/auth/login'
                 sx={{
                   color: "#555555",
                   textTransform: "none",
@@ -337,8 +262,8 @@ const Header = () => {
               </Button>
               <Button
                 component={Link}
-                href="/auth/register"
-                variant="contained"
+                href='/auth/register'
+                variant='contained'
                 sx={{
                   bgcolor: "#1e40af",
                   color: "white",

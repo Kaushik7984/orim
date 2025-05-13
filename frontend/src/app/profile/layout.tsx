@@ -1,5 +1,7 @@
 "use client";
 
+import Sidebar from "@/components/profile/Sidebar";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import {
   Box,
   Container,
@@ -12,9 +14,11 @@ import {
   Typography,
 } from "@mui/material";
 import Image from "next/image";
+import Link from "next/link";
 import React from "react";
 import {
   MdApps,
+  MdDashboard,
   MdGroups,
   MdInsights,
   MdPerson,
@@ -22,11 +26,17 @@ import {
 } from "react-icons/md";
 
 const sidebarItems = [
-  { icon: <MdPerson />, label: "Users" },
-  { icon: <MdInsights />, label: "Insights" },
-  { icon: <MdSecurity />, label: "Security" },
-  { icon: <MdApps />, label: "Apps" },
-  { icon: <MdGroups />, label: "Team Profile" },
+  { icon: <MdPerson />, label: "Profile", path: "/profile", forceActive: true },
+  {
+    icon: <MdDashboard />,
+    label: "Dashboard",
+    path: "/dashboard",
+    active: true,
+  },
+  { icon: <MdInsights />, label: "Insights", path: "/insights", active: false },
+  { icon: <MdSecurity />, label: "Security", path: "/security", active: false },
+  { icon: <MdApps />, label: "Apps", path: "/apps", active: false },
+  { icon: <MdGroups />, label: "Team Profile", path: "/team", active: false },
 ];
 
 export default function ProfileLayout({
@@ -36,67 +46,7 @@ export default function ProfileLayout({
 }) {
   return (
     <Box sx={{ display: "flex", minHeight: "100vh", bgcolor: "#f5f7fa" }}>
-      <Box
-        sx={{
-          width: "250px",
-          bgcolor: "#1e40af",
-          color: "white",
-          p: 3,
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        <Box
-          sx={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            opacity: 0.2,
-            backgroundImage:
-              "radial-gradient(rgba(255, 255, 255, 0.4) 1px, transparent 1px)",
-            backgroundSize: "20px 20px",
-          }}
-        />
-
-        <Box sx={{ mb: 4, position: "relative", textAlign: "center" }}>
-          <Image
-            src="/orime.svg"
-            alt="Orim Logo"
-            width={100}
-            height={40}
-            className="filter brightness-0 invert mb-4"
-          />
-        </Box>
-
-        <Divider sx={{ mb: 3, borderColor: "rgba(255, 255, 255, 0.2)" }} />
-
-        <List>
-          {sidebarItems.map((item) => (
-            <ListItem
-              button
-              key={item.label}
-              sx={{
-                borderRadius: 1,
-                mb: 1,
-                "&:hover": {
-                  bgcolor: "rgba(255, 255, 255, 0.1)",
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: "white", minWidth: 40 }}>
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText
-                primary={item.label}
-                primaryTypographyProps={{ fontSize: 14 }}
-              />
-            </ListItem>
-          ))}
-        </List>
-      </Box>
-
+      <Sidebar />
       <Box sx={{ flexGrow: 1 }}>
         <Box
           sx={{
@@ -107,14 +57,14 @@ export default function ProfileLayout({
             boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
           }}
         >
-          <Typography variant="h5" fontWeight="bold">
+          <Typography variant='h5' fontWeight='bold'>
             Profile Settings
           </Typography>
         </Box>
 
-        <Container maxWidth="lg" sx={{ mt: 4 }}>
+        <Container maxWidth='lg' sx={{ mt: 4 }}>
           <Paper elevation={0} sx={{ bgcolor: "#fff" }}>
-            {children}
+            <ProtectedRoute>{children}</ProtectedRoute>
           </Paper>
         </Container>
       </Box>

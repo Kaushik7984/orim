@@ -16,7 +16,7 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Typography
+  Typography,
 } from "@mui/material";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -28,14 +28,14 @@ const DashboardSidebar = () => {
     {
       text: "Explore",
       icon: <ExploreOutlinedIcon />,
-      path: "/dashboard/explore",
+      path: "#",
     },
     {
       text: "Home",
-      icon: <HomeOutlinedIcon fontSize="medium" />,
+      icon: <HomeOutlinedIcon fontSize='medium' />,
       path: "/dashboard",
     },
-    { text: "Recent", icon: <AccessTimeIcon />, path: "/dashboard/recent" },
+    { text: "Recent", icon: <AccessTimeIcon />, path: "#" },
     { text: "Starred", icon: <StarBorderIcon />, path: "/dashboard/starred" },
   ];
 
@@ -72,8 +72,8 @@ const DashboardSidebar = () => {
           </Avatar>
           <Box sx={{ maxWidth: 160, overflow: "hidden" }}>
             <Typography
-              variant="caption"
-              color="text.secondary"
+              variant='caption'
+              color='text.secondary'
               sx={{
                 display: "block",
                 fontSize: "0.75rem",
@@ -97,8 +97,8 @@ const DashboardSidebar = () => {
             </Typography>
           </Box>
         </Box>
-        <IconButton size="small">
-          <AddIcon fontSize="small" />
+        <IconButton size='small'>
+          <AddIcon fontSize='small' />
         </IconButton>
       </Box>
 
@@ -114,7 +114,7 @@ const DashboardSidebar = () => {
         >
           <SearchIcon sx={{ color: "#757575", fontSize: 20 }} />
           <InputBase
-            placeholder="Search by title or topic"
+            placeholder='Search by title or topic'
             sx={{ ml: 1, flex: 1, fontSize: "0.875rem" }}
           />
         </Box>
@@ -171,9 +171,9 @@ const DashboardSidebar = () => {
         >
           Spaces
         </Typography>
-        <IconButton size="small">
+        <IconButton size='small'>
           <AddIcon
-            fontSize="small"
+            fontSize='small'
             sx={{
               color: "#606060",
             }}

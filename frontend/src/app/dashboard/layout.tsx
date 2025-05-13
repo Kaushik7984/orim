@@ -1,6 +1,7 @@
 "use client";
-import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
-import Header from "@/components/dashboard/Header";
+import DashboardSidebar from "@/components/dashboard/sidebar/DashboardSidebar";
+import Header from "@/components/dashboard/header/Header";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import { Box, Divider } from "@mui/material";
 
 export default function DashboardLayout({
@@ -51,7 +52,9 @@ export default function DashboardLayout({
           <Header />
         </Box>
 
-        <Box sx={{ p: 3, flexGrow: 1 }}>{children}</Box>
+        <Box sx={{ p: 3, flexGrow: 1 }}>
+          <ProtectedRoute>{children}</ProtectedRoute>
+        </Box>
       </Box>
     </Box>
   );

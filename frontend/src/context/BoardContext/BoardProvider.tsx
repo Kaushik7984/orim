@@ -26,13 +26,11 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
   const [path, setPath] = useState<string>("");
   const [username, setUsername] = useState<string>("");
 
-  // Zoom and Pan
   const [zoomLevel, setZoomLevel] = useState<number>(1);
   const [isPanning, setIsPanning] = useState<boolean>(false);
   const enablePanMode = () => setIsPanning(true);
   const disablePanMode = () => setIsPanning(false);
 
-  // Get basic shape tools
   const {
     addCircle,
     addRectangle,
@@ -44,25 +42,12 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     disableDrawing,
   } = useShapes(editor, boardId || undefined);
 
-  // Get pen tools
   const { addPen, addHighlighter, addEraser, addColoredPen } = usePen(
     editor,
     boardId || undefined
   );
 
-  // Detect if we're in session mode using the current URL path
-  const [isSessionMode, setIsSessionMode] = useState(false);
-
-  useEffect(() => {
-    // Check if the URL contains "/board/session/"
-    const isSession =
-      typeof window !== "undefined" &&
-      window.location.pathname.includes("/board/session/");
-    setIsSessionMode(isSession);
-  }, []);
-
   // Board socket integration is now handled directly in Board.tsx using the collaborationUtils
-  // Pass isSessionMode to disable auto-save in session mode
   useBoardAutoSave(editor, boardId || undefined);
 
   // Load all boards
