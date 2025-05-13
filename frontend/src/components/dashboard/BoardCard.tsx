@@ -1,5 +1,6 @@
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
+import StarIcon from "@mui/icons-material/Star";
 import {
   Box,
   Card,
@@ -21,8 +22,9 @@ interface BoardCardProps {
   onClick: () => void;
   onDelete: () => void;
   onEdit?: () => void;
+  onStar?: () => void;
   backgroundImage?: string;
-  isFavorited?: boolean;
+  isStarred?: boolean;
 }
 
 const BoardCard: React.FC<BoardCardProps> = ({
@@ -32,8 +34,9 @@ const BoardCard: React.FC<BoardCardProps> = ({
   onClick,
   onDelete,
   onEdit,
+  onStar,
   backgroundImage = "/placeholders/1.svg",
-  isFavorited = false,
+  isStarred = false,
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [isMenuInteraction, setIsMenuInteraction] = useState(false);
@@ -68,6 +71,14 @@ const BoardCard: React.FC<BoardCardProps> = ({
     setIsMenuInteraction(true);
     handleMenuClose();
     onDelete();
+  };
+
+  const handleStar = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (onStar) {
+      onStar();
+    }
   };
 
   return (
@@ -173,8 +184,12 @@ const BoardCard: React.FC<BoardCardProps> = ({
             </Typography>
           </Tooltip>
 
-          <IconButton sx={{ p: 0.5 }}>
-            <StarBorderIcon fontSize="small" />
+          <IconButton sx={{ p: 0.5 }} onClick={handleStar}>
+            {isStarred ? (
+              <StarIcon fontSize="small" sx={{ color: "#FFD700" }} />
+            ) : (
+              <StarBorderIcon fontSize="small" />
+            )}
           </IconButton>
         </Box>
       </CardContent>

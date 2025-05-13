@@ -19,6 +19,9 @@ export class Board extends Document {
   @Prop({ type: mongoose.Schema.Types.Mixed, default: {} })
   canvasData: object;
 
+  @Prop({ type: Boolean, default: false })
+  isStarred: boolean;
+
   @Prop({ type: Date, default: Date.now })
   updatedAt: Date;
 }

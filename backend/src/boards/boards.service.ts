@@ -29,6 +29,11 @@ export class BoardsService {
     return this.boardModel.find({ ownerId: userId }).sort({ createdAt: -1 });
   }
 
+  // Get starred boards for a user
+  getStarredBoards(userId: string) {
+    return this.boardModel.find({ ownerId: userId, isStarred: true }).sort({ createdAt: -1 });
+  }
+
   // Get a specific board by ID
   async getBoardById(boardId: string) {
     const board = await this.boardModel.findById(boardId);
@@ -41,6 +46,15 @@ export class BoardsService {
     const board = await this.boardModel.findById(boardId).lean();
     if (!board) throw new NotFoundException('Board not found');
     return board;
+  }
+
+  // Toggle star status for a board
+  async toggleStarBoard(boardId: string) {
+    const board = await this.boardModel.findById(boardId);
+    if (!board) throw new NotFoundException('Board not found');
+    
+    board.isStarred = !board.isStarred;
+    return board.save();
   }
 
   // Update a board

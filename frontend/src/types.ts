@@ -24,6 +24,7 @@ export interface Board {
   updatedAt: string;
   canvasData?: fabric.ICanvasOptions;
   imageUrl?: string;
+  isStarred?: boolean;
 }
 
 // DTO for creating a board
@@ -63,7 +64,9 @@ export interface BoardContextType {
   updateBoard: (id: string, data: Partial<Board>) => Promise<Board>;
   deleteBoard: (id: string) => Promise<void>;
   loadBoards: () => Promise<void>;
+  loadStarredBoards: () => Promise<void>;
   loadBoard: (id: string) => Promise<void>;
+  toggleStarBoard: (id: string) => Promise<Board>;
   // updateCanvasData: (
   //   id: string,
   //   canvasData: fabric.ICanvasOptions
@@ -71,7 +74,7 @@ export interface BoardContextType {
 
   setCurrentBoard: (board: Board | null) => void;
 
-  boardId?: string;
+  boardId: string | undefined;
   setBoardId: (id: string | undefined) => void;
 
   boardName: string;

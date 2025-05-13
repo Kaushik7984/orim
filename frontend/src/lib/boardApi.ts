@@ -41,6 +41,17 @@ export const boardAPI = {
     }
   },
 
+  getStarredBoards: async (): Promise<Board[]> => {
+    try {
+      const config = await getAuthHeaders();
+      const response = await axios.get<Board[]>(`${BASE_URL}/boards/starred`, config);
+      return response.data;
+    } catch (error) {
+      console.error("Failed to fetch starred boards", error);
+      throw error;
+    }
+  },
+
   getBoard: async (id: string): Promise<Board> => {
     try {
       const config = await getAuthHeaders();
@@ -82,6 +93,21 @@ export const boardAPI = {
       return response.data;
     } catch (error) {
       console.error(`Failed to update board with ID ${id}`, error);
+      throw error;
+    }
+  },
+
+  toggleStarBoard: async (id: string): Promise<Board> => {
+    try {
+      const config = await getAuthHeaders();
+      const response = await axios.patch<Board>(
+        `${BASE_URL}/boards/${id}/star`,
+        {},
+        config
+      );
+      return response.data;
+    } catch (error) {
+      console.error(`Failed to toggle star for board with ID ${id}`, error);
       throw error;
     }
   },

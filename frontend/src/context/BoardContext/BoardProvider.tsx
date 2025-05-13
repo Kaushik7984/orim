@@ -17,14 +17,14 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
 
   const [boards, setBoards] = useState<Board[]>([]);
   const [currentBoard, setCurrentBoard] = useState<Board | null>(null);
-  const [boardId, setBoardId] = useState<string>();
+  const [boardId, setBoardId] = useState<string | undefined>(undefined);
   const [boardName, setBoardName] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [editor, setEditor] = useState<FabricJSEditor>();
   const [newJoin, setNewJoin] = useState<string>("");
   const [path, setPath] = useState<string>("");
-  const [username, setUsername] = useState<string>(user?.displayName || "");
+  const [username, setUsername] = useState<string>("");
 
   // Zoom and Pan
   const [zoomLevel, setZoomLevel] = useState<number>(1);
@@ -42,12 +42,12 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     addText,
     addTextbox,
     disableDrawing,
-  } = useShapes(editor, boardId);
+  } = useShapes(editor, boardId || undefined);
 
   // Get pen tools
   const { addPen, addHighlighter, addEraser, addColoredPen } = usePen(
     editor,
-    boardId
+    boardId || undefined
   );
 
   // Detect if we're in session mode using the current URL path
@@ -63,10 +63,11 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Board socket integration is now handled directly in Board.tsx using the collaborationUtils
   // Pass isSessionMode to disable auto-save in session mode
-  useBoardAutoSave(editor, boardId);
+  useBoardAutoSave(editor, boardId || undefined);
 
-  // Load all boards on dashboard
-  const loadBoards = async () => {
+  // Load all boards
+  const loadBoards = useCallback(async () => {
+    if (!user) return;
     setLoading(true);
     try {
       const response = await boardAPI.getAllBoards();
@@ -77,7 +78,22 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  // Load starred boards
+  const loadStarredBoards = useCallback(async () => {
+    if (!user) return;
+    setLoading(true);
+    try {
+      const response = await boardAPI.getStarredBoards();
+      setBoards(response);
+    } catch (err) {
+      console.error("Failed to load starred boards", err);
+      setError("Failed to load starred boards");
+    } finally {
+      setLoading(false);
+    }
+  }, [user]);
 
   //open board
   const loadBoard = async (id: string) => {
@@ -162,6 +178,23 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  // Toggle star status for a board
+  const toggleStarBoard = async (id: string) => {
+    setLoading(true);
+    try {
+      const response = await boardAPI.toggleStarBoard(id);
+      setBoards((prev) => prev.map((b) => (b._id === id ? response : b)));
+      if (currentBoard?._id === id) setCurrentBoard(response);
+      return response;
+    } catch (err) {
+      console.error("Failed to toggle star", err);
+      setError("Failed to toggle star");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (user) {
       setUsername(user.displayName || "");
@@ -180,18 +213,21 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
       value={{
         boards,
         currentBoard,
+        boardId,
+        boardName,
         loading,
         error,
+        username,
         createBoard,
+        loadBoards,
+        loadStarredBoards,
+        loadBoard,
         updateBoard,
         deleteBoard,
-        loadBoards,
-        loadBoard,
-        setCurrentBoard,
-        boardId,
+        toggleStarBoard,
         setBoardId,
-        boardName,
         setBoardName,
+        setCurrentBoard,
         editor,
         setEditor,
         user: user || undefined,
@@ -214,10 +250,9 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
         setZoomLevel,
         path,
         setPath,
-        username,
-        setUsername,
         setNewJoin,
         newJoin,
+        setUsername,
       }}
     >
       {children}

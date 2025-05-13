@@ -27,6 +27,7 @@ const Dashboard = () => {
     loadBoards,
     deleteBoard,
     updateBoard,
+    toggleStarBoard,
   } = useBoard();
   const router = useRouter();
 
@@ -75,6 +76,15 @@ const Dashboard = () => {
     setRenameTitle(currentTitle);
     setSelectedBoardId(boardId);
     setRenameDialogOpen(true);
+  };
+
+  const handleStarBoard = async (boardId: string) => {
+    try {
+      await toggleStarBoard(boardId);
+      loadBoards();
+    } catch (err) {
+      console.error("Failed to toggle star:", err);
+    }
   };
 
   const confirmRename = async () => {
@@ -170,7 +180,9 @@ const Dashboard = () => {
                 onClick={() => handleOpenBoard(board._id)}
                 onDelete={() => handleDeleteBoard(board._id)}
                 onEdit={() => handleRenameBoard(board._id, board.title)}
+                onStar={() => handleStarBoard(board._id)}
                 backgroundImage={getPlaceholderById(board._id)}
+                isStarred={board.isStarred}
               />
             </Grid>
           ))}
@@ -200,16 +212,13 @@ const Dashboard = () => {
       </Dialog>
 
       {/* Rename Board Dialog */}
-      <Dialog
-        open={renameDialogOpen}
-        onClose={() => setRenameDialogOpen(false)}
-      >
+      <Dialog open={renameDialogOpen} onClose={() => setRenameDialogOpen(false)}>
         <DialogTitle>Rename Board</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
             margin="dense"
-            label="New Board Name"
+            label="Board Name"
             type="text"
             fullWidth
             value={renameTitle}
@@ -218,9 +227,7 @@ const Dashboard = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setRenameDialogOpen(false)}>Cancel</Button>
-          <Button onClick={confirmRename} disabled={!renameTitle.trim()}>
-            Rename
-          </Button>
+          <Button onClick={confirmRename}>Rename</Button>
         </DialogActions>
       </Dialog>
     </div>

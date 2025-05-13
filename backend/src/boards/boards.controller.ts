@@ -29,6 +29,11 @@ export class BoardsController {
     return this.boardsService.getUserBoards(user.uid);
   }
 
+  @Get('starred')
+  findStarred(@CurrentUser() user: any) {
+    return this.boardsService.getStarredBoards(user.uid);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.boardsService.getBoardById(id);
@@ -41,6 +46,11 @@ export class BoardsController {
     @CurrentUser() user: any,
   ) {
     return this.boardsService.updateBoard(id, dto);
+  }
+
+  @Patch(':id/star')
+  toggleStar(@Param('id') id: string) {
+    return this.boardsService.toggleStarBoard(id);
   }
 
   @Delete(':id')
