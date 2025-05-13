@@ -1,15 +1,28 @@
+import { initializeApp, cert } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
+import { getFirestore } from 'firebase-admin/firestore';
 import * as admin from 'firebase-admin';
-import * as path from 'path';
+import { Injectable, OnModuleInit } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
-const serviceAccount = require(
-  path.join(__dirname, '../../firebase-service-account.json'),
-);
+@Injectable()
+export class FirebaseService implements OnModuleInit {
+  private app: ReturnType<typeof initializeApp>;
+  public auth: admin.auth.Auth;
+  public firestore: admin.firestore.Firestore;
 
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    projectId: 'miro-1ad07',
-  });
+  constructor(private configService: ConfigService) {}
+
+  onModuleInit() {
+    this.app = initializeApp({
+      credential: cert({
+        projectId: this.configService.get<string>('FIREBASE_PROJECT_ID'),
+        privateKey: this.configService.get<string>('FIREBASE_PRIVATE_KEY')?.replace(/\\n/g, '\n'),
+        clientEmail: this.configService.get<string>('FIREBASE_CLIENT_EMAIL'),
+      }),
+    });
+
+    this.auth = getAuth(this.app);
+    this.firestore = getFirestore(this.app);
+  }
 }
-
-export default admin;

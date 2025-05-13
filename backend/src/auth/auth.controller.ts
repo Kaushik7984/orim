@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Body } from '@nestjs/common';
 import { AuthService } from './auth.service';
 
 @Controller('auth')
@@ -7,11 +7,13 @@ export class AuthController {
 
   @Post('verify')
   async verifyToken(@Body('token') token: string) {
-    try {
-      const user = await this.authService.validateUser(token);
-      return { user };
-    } catch {
-      throw new UnauthorizedException('Invalid token');
-    }
+    const decodedToken = await this.authService.validateUser(token);
+    return {
+      uid: decodedToken.uid,
+      email: decodedToken.email,
+      name: decodedToken.name,
+      picture: decodedToken.picture,
+      email_verified: decodedToken.email_verified,
+    };
   }
 }
