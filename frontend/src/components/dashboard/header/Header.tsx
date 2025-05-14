@@ -15,6 +15,8 @@ import {
   TextField,
   Toolbar,
   Tooltip,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
@@ -39,6 +41,8 @@ const Header = () => {
   const pathname = usePathname();
   const { user, logout } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   // Menu anchor states
   const [userAnchorEl, setUserAnchorEl] = useState<null | HTMLElement>(null);
@@ -58,7 +62,7 @@ const Header = () => {
         // router.push(`/search?q=${encodeURIComponent(searchTerm)}`);
       }
     },
-    [searchTerm, router]
+    [searchTerm]
   );
 
   const handleUserMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -94,7 +98,7 @@ const Header = () => {
 
   return (
     <StyledAppBar>
-      <Toolbar sx={{ minHeight: "64px !important" }}>
+      <Toolbar sx={{ minHeight: "64px !important", px: { xs: 2, sm: 3 } }}>
         <Box
           component={Link}
           href='/'
@@ -103,7 +107,7 @@ const Header = () => {
             alignItems: "center",
             textDecoration: "none",
             color: "inherit",
-            mr: 3,
+            mr: { xs: 1, sm: 3 },
           }}
         >
           <Image
@@ -115,78 +119,88 @@ const Header = () => {
           />
         </Box>
 
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <Button
-            component={Link}
-            href='/dashboard'
-            sx={{
-              color: isActive("/dashboard") ? "#1976d2" : "#555555",
-              textTransform: "none",
-              fontWeight: isActive("/dashboard") ? 500 : "normal",
-              "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
-              position: "relative",
-              ...(isActive("/dashboard") && {
-                "&::after": {
-                  content: '""',
-                  position: "absolute",
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  height: "2px",
-                  backgroundColor: "#1976d2",
-                },
-              }),
-            }}
-          >
-            My Boards
-          </Button>
+        {!isMobile && (
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Button
+              component={Link}
+              href='/dashboard'
+              sx={{
+                color: isActive("/dashboard") ? "#1976d2" : "#555555",
+                textTransform: "none",
+                fontWeight: isActive("/dashboard") ? 500 : "normal",
+                "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
+                position: "relative",
+                ...(isActive("/dashboard") && {
+                  "&::after": {
+                    content: '""',
+                    position: "absolute",
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    height: "2px",
+                    backgroundColor: "#1976d2",
+                  },
+                }),
+              }}
+            >
+              My Boards
+            </Button>
 
-          <Button
-            onClick={handleTemplateMenu}
-            sx={{
-              color: isActive("/templates") ? "#1976d2" : "#555555",
-              textTransform: "none",
-              fontWeight: isActive("/templates") ? 500 : "normal",
-              "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
-            }}
-            endIcon={<KeyboardArrowDownIcon />}
-          >
-            Templates
-          </Button>
-          <Button
-            onClick={handleMoreMenu}
-            sx={{
-              color: "#555555",
-              textTransform: "none",
-              fontWeight: "normal",
-              "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
-            }}
-            endIcon={<MoreHorizIcon />}
-          >
-            More
-          </Button>
-        </Box>
+            <Button
+              onClick={handleTemplateMenu}
+              sx={{
+                color: isActive("/templates") ? "#1976d2" : "#555555",
+                textTransform: "none",
+                fontWeight: isActive("/templates") ? 500 : "normal",
+                "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
+              }}
+              endIcon={<KeyboardArrowDownIcon />}
+            >
+              Templates
+            </Button>
+            <Button
+              onClick={handleMoreMenu}
+              sx={{
+                color: "#555555",
+                textTransform: "none",
+                fontWeight: "normal",
+                "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
+              }}
+              endIcon={<MoreHorizIcon />}
+            >
+              More
+            </Button>
+          </Box>
+        )}
 
         <Box sx={{ flexGrow: 1 }} />
 
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: { xs: 0.5, sm: 1 },
+          }}
+        >
           {user ? (
             <>
-              <Button
-                onClick={handleJoinBoard}
-                variant='outlined'
-                sx={{
-                  textTransform: "none",
-                  fontWeight: "normal",
-                  color: "#1976d2",
-                  "&:hover": {
-                    borderColor: "#1976d2",
-                    backgroundColor: "rgba(30, 64, 175, 0.04)",
-                  },
-                }}
-              >
-                Join Board
-              </Button>
+              {!isMobile && (
+                <Button
+                  onClick={handleJoinBoard}
+                  variant='outlined'
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: "normal",
+                    color: "#1976d2",
+                    "&:hover": {
+                      borderColor: "#1976d2",
+                      backgroundColor: "rgba(30, 64, 175, 0.04)",
+                    },
+                  }}
+                >
+                  Join Board
+                </Button>
+              )}
               <Button
                 component={Link}
                 href='/pricing'
@@ -197,87 +211,92 @@ const Header = () => {
                   "&:hover": { bgcolor: "#1976dd" },
                   textTransform: "none",
                   fontWeight: "normal",
+                  display: { xs: "none", sm: "flex" },
                 }}
               >
                 Upgrade
               </Button>
-              <Tooltip title='Help & Support'>
-                <IconButton size='small' sx={{ color: "text.secondary" }}>
-                  <HelpOutlineIcon />
-                </IconButton>
-              </Tooltip>
+
               <Tooltip title='Notifications'>
-                <IconButton size='small' sx={{ color: "text.secondary" }}>
+                <IconButton
+                  onClick={() => setNotificationsAnchorEl(null)}
+                  sx={{ color: "#555555" }}
+                >
                   <Badge badgeContent={unreadCount} color='error'>
                     <NotificationsNoneIcon />
                   </Badge>
                 </IconButton>
               </Tooltip>
-              <Tooltip title='Profile & Settings'>
-                <IconButton size='small' onClick={handleUserMenu}>
+
+              <Tooltip title='Help'>
+                <IconButton
+                  onClick={() => setHelpAnchorEl(null)}
+                  sx={{ color: "#555555" }}
+                >
+                  <HelpOutlineIcon />
+                </IconButton>
+              </Tooltip>
+
+              <Tooltip title='Account'>
+                <IconButton
+                  onClick={handleUserMenu}
+                  sx={{
+                    p: 0.5,
+                    ml: 1,
+                    border: "2px solid transparent",
+                    "&:hover": {
+                      borderColor: "#1976d2",
+                    },
+                  }}
+                >
                   <Avatar
                     sx={{
                       width: 32,
                       height: 32,
-                      bgcolor: "#1e40af",
-                      color: "white",
-                      fontSize: "0.875rem",
+                      bgcolor: "#D0E8FF",
+                      color: "#0078D4",
+                      fontSize: 14,
                     }}
-                    src={user.photoURL || undefined}
                   >
-                    {user.displayName?.charAt(0) || "U"}
+                    {user.email?.[0].toUpperCase()}
                   </Avatar>
                 </IconButton>
               </Tooltip>
-
-              <UserMenu
-                anchorEl={userAnchorEl}
-                onClose={() => setUserAnchorEl(null)}
-                user={user}
-                onLogout={handleLogout}
-              />
-
-              <TemplateMenu
-                anchorEl={templateAnchorEl}
-                onClose={() => setTemplateAnchorEl(null)}
-              />
-
-              <MoreMenu
-                anchorEl={moreAnchorEl}
-                onClose={() => setMoreAnchorEl(null)}
-              />
             </>
           ) : (
-            <>
-              <Button
-                component={Link}
-                href='/auth/login'
-                sx={{
-                  color: "#555555",
-                  textTransform: "none",
-                  "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
-                }}
-              >
-                Login
-              </Button>
-              <Button
-                component={Link}
-                href='/auth/register'
-                variant='contained'
-                sx={{
-                  bgcolor: "#1e40af",
-                  color: "white",
-                  "&:hover": { bgcolor: "#1e3a8a" },
-                  textTransform: "none",
-                  fontWeight: "normal",
-                }}
-              >
-                Register
-              </Button>
-            </>
+            <Button
+              component={Link}
+              href='/auth/login'
+              variant='contained'
+              sx={{
+                bgcolor: "#1976d2",
+                color: "white",
+                "&:hover": { bgcolor: "#1976dd" },
+                textTransform: "none",
+                fontWeight: "normal",
+              }}
+            >
+              Sign In
+            </Button>
           )}
         </Box>
       </Toolbar>
+
+      <UserMenu
+        anchorEl={userAnchorEl}
+        onClose={() => setUserAnchorEl(null)}
+        onLogout={handleLogout}
+        user={user}
+      />
+      <TemplateMenu
+        anchorEl={templateAnchorEl}
+        onClose={() => setTemplateAnchorEl(null)}
+      />
+      <MoreMenu
+        anchorEl={moreAnchorEl}
+        onClose={() => setMoreAnchorEl(null)}
+        onJoinBoard={handleJoinBoard}
+      />
     </StyledAppBar>
   );
 };

@@ -120,6 +120,7 @@ const StarredBoards = () => {
               }}
             >
               <BoardCard
+                boardId={board._id}
                 title={board.title || "Untitled"}
                 ownerEmail={board.ownerEmail}
                 createdAt={board.createdAt}

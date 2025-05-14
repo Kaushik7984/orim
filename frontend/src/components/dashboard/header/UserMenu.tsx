@@ -42,11 +42,11 @@ const UserMenu: React.FC<UserMenuProps> = ({
       }}
     >
       <Box sx={{ px: 2, py: 1 }}>
-        <Typography variant="subtitle1" fontWeight={500}>
-          {user.displayName || "User"}
+        <Typography variant='subtitle1' fontWeight={500}>
+          {user?.displayName || user?.email?.split("@")[0] || "User"}
         </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {user.email}
+        <Typography variant='body2' color='text.secondary'>
+          {user?.email}
         </Typography>
       </Box>
       <Divider />

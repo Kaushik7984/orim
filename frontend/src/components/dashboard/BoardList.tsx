@@ -2,6 +2,7 @@
 import { Grid, Typography } from "@mui/material";
 import Image from "next/image";
 import BoardCard from "../Board/BoardCard";
+import { Board } from "@/types";
 
 const getPlaceholderById = (id: string) => {
   const hash = Array.from(id).reduce(
@@ -12,7 +13,23 @@ const getPlaceholderById = (id: string) => {
   return `/placeholders/${index}.svg`;
 };
 
-const BoardList = ({ boards, onOpen, onDelete, onRename, onStar }: any) => {
+interface BoardListProps {
+  boards: Board[];
+  onOpen: (boardId: string) => void;
+  onDelete: (boardId: string) => void;
+  onRename: (boardId: string, currentTitle: string) => void;
+  onStar: (boardId: string) => void;
+  onManageCollaborators: (boardId: string, collaborators: string[]) => void;
+}
+
+const BoardList = ({
+  boards,
+  onOpen,
+  onDelete,
+  onRename,
+  onStar,
+  onManageCollaborators,
+}: BoardListProps) => {
   if (!boards || boards.length === 0) {
     return (
       <div className='flex flex-col items-center justify-center text-center py-8 sm:py-12'>
@@ -31,21 +48,9 @@ const BoardList = ({ boards, onOpen, onDelete, onRename, onStar }: any) => {
   }
 
   return (
-    <Grid container spacing={2} sx={{ mt: 1 }}>
-      {boards.map((board: any) => (
-        <Grid
-          item
-          xs={12}
-          sm={6}
-          md={4}
-          lg={2.4}
-          key={board._id}
-          sx={{
-            display: "flex",
-            maxWidth: { lg: "20%", xl: "20%" },
-            flexBasis: { lg: "20%", xl: "20%" },
-          }}
-        >
+    <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mt-4'>
+      {boards.map((board) => (
+        <div key={board._id} className='flex justify-center'>
           <BoardCard
             title={board.title || "Untitled"}
             ownerEmail={board.ownerEmail}
@@ -54,12 +59,18 @@ const BoardList = ({ boards, onOpen, onDelete, onRename, onStar }: any) => {
             onDelete={() => onDelete(board._id)}
             onEdit={() => onRename(board._id, board.title)}
             onStar={() => onStar(board._id)}
+            onManageCollaborators={() =>
+              onManageCollaborators(board._id, board.collaborators || [])
+            }
             isStarred={board.isStarred}
             backgroundImage={getPlaceholderById(board._id)}
+            ownerId={board.ownerId}
+            collaborators={board.collaborators}
+            boardId={board._id}
           />
-        </Grid>
+        </div>
       ))}
-    </Grid>
+    </div>
   );
 };
 

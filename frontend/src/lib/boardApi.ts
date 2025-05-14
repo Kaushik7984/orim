@@ -44,7 +44,10 @@ export const boardAPI = {
   getStarredBoards: async (): Promise<Board[]> => {
     try {
       const config = await getAuthHeaders();
-      const response = await axios.get<Board[]>(`${BASE_URL}/boards/starred`, config);
+      const response = await axios.get<Board[]>(
+        `${BASE_URL}/boards/starred`,
+        config
+      );
       return response.data;
     } catch (error) {
       console.error("Failed to fetch starred boards", error);
@@ -143,5 +146,42 @@ export const boardAPI = {
       throw error;
     }
   },
-  
+
+  addCollaborator: async (
+    boardId: string,
+    collaboratorId: string
+  ): Promise<Board> => {
+    try {
+      const config = await getAuthHeaders();
+      const response = await axios.patch<Board>(
+        `${BASE_URL}/boards/${boardId}/collaborator/${collaboratorId}`,
+        {},
+        config
+      );
+      return response.data;
+    } catch (error) {
+      console.error(`Failed to add collaborator to board ${boardId}`, error);
+      throw error;
+    }
+  },
+
+  removeCollaborator: async (
+    boardId: string,
+    collaboratorId: string
+  ): Promise<Board> => {
+    try {
+      const config = await getAuthHeaders();
+      const response = await axios.delete<Board>(
+        `${BASE_URL}/boards/${boardId}/collaborator/${collaboratorId}`,
+        config
+      );
+      return response.data;
+    } catch (error) {
+      console.error(
+        `Failed to remove collaborator from board ${boardId}`,
+        error
+      );
+      throw error;
+    }
+  },
 };

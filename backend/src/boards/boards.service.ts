@@ -2,12 +2,12 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
-} from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Board } from './schemas/board.schema';
-import { CreateBoardDto } from './dto/create-board.dto';
-import { UpdateBoardDto } from './dto/update-board.dto';
+} from "@nestjs/common";
+import { InjectModel } from "@nestjs/mongoose";
+import { Model } from "mongoose";
+import { Board } from "./schemas/board.schema";
+import { CreateBoardDto } from "./dto/create-board.dto";
+import { UpdateBoardDto } from "./dto/update-board.dto";
 
 @Injectable()
 export class BoardsService {
@@ -24,35 +24,41 @@ export class BoardsService {
     });
   }
 
-  // Get all boards for a user
+  // Get all boards for a user (including collaborated boards)
   getUserBoards(userId: string) {
-    return this.boardModel.find({ ownerId: userId }).sort({ createdAt: -1 });
+    return this.boardModel
+      .find({
+        $or: [{ ownerId: userId }, { collaborators: userId }],
+      })
+      .sort({ createdAt: -1 });
   }
 
   // Get starred boards for a user
   getStarredBoards(userId: string) {
-    return this.boardModel.find({ ownerId: userId, isStarred: true }).sort({ createdAt: -1 });
+    return this.boardModel
+      .find({ ownerId: userId, isStarred: true })
+      .sort({ createdAt: -1 });
   }
 
   // Get a specific board by ID
   async getBoardById(boardId: string) {
     const board = await this.boardModel.findById(boardId);
-    if (!board) throw new NotFoundException('Board not found');
+    if (!board) throw new NotFoundException("Board not found");
     return board;
   }
 
   // Find a board by ID (lean for better performance)
   async findBoardById(boardId: string) {
     const board = await this.boardModel.findById(boardId).lean();
-    if (!board) throw new NotFoundException('Board not found');
+    if (!board) throw new NotFoundException("Board not found");
     return board;
   }
 
   // Toggle star status for a board
   async toggleStarBoard(boardId: string) {
     const board = await this.boardModel.findById(boardId);
-    if (!board) throw new NotFoundException('Board not found');
-    
+    if (!board) throw new NotFoundException("Board not found");
+
     board.isStarred = !board.isStarred;
     return board.save();
   }
@@ -60,10 +66,10 @@ export class BoardsService {
   // Update a board
   async updateBoard(boardId: string, dto: UpdateBoardDto): Promise<Board> {
     const board = await this.boardModel.findById(boardId);
-    if (!board) throw new NotFoundException('Board not found');
+    if (!board) throw new NotFoundException("Board not found");
 
-    if (dto.canvasData && typeof dto.canvasData !== 'object') {
-      throw new BadRequestException('Invalid canvas data format');
+    if (dto.canvasData && typeof dto.canvasData !== "object") {
+      throw new BadRequestException("Invalid canvas data format");
     }
 
     // Update title if provided
@@ -86,5 +92,29 @@ export class BoardsService {
   // Delete a board
   async deleteBoard(boardId: string) {
     return this.boardModel.findByIdAndDelete(boardId);
+  }
+
+  // Add a collaborator to a board
+  async addCollaborator(boardId: string, collaboratorId: string) {
+    const board = await this.boardModel.findById(boardId);
+    if (!board) throw new NotFoundException("Board not found");
+
+    if (!board.collaborators.includes(collaboratorId)) {
+      board.collaborators.push(collaboratorId);
+      await board.save();
+    }
+    return board;
+  }
+
+  // Remove a collaborator from a board
+  async removeCollaborator(boardId: string, collaboratorId: string) {
+    const board = await this.boardModel.findById(boardId);
+    if (!board) throw new NotFoundException("Board not found");
+
+    board.collaborators = board.collaborators.filter(
+      (id) => id !== collaboratorId
+    );
+    await board.save();
+    return board;
   }
 }

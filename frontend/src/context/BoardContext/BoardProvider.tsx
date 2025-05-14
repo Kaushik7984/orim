@@ -180,6 +180,44 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const addCollaborator = async (boardId: string, collaboratorId: string) => {
+    setLoading(true);
+    try {
+      const response = await boardAPI.addCollaborator(boardId, collaboratorId);
+      setBoards((prev) => prev.map((b) => (b._id === boardId ? response : b)));
+      if (currentBoard?._id === boardId) setCurrentBoard(response);
+      return response;
+    } catch (err) {
+      console.error("Failed to add collaborator", err);
+      setError("Failed to add collaborator");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const removeCollaborator = async (
+    boardId: string,
+    collaboratorId: string
+  ) => {
+    setLoading(true);
+    try {
+      const response = await boardAPI.removeCollaborator(
+        boardId,
+        collaboratorId
+      );
+      setBoards((prev) => prev.map((b) => (b._id === boardId ? response : b)));
+      if (currentBoard?._id === boardId) setCurrentBoard(response);
+      return response;
+    } catch (err) {
+      console.error("Failed to remove collaborator", err);
+      setError("Failed to remove collaborator");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (user) {
       setUsername(user.displayName || "");
@@ -210,6 +248,8 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
         updateBoard,
         deleteBoard,
         toggleStarBoard,
+        addCollaborator,
+        removeCollaborator,
         setBoardId,
         setBoardName,
         setCurrentBoard,

@@ -11,46 +11,51 @@ import React from "react";
 interface MoreMenuProps {
   anchorEl: HTMLElement | null;
   onClose: () => void;
+  onJoinBoard: () => void;
 }
 
-const MoreMenu: React.FC<MoreMenuProps> = ({ anchorEl, onClose }) => {
+const MoreMenu: React.FC<MoreMenuProps> = ({
+  anchorEl,
+  onClose,
+  onJoinBoard,
+}) => {
   const router = useRouter();
 
   const moreMenuItems = [
     {
       id: 1,
       title: "Recently Viewed",
-      icon: <HistoryIcon fontSize="small" />,
+      icon: <HistoryIcon fontSize='small' />,
       path: "/recently-viewed",
     },
     {
       id: 2,
       title: "Favorites",
-      icon: <FavoriteIcon fontSize="small" />,
+      icon: <FavoriteIcon fontSize='small' />,
       path: "/favorites",
     },
     {
       id: 3,
       title: "Starred",
-      icon: <StarIcon fontSize="small" />,
+      icon: <StarIcon fontSize='small' />,
       path: "/starred",
     },
     {
       id: 4,
       title: "Teams",
-      icon: <GroupIcon fontSize="small" />,
+      icon: <GroupIcon fontSize='small' />,
       path: "/teams",
     },
     {
       id: 5,
       title: "Analytics",
-      icon: <InsightsIcon fontSize="small" />,
+      icon: <InsightsIcon fontSize='small' />,
       path: "/analytics",
     },
     {
       id: 6,
       title: "Settings",
-      icon: <SettingsIcon fontSize="small" />,
+      icon: <SettingsIcon fontSize='small' />,
       path: "/settings",
     },
   ];

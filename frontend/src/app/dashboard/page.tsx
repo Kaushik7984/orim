@@ -8,6 +8,7 @@ import DashboardSubHeader from "@/components/dashboard/DashboardSubHeader";
 import CreateBoardDialog from "@/components/dashboard/CreateBoardDialog";
 import RenameBoardDialog from "@/components/dashboard/RenameBoardDialog";
 import BoardList from "@/components/dashboard/BoardList";
+import ManageCollaboratorsDialog from "@/components/dashboard/ManageCollaboratorsDialog";
 
 const Dashboard = () => {
   const {
@@ -29,6 +30,13 @@ const Dashboard = () => {
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
   const [renameTitle, setRenameTitle] = useState("");
   const [selectedBoardId, setSelectedBoardId] = useState<string | null>(null);
+
+  const [collaboratorsDialogOpen, setCollaboratorsDialogOpen] = useState(false);
+  const [selectedBoardForCollaborators, setSelectedBoardForCollaborators] =
+    useState<{
+      id: string;
+      collaborators: string[];
+    } | null>(null);
 
   useEffect(() => {
     loadBoards();
@@ -76,6 +84,14 @@ const Dashboard = () => {
     }
   };
 
+  const handleManageCollaborators = (
+    boardId: string,
+    collaborators: string[]
+  ) => {
+    setSelectedBoardForCollaborators({ id: boardId, collaborators });
+    setCollaboratorsDialogOpen(true);
+  };
+
   const confirmRename = async () => {
     if (!selectedBoardId || !renameTitle.trim()) return;
 
@@ -113,6 +129,7 @@ const Dashboard = () => {
         onDelete={handleDeleteBoard}
         onRename={handleRenameBoard}
         onStar={handleStarBoard}
+        onManageCollaborators={handleManageCollaborators}
       />
       <CreateBoardDialog
         open={openDialog}
@@ -129,6 +146,17 @@ const Dashboard = () => {
         onClose={() => setRenameDialogOpen(false)}
         onConfirm={confirmRename}
       />
+      {selectedBoardForCollaborators && (
+        <ManageCollaboratorsDialog
+          open={collaboratorsDialogOpen}
+          onClose={() => {
+            setCollaboratorsDialogOpen(false);
+            setSelectedBoardForCollaborators(null);
+          }}
+          boardId={selectedBoardForCollaborators.id}
+          collaborators={selectedBoardForCollaborators.collaborators}
+        />
+      )}
     </div>
   );
 };

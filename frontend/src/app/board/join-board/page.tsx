@@ -1,73 +1,95 @@
 "use client";
-import { getSocket } from "@/lib/socket";
-import {
-  Box,
-  Button,
-  Container,
-  Paper,
-  TextField,
-  Typography,
-} from "@mui/material";
-import { useRouter } from "next/navigation";
+
 import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useBoard } from "@/context/BoardContext/useBoard";
+import { useAuth } from "@/context/AuthContext";
+import { Button, TextField, Typography, CircularProgress } from "@mui/material";
+import { toast } from "react-hot-toast";
 
-const JoinBoardPage = () => {
+export default function JoinBoard() {
   const [boardId, setBoardId] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { addCollaborator } = useBoard();
+  const { user } = useAuth();
 
-  const handleJoin = () => {
-    if (!boardId.trim()) return;
+  // If boardId is provided in URL, use it
+  useState(() => {
+    const id = searchParams.get("boardId");
+    if (id) {
+      setBoardId(id);
+    }
+  });
 
+  const handleJoinBoard = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) {
+      toast.error("Please sign in to join a board");
+      return;
+    }
+
+    if (!boardId.trim()) {
+      toast.error("Please enter a board ID");
+      return;
+    }
+
+    setLoading(true);
     try {
-      const socket = getSocket();
-      if (socket) {
-        socket.emit("board:join", { boardId: boardId.trim() });
-        router.push(`/board/${boardId.trim()}`);
-      }
-    } catch (error) {
-      console.error("Failed to join board:", error);
-      // Optionally show UI error message
+      await addCollaborator(boardId.trim(), user.uid);
+      toast.success("Successfully joined the board!");
+      router.push("/dashboard");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to join board");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 8 }}>
-      <Paper elevation={3} sx={{ p: 4 }}>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-          <Typography variant="h4" component="h1" gutterBottom>
-            Join Board
+    <div className='min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8'>
+      <div className='max-w-md w-full space-y-8'>
+        <div>
+          <Typography variant='h4' className='text-center font-bold'>
+            Join a Board
           </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Enter a board ID to join an existing board or create a new one.
-          </Typography>
-          <TextField
-            fullWidth
-            label="Board ID"
-            variant="outlined"
-            value={boardId}
-            onChange={(e) => setBoardId(e.target.value)}
-            placeholder="Enter board ID"
-          />
-          <Button
-            variant="contained"
-            size="large"
-            onClick={handleJoin}
-            disabled={!boardId.trim()}
-            sx={{
-              bgcolor: "#2563eb",
-              "&:hover": { bgcolor: "#1d4ed8" },
-            }}
+          <Typography
+            variant='body1'
+            className='mt-2 text-center text-gray-600'
           >
-            Join Board
-          </Button>
-          <Typography variant="body2" color="text.secondary" align="center">
-            You will be redirected to the board if it exists, or a new board
-            will be created.
+            Enter the board ID to join as a collaborator
           </Typography>
-        </Box>
-      </Paper>
-    </Container>
+        </div>
+        <form className='mt-8 space-y-6' onSubmit={handleJoinBoard}>
+          <div>
+            <TextField
+              fullWidth
+              label='Board ID'
+              value={boardId}
+              onChange={(e) => setBoardId(e.target.value)}
+              required
+              disabled={loading}
+            />
+          </div>
+          <div>
+            <Button
+              type='submit'
+              fullWidth
+              variant='contained'
+              color='primary'
+              disabled={loading}
+              className='h-12'
+            >
+              {loading ? (
+                <CircularProgress size={24} color='inherit' />
+              ) : (
+                "Join Board"
+              )}
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
-};
-
-export default JoinBoardPage;
+}

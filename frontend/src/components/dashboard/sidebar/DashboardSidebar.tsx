@@ -5,6 +5,8 @@ import ExploreOutlinedIcon from "@mui/icons-material/ExploreOutlined";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
+import MenuIcon from "@mui/icons-material/Menu";
+import CloseIcon from "@mui/icons-material/Close";
 import {
   Avatar,
   Box,
@@ -17,12 +19,19 @@ import {
   ListItemIcon,
   ListItemText,
   Typography,
+  Drawer,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 
 const DashboardSidebar = () => {
   const router = useRouter();
   const pathname = usePathname();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const [isOpen, setIsOpen] = useState(false);
 
   const mainMenuItems = [
     {
@@ -39,13 +48,21 @@ const DashboardSidebar = () => {
     { text: "Starred", icon: <StarBorderIcon />, path: "/dashboard/starred" },
   ];
 
-  return (
+  const handleMenuClick = (path: string) => {
+    router.push(path);
+    if (isMobile) {
+      setIsOpen(false);
+    }
+  };
+
+  const SidebarContent = () => (
     <Box
       sx={{
         width: "270px",
-        borderRight: "1px solid #eaeaea",
-        height: "100vh",
+        height: "100%",
         bgcolor: "white",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
       <Box
@@ -125,7 +142,7 @@ const DashboardSidebar = () => {
           <ListItem key={item.text} disablePadding>
             <ListItemButton
               selected={pathname === item.path}
-              onClick={() => router.push(item.path)}
+              onClick={() => handleMenuClick(item.path)}
               sx={{
                 borderRadius: 1,
                 py: 1,
@@ -180,6 +197,59 @@ const DashboardSidebar = () => {
           />
         </IconButton>
       </Box>
+    </Box>
+  );
+
+  if (isMobile) {
+    return (
+      <>
+        <IconButton
+          onClick={() => setIsOpen(true)}
+          sx={{
+            position: "fixed",
+            top: 16,
+            left: 16,
+            zIndex: 1200,
+            bgcolor: "white",
+            boxShadow: 1,
+            "&:hover": { bgcolor: "white" },
+          }}
+        >
+          <MenuIcon />
+        </IconButton>
+        <Drawer
+          anchor='left'
+          open={isOpen}
+          onClose={() => setIsOpen(false)}
+          PaperProps={{
+            sx: {
+              width: "270px",
+              boxShadow: "none",
+              borderRight: "1px solid #eaeaea",
+            },
+          }}
+        >
+          <Box sx={{ position: "absolute", top: 8, right: 8, zIndex: 1 }}>
+            <IconButton onClick={() => setIsOpen(false)} size='small'>
+              <CloseIcon />
+            </IconButton>
+          </Box>
+          <SidebarContent />
+        </Drawer>
+      </>
+    );
+  }
+
+  return (
+    <Box
+      sx={{
+        width: "270px",
+        borderRight: "1px solid #eaeaea",
+        height: "100vh",
+        bgcolor: "white",
+      }}
+    >
+      <SidebarContent />
     </Box>
   );
 };

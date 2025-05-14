@@ -1,4 +1,4 @@
-import { fabric } from "fabric"; 
+import { fabric } from "fabric";
 import { FabricJSEditor } from "fabricjs-react";
 import { User as FirebaseUser, User } from "firebase/auth";
 
@@ -25,6 +25,7 @@ export interface Board {
   canvasData?: fabric.ICanvasOptions;
   imageUrl?: string;
   isStarred?: boolean;
+  collaborators?: string[];
 }
 
 // DTO for creating a board
@@ -67,10 +68,11 @@ export interface BoardContextType {
   loadStarredBoards: () => Promise<void>;
   loadBoard: (id: string) => Promise<void>;
   toggleStarBoard: (id: string) => Promise<Board>;
-  // updateCanvasData: (
-  //   id: string,
-  //   canvasData: fabric.ICanvasOptions
-  // ) => Promise<Board>;
+  addCollaborator: (boardId: string, collaboratorId: string) => Promise<Board>;
+  removeCollaborator: (
+    boardId: string,
+    collaboratorId: string
+  ) => Promise<Board>;
 
   setCurrentBoard: (board: Board | null) => void;
 
@@ -117,6 +119,7 @@ export interface BoardContextType {
   isPanning: boolean;
 }
 
+//authContext
 export interface ProfileUpdateData {
   displayName?: string;
   photoURL?: string;
