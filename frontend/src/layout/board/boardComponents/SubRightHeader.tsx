@@ -198,11 +198,8 @@ const SubRightHeader = () => {
   const boardId = currentBoard?._id || "";
 
   return (
-    <div
-      className='flex flex-row items-center h-12 px-4 bg-white border-b rounded-md mr-2 border-gray-200'
-      style={{ boxShadow: "1px 1px 5px rgba(0, 0, 0, 0.3)" }}
-    >
-      <div className='flex items-center space-x-2'>
+    <div className='flex flex-row items-center h-12 px-2 md:px-4 bg-white border-b rounded-md mr-2 border-gray-200 shadow-md'>
+      <div className='flex items-center space-x-1 md:space-x-2'>
         {items.map((item) => (
           <Tooltip key={item.name} title={item.name}>
             <IconButton
@@ -216,29 +213,31 @@ const SubRightHeader = () => {
         ))}
       </div>
 
-      <Divider orientation='vertical' flexItem className='mx-4' />
+      <Divider orientation='vertical' flexItem className='mx-2 md:mx-4' />
 
       <div className='flex-grow' />
 
-      <div className='flex items-center space-x-2 pl-3'>
+      <div className='flex items-center space-x-1 md:space-x-2 pl-2 md:pl-3'>
         <button
           onClick={() => setIsInviteDialogOpen(true)}
-          className='flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors duration-200'
+          className='flex items-center px-2 md:px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors duration-200'
         >
           <ShareIcon className='w-4 h-4 mr-1' />
-          Share
+          <span className='hidden sm:inline'>Share</span>
         </button>
 
         <button
           onClick={handleTogglePresentation}
-          className={`flex items-center px-3 py-1.5 text-sm font-medium ${
+          className={`flex items-center px-2 md:px-3 py-1.5 text-sm font-medium ${
             isPresenting
               ? "text-gray-700 bg-gray-100 hover:bg-gray-200"
               : "text-white bg-blue-600 hover:bg-blue-700"
           } rounded-md transition-colors duration-200`}
         >
           <PlayArrowIcon className='w-4 h-4 mr-1' />
-          {isPresenting ? "Exit" : "Present"}
+          <span className='hidden sm:inline'>
+            {isPresenting ? "Exit" : "Present"}
+          </span>
         </button>
 
         <div className='flex items-center pl-3'>

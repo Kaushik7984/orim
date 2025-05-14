@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { FabricJSEditor } from "fabricjs-react";
 import { boardAPI } from "@/lib/boardApi";
 import { useAuth } from "../AuthContext";
+import { getSocket } from "@/lib/socket";
 import axios from "axios";
 
 export const useBoardAutoSave = (editor?: FabricJSEditor, boardId?: string) => {
@@ -9,6 +10,9 @@ export const useBoardAutoSave = (editor?: FabricJSEditor, boardId?: string) => {
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { user } = useAuth();
   const [isOwner, setIsOwner] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [lastSaveTime, setLastSaveTime] = useState<Date | null>(null);
+  const socket = getSocket();
 
   // Check if current user is the board owner
   useEffect(() => {
@@ -35,7 +39,10 @@ export const useBoardAutoSave = (editor?: FabricJSEditor, boardId?: string) => {
     if (!editor || !boardId) return;
 
     const saveCanvas = async () => {
+      if (isSaving) return;
+
       try {
+        setIsSaving(true);
         const canvasJSON = editor.canvas.toJSON([
           "id",
           "globalCompositeOperation",
@@ -49,11 +56,23 @@ export const useBoardAutoSave = (editor?: FabricJSEditor, boardId?: string) => {
             await boardAPI.updateBoard(boardId, {
               canvasData: JSON.parse(currentCanvasData),
             });
+            setLastSaveTime(new Date());
             console.log("Canvas saved to database (owner)");
+          }
+
+          // Emit canvas update to other users
+          if (socket) {
+            socket.emit("board:update", {
+              boardId,
+              canvasData: JSON.parse(currentCanvasData),
+              userId: user?.uid,
+            });
           }
         }
       } catch (err) {
         console.error("Auto-save failed:", err);
+      } finally {
+        setIsSaving(false);
       }
     };
 
@@ -68,34 +87,56 @@ export const useBoardAutoSave = (editor?: FabricJSEditor, boardId?: string) => {
       debounceSave();
     };
 
-    editor.canvas.on("object:modified", handleCanvasChange);
-    editor.canvas.on("object:added", handleCanvasChange);
-    editor.canvas.on("object:removed", handleCanvasChange);
-    editor.canvas.on("path:created", handleCanvasChange);
-    editor.canvas.on("object:rotating", handleCanvasChange);
-    editor.canvas.on("object:scaling", handleCanvasChange);
-    editor.canvas.on("object:moving", handleCanvasChange);
-    editor.canvas.on("text:changed", handleCanvasChange);
-    editor.canvas.on("selection:created", handleCanvasChange);
-    editor.canvas.on("selection:updated", handleCanvasChange);
-    editor.canvas.on("selection:cleared", handleCanvasChange);
+    // Listen for canvas changes
+    const canvasEvents = [
+      "object:modified",
+      "object:added",
+      "object:removed",
+      "path:created",
+      "object:rotating",
+      "object:scaling",
+      "object:moving",
+      "text:changed",
+      "selection:created",
+      "selection:updated",
+      "selection:cleared",
+    ];
+
+    canvasEvents.forEach((event) => {
+      editor.canvas.on(event, handleCanvasChange);
+    });
+
+    // Listen for board updates from other users
+    const handleBoardUpdate = (data: { canvasData: any }) => {
+      if (data.canvasData && !isSaving) {
+        editor.canvas.loadFromJSON(data.canvasData, () => {
+          editor.canvas.renderAll();
+        });
+      }
+    };
+
+    if (socket) {
+      socket.on("board:update", handleBoardUpdate);
+    }
 
     return () => {
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current);
       }
 
-      editor.canvas.off("object:modified", handleCanvasChange);
-      editor.canvas.off("object:added", handleCanvasChange);
-      editor.canvas.off("object:removed", handleCanvasChange);
-      editor.canvas.off("path:created", handleCanvasChange);
-      editor.canvas.off("object:rotating", handleCanvasChange);
-      editor.canvas.off("object:scaling", handleCanvasChange);
-      editor.canvas.off("object:moving", handleCanvasChange);
-      editor.canvas.off("text:changed", handleCanvasChange);
-      editor.canvas.off("selection:created", handleCanvasChange);
-      editor.canvas.off("selection:updated", handleCanvasChange);
-      editor.canvas.off("selection:cleared", handleCanvasChange);
+      canvasEvents.forEach((event) => {
+        editor.canvas.off(event, handleCanvasChange);
+      });
+
+      if (socket) {
+        socket.off("board:update", handleBoardUpdate);
+      }
     };
-  }, [editor, boardId, user, isOwner]);
+  }, [editor, boardId, user, isOwner, socket, isSaving]);
+
+  return {
+    isSaving,
+    lastSaveTime,
+    isOwner,
+  };
 };

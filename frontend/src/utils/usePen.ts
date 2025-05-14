@@ -41,7 +41,7 @@ export const usePen = (
     editor.canvas._currentDrawingMode = undefined;
     editor.canvas.isDrawingMode = false;
 
-     editor.canvas.off("mouse:down");
+    editor.canvas.off("mouse:down");
     editor.canvas.off("mouse:move");
     editor.canvas.off("mouse:up");
     editor.canvas.off("path:created");
@@ -50,7 +50,7 @@ export const usePen = (
   const setupDrawingMode = (color: string, width: number, type: string) => {
     if (!editor?.canvas) return;
 
-     cleanupCanvasListeners();
+    cleanupCanvasListeners();
 
     editor.canvas.isDrawingMode = true;
     editor.canvas.freeDrawingBrush.width = width;

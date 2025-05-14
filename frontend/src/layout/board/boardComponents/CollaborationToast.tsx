@@ -3,7 +3,7 @@
 import { useAuth } from "@/context/AuthContext";
 import { getSocket } from "@/lib/socket";
 import { BoardContent } from "@/types";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 export interface BoardRef {
   updateContent: (content: BoardContent) => void;
@@ -14,13 +14,21 @@ export const CollaborationToast = ({ boardId }: { boardId: string }) => {
     { id: string; message: string; color: string }[]
   >([]);
   const { user } = useAuth();
+  const processedEvents = useRef<Set<string>>(new Set());
 
-  const addNotification = (message: string, color: string) => {
+  const addNotification = (message: string, color: string, eventId: string) => {
+    // Check if we've already processed this event
+    if (processedEvents.current.has(eventId)) {
+      return;
+    }
+
     const id = Date.now().toString();
     setNotifications((prev) => [...prev, { id, message, color }]);
+    processedEvents.current.add(eventId);
 
     setTimeout(() => {
       setNotifications((prev) => prev.filter((n) => n.id !== id));
+      processedEvents.current.delete(eventId);
     }, 5000);
   };
 
@@ -37,12 +45,18 @@ export const CollaborationToast = ({ boardId }: { boardId: string }) => {
       userId: string;
       username: string;
     }) => {
-      if (userId === user.uid) return; 
-      addNotification(`${username || "Someone"} joined the board`, "#27AE60");
+      if (userId === user.uid) return;
+      const eventId = `join-${userId}-${Date.now()}`;
+      addNotification(
+        `${username || "Someone"} joined the board`,
+        "#27AE60",
+        eventId
+      );
     };
 
     const handleUserLeave = ({ userId }: { userId: string }) => {
-      addNotification(`A collaborator left the board`, "#EB5757");
+      const eventId = `leave-${userId}-${Date.now()}`;
+      addNotification(`A collaborator left the board`, "#EB5757", eventId);
     };
 
     socket.on("board:user-joined", handleUserJoined);
@@ -57,11 +71,11 @@ export const CollaborationToast = ({ boardId }: { boardId: string }) => {
   if (notifications.length === 0) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 flex flex-col gap-2 z-20">
+    <div className='fixed top-16 right-4 flex flex-col gap-2 z-20'>
       {notifications.map(({ id, message, color }) => (
         <div
           key={id}
-          className="bg-white/95 rounded-md shadow-md px-4 py-3 text-sm font-medium animate-fade-in max-w-xs"
+          className='bg-white/95 rounded-md shadow-md px-4 py-3 text-sm font-medium animate-fade-in max-w-xs'
           style={{ borderLeft: `4px solid ${color}` }}
         >
           {message}
@@ -70,7 +84,6 @@ export const CollaborationToast = ({ boardId }: { boardId: string }) => {
     </div>
   );
 };
-
 
 export const animationStyles = `
  @keyframes slideIn {

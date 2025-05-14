@@ -10,9 +10,11 @@ import { items } from "./ToolbarIcons";
 const Toolbar = ({
   setIsOpen,
   isOpen,
+  onToolSelect,
 }: {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   isOpen: boolean;
+  onToolSelect: (tool: string | null, subTool: string | null) => void;
 }) => {
   const [activeItem, setActiveItem] = useState<string | null>(null);
   const boardContext = useContext(BoardContext);
@@ -99,13 +101,10 @@ const Toolbar = ({
     };
   }, [editor]);
 
-  // Function to handle tool selection
+  // Handle tool selection
   const handleToolSelect = (name: string) => {
-    if (activeItem !== name && editor?.canvas) {
-      disableDrawing && disableDrawing();
-    }
-
     setActiveItem(name);
+    onToolSelect(name, null);
 
     switch (name) {
       case "Select":
@@ -151,6 +150,8 @@ const Toolbar = ({
 
   // Handle shape selection
   const handleShapeSelect = (shapeName: string) => {
+    onToolSelect("Shapes", shapeName);
+
     switch (shapeName) {
       case "Rectangle":
         setActiveItem("Shapes");
@@ -195,6 +196,9 @@ const Toolbar = ({
 
   // Helper to render icon
   const renderIcon = (item: any) => {
+    const isActive = activeItem === item.name;
+    const iconColor = isActive ? "#2563eb" : "#000000"; // Blue for active, black for inactive
+
     if (typeof item.icon === "function") {
       return item.icon({
         onClick: (e: React.MouseEvent) => {
@@ -209,9 +213,11 @@ const Toolbar = ({
         },
         onShapeSelect: handleShapeSelect,
         onPenSelect: handlePenSelect,
+        color: iconColor,
       });
     } else {
-      return item.icon;
+      // Clone the icon and set its color
+      return React.cloneElement(item.icon, { color: iconColor });
     }
   };
 
@@ -220,7 +226,8 @@ const Toolbar = ({
     penName: string,
     options?: { color?: string; thickness?: number }
   ) => {
-    setActiveItem("Pen");
+    setActiveItem("Drawing Tools");
+    onToolSelect("Drawing Tools", penName);
 
     if (options?.color) {
       setActivePenColor(options.color);
@@ -250,23 +257,19 @@ const Toolbar = ({
   };
 
   return (
-    <motion.div className="flex flex-col items-center mt-12 ml-1">
+    <motion.div className='flex flex-col items-center mt-12 ml-1 md:mt-14'>
       <input
-        type="file"
+        type='file'
         ref={fileInputRef}
         style={{ display: "none" }}
-        accept="image/*"
-        // onChange={handleFileSelected}
+        accept='image/*'
       />
-      <div
-        className="flex flex-col rounded-md bg-white items-center"
-        style={{ boxShadow: "1px 1px 5px rgba(0, 0, 0, 0.3)" }}
-      >
+      <div className='flex flex-col rounded-md bg-white items-center shadow-md'>
         {items.map((item) => (
-          <Tooltip key={item.name} title={item.name} placement="right" arrow>
+          <Tooltip key={item.name} title={item.name} placement='right' arrow>
             <div
               onClick={() => handleToolSelect(item.name)}
-              className={`rounded-md p-2 duration-200 cursor-pointer m-0.5 ${
+              className={`rounded-md p-2 duration-200 cursor-pointer m-0.5 transition-colors ${
                 activeItem === item.name ? "bg-[#dde4fc]" : "hover:bg-[#dde4fc]"
               }`}
             >
@@ -276,13 +279,10 @@ const Toolbar = ({
         ))}
       </div>
 
-      <div
-        className="mt-4 flex flex-col items-center rounded-md bg-white"
-        style={{ boxShadow: "1px 1px 5px rgba(0, 0, 0, 0.3)" }}
-      >
-        <Tooltip title="Undo" placement="right" arrow>
+      <div className='mt-4 flex flex-col items-center rounded-md bg-white shadow-md'>
+        <Tooltip title='Undo' placement='right' arrow>
           <div
-            className={`rounded-md p-2 hover:bg-[#dde4fc] duration-200 cursor-pointer m-0.5 ${
+            className={`rounded-md p-2 hover:bg-[#dde4fc] duration-200 cursor-pointer m-0.5 transition-colors ${
               !canUndo ? "opacity-50" : ""
             }`}
             onClick={undo}
@@ -290,9 +290,9 @@ const Toolbar = ({
             <Undo />
           </div>
         </Tooltip>
-        <Tooltip title="Redo" placement="right" arrow>
+        <Tooltip title='Redo' placement='right' arrow>
           <div
-            className={`rounded-md p-2 hover:bg-[#dde4fc] duration-200 cursor-pointer ${
+            className={`rounded-md p-2 hover:bg-[#dde4fc] duration-200 cursor-pointer transition-colors ${
               !canRedo ? "opacity-50" : ""
             }`}
             onClick={redo}
@@ -302,13 +302,12 @@ const Toolbar = ({
         </Tooltip>
       </div>
 
-      <Tooltip title="Toggle Sidebar" placement="right" arrow>
+      <Tooltip title='Toggle Sidebar' placement='right' arrow>
         <div
           onClick={() => setIsOpen(!isOpen)}
-          className={`rounded-md p-2.5 duration-200 cursor-pointer mt-1 ${
+          className={`rounded-md p-2.5 duration-200 cursor-pointer mt-1 transition-colors ${
             isOpen ? "bg-[#dde4fc]" : "bg-white hover:bg-[#dde4fc]"
-          }`}
-          style={{ boxShadow: "1px 1px 5px rgba(0, 0, 0, 0.3)" }}
+          } shadow-md`}
         >
           <LayoutPanelLeft />
         </div>
