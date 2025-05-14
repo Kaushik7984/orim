@@ -1,11 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  images: {
-    domains: ["upload.wikimedia.org", "miro.medium.com", "img.icons8.com"],
-  },
+
   webpack(config) {
-    // Exclude svg from the default file loader
+    // Exclude .svg files from the default file-loader
     const fileLoaderRule = config.module.rules.find((rule) =>
       rule.test?.test?.(".svg")
     );
@@ -13,17 +11,33 @@ const nextConfig = {
       fileLoaderRule.exclude = /\.svg$/i;
     }
 
-    // Add custom SVG loader
+    // Use @svgr/webpack for SVG imports as React components
     config.module.rules.push({
       test: /\.svg$/i,
       issuer: /\.[jt]sx?$/,
-      use: [{ loader: "@svgr/webpack", options: { icon: true } }],
+      use: [
+        {
+          loader: "@svgr/webpack",
+          options: {
+            icon: true,
+            svgo: true,
+            svgoConfig: {
+              plugins: [
+                {
+                  name: "removeViewBox",
+                  active: false,
+                },
+              ],
+            },
+          },
+        },
+      ],
     });
 
-    // Your .node rule is kept
+    // Add support for loading .node binary modules
     config.module.rules.push({
       test: /\.node$/,
-      use: [{ loader: "node-loader" }],
+      use: "node-loader",
     });
 
     return config;

@@ -5,13 +5,13 @@ import {
   OnGatewayDisconnect,
   SubscribeMessage,
   MessageBody,
-} from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
-import { BoardsService } from './boards.service';
-import { ConnectedSocket } from '@nestjs/websockets';
+} from "@nestjs/websockets";
+import { Server, Socket } from "socket.io";
+import { BoardsService } from "./boards.service";
+import { ConnectedSocket } from "@nestjs/websockets";
 @WebSocketGateway({
   cors: {
-    origin: '*',
+    origin: "*",
     credentials: true,
   },
 })
@@ -32,12 +32,11 @@ export class BoardGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleConnection(client: Socket) {
     console.log(`Client connected: ${client.id}`);
 
-    client.on('board:join', (data) => this.handleJoinBoard(client, data));
-    client.on('board:leave', (data) => this.handleLeaveBoard(client, data));
-    client.on('cursor:move', (data) => this.handleCursorMove(client, data)); // for cursor move
-    client.on('shape:add', (data) => this.handleShapeAdd(client, data)); // live sync(add shapes on board)
-    client.on('shape:modify', (data) => this.handleShapeModify(client, data)); //live sync (change position of shape)
-    client.on('shape:delete', (data) => this.handleShapeDelete(client, data)); //live sync (delete shape)
+    // Remove duplicate event handlers since they're handled by @SubscribeMessage decorators
+    client.on("cursor:move", (data) => this.handleCursorMove(client, data)); // for cursor move
+    client.on("shape:add", (data) => this.handleShapeAdd(client, data)); // live sync(add shapes on board)
+    client.on("shape:modify", (data) => this.handleShapeModify(client, data)); //live sync (change position of shape)
+    client.on("shape:delete", (data) => this.handleShapeDelete(client, data)); //live sync (delete shape)
   }
 
   // Handle client disconnection and cleanup user from board
@@ -52,13 +51,13 @@ export class BoardGateway implements OnGatewayConnection, OnGatewayDisconnect {
         users.delete(userId);
         if (users.size === 0) this.boardUsers.delete(boardId);
       }
-      client.to(boardId).emit('board:user-left', { userId });
+      client.to(boardId).emit("board:user-left", { userId });
       this.socketToUser.delete(client.id);
     }
   }
 
   // Handle user joining a board
-  @SubscribeMessage('board:join')
+  @SubscribeMessage("board:join")
   async handleJoinBoard(
     @ConnectedSocket() client: Socket,
     @MessageBody()
@@ -67,17 +66,26 @@ export class BoardGateway implements OnGatewayConnection, OnGatewayDisconnect {
       userId: string;
       username: string;
       isOwner?: boolean;
-    },
+    }
   ) {
     const { boardId, userId, username, isOwner } = data;
 
     if (!boardId || !userId) {
-      client.emit('error', { message: 'Invalid boardId or userId' });
+      client.emit("error", { message: "Invalid boardId or userId" });
       return;
     }
 
     try {
-      client.join(boardId);
+      // Check if user is already in the board
+      const users = this.boardUsers.get(boardId);
+      if (users?.has(userId)) {
+        console.log(
+          `User ${username || userId} is already in board ${boardId}`
+        );
+        return;
+      }
+
+      await client.join(boardId);
 
       if (!this.boardUsers.has(boardId)) {
         this.boardUsers.set(boardId, new Set());
@@ -87,43 +95,34 @@ export class BoardGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.socketToUser.set(client.id, {
         boardId,
         userId,
-        username: username || 'Anonymous',
+        username: username || "Anonymous",
       });
 
-      // If this user is the board owner, track them
-      // if (isOwner) {
-      //   this.boardOwners.set(boardId, userId);
-      //   console.log(
-      //     `User ${username || userId} is the owner of board ${boardId}`,
-      //   );
-      // }
-
       // Notify others in the board room
-      client.to(boardId).emit('board:user-joined', {
+      client.to(boardId).emit("board:user-joined", {
         userId,
-        username: username || 'Anonymous',
+        username: username || "Anonymous",
         isOwner,
       });
 
       // Send current board state to the joining user
       const board = await this.boardsService.findBoardById(boardId);
       if (board?.canvasData) {
-        client.emit('board:sync', board.canvasData);
+        client.emit("board:sync", board.canvasData);
       }
 
-      // client.emit('board:joined-successfully', { boardId });
       console.log(`User ${username || userId} joined board ${boardId}`);
     } catch (error) {
-      console.error('Error joining board:', error);
-      client.emit('error', { message: 'Error joining the board' });
+      console.error("Error joining board:", error);
+      client.emit("error", { message: "Error joining the board" });
     }
   }
 
   // Handle user leaving a board
-  @SubscribeMessage('board:leave')
+  @SubscribeMessage("board:leave")
   async handleLeaveBoard(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: { boardId: string; userId: string },
+    @MessageBody() data: { boardId: string; userId: string }
   ) {
     const { boardId, userId } = data;
 
@@ -139,19 +138,19 @@ export class BoardGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.socketToUser.delete(client.id);
 
       // Notify others in the room
-      client.to(boardId).emit('board:user-left', { userId });
+      client.to(boardId).emit("board:user-left", { userId });
       console.log(`User ${userId} left board ${boardId}`);
 
       // Need at least one await to satisfy linter
       await Promise.resolve();
     } catch (error) {
-      console.error('Error leaving board:', error);
-      client.emit('error', { message: 'Error leaving the board' });
+      console.error("Error leaving board:", error);
+      client.emit("error", { message: "Error leaving the board" });
     }
   }
 
   // Handle shape add event
-  @SubscribeMessage('shape:add')
+  @SubscribeMessage("shape:add")
   handleShapeAdd(
     @ConnectedSocket() client: Socket,
     @MessageBody()
@@ -161,12 +160,12 @@ export class BoardGateway implements OnGatewayConnection, OnGatewayDisconnect {
       type: string;
       userId: string;
       isOwner: boolean;
-    },
+    }
   ) {
     const { boardId, shape, type, userId, isOwner } = data;
 
     if (!boardId || !shape) {
-      client.emit('error', { message: 'Invalid boardId or shape data' });
+      client.emit("error", { message: "Invalid boardId or shape data" });
       return;
     }
 
@@ -174,12 +173,12 @@ export class BoardGateway implements OnGatewayConnection, OnGatewayDisconnect {
       // De-duplicate before broadcasting
       if (this.isShapeDuplicate(shape)) {
         console.log(
-          `Duplicate shape detected: ${String(shape.id)}, skipping broadcast`,
+          `Duplicate shape detected: ${String(shape.id)}, skipping broadcast`
         );
         return;
       }
 
-      client.to(boardId).emit('shape:add', { shape, type });
+      client.to(boardId).emit("shape:add", { shape, type });
 
       // Track this shape ID to avoid duplicates
       this.trackShapeId(shape);
@@ -190,8 +189,8 @@ export class BoardGateway implements OnGatewayConnection, OnGatewayDisconnect {
         // But for now, we rely on the full board:update for persistence
       }
     } catch (error) {
-      console.error('Error handling shape add:', error);
-      client.emit('error', { message: 'Error broadcasting shape' });
+      console.error("Error handling shape add:", error);
+      client.emit("error", { message: "Error broadcasting shape" });
     }
   }
 
@@ -199,7 +198,7 @@ export class BoardGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private recentShapeIds: Set<string> = new Set();
 
   private trackShapeId(shape: Record<string, unknown>) {
-    if (shape.id && typeof shape.id === 'string') {
+    if (shape.id && typeof shape.id === "string") {
       this.recentShapeIds.add(shape.id);
 
       setTimeout(() => {
@@ -209,14 +208,14 @@ export class BoardGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   private isShapeDuplicate(shape: Record<string, unknown>): boolean {
-    if (shape.id && typeof shape.id === 'string') {
+    if (shape.id && typeof shape.id === "string") {
       return this.recentShapeIds.has(shape.id);
     }
     return false;
   }
 
   // Handle shape modify event
-  @SubscribeMessage('shape:modify')
+  @SubscribeMessage("shape:modify")
   handleShapeModify(
     @ConnectedSocket() client: Socket,
     @MessageBody()
@@ -226,18 +225,18 @@ export class BoardGateway implements OnGatewayConnection, OnGatewayDisconnect {
       props: Record<string, unknown>;
       userId: string;
       isOwner?: boolean;
-    },
+    }
   ) {
     const { boardId, objectId, props, userId } = data;
 
     if (!boardId || !objectId || !props) return;
 
     // Broadcast modification to all other clients in the room
-    client.to(boardId).emit('shape:modify', { objectId, props, userId });
+    client.to(boardId).emit("shape:modify", { objectId, props, userId });
   }
 
   // Handle shape delete event
-  @SubscribeMessage('shape:delete')
+  @SubscribeMessage("shape:delete")
   handleShapeDelete(
     @ConnectedSocket() client: Socket,
     @MessageBody()
@@ -246,18 +245,18 @@ export class BoardGateway implements OnGatewayConnection, OnGatewayDisconnect {
       objectId: string;
       userId: string;
       isOwner?: boolean;
-    },
+    }
   ) {
     const { boardId, objectId, userId } = data;
 
     if (!boardId || !objectId) return;
 
     // Broadcast deletion to all other clients in the room
-    client.to(boardId).emit('shape:delete', { objectId, userId });
+    client.to(boardId).emit("shape:delete", { objectId, userId });
   }
 
   // Handle user cursor movement
-  @SubscribeMessage('cursor:move')
+  @SubscribeMessage("cursor:move")
   handleCursorMove(
     @ConnectedSocket() client: Socket,
     @MessageBody()
@@ -268,12 +267,12 @@ export class BoardGateway implements OnGatewayConnection, OnGatewayDisconnect {
       x: number;
       y: number;
       color: string;
-    },
+    }
   ) {
     const { boardId } = data;
 
     if (!boardId) return;
 
-    client.to(boardId).volatile.emit('cursor:move', data);
+    client.to(boardId).volatile.emit("cursor:move", data);
   }
 }

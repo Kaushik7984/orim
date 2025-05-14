@@ -115,7 +115,7 @@ export default function Testimonials() {
                     className='min-w-full px-8 flex flex-col justify-center'
                   >
                     <p className='text-xl md:text-2xl text-gray-700 italic'>
-                      "{testimonial.quote}"
+                      &quot;`{testimonial.quote}&quot;
                     </p>
                     <div className='mt-6 flex items-center'>
                       <div className='w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold'>

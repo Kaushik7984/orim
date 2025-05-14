@@ -31,8 +31,17 @@ export default function useZoomHandlers(editor: any) {
     const scale = Math.min(scaleX, scaleY);
 
     canvas.setZoom(scale);
-    canvas.setViewportTransform([scale, 0, 0, scale, 0, 0]);
+    // canvas.setViewportTransform([scale, 0, 0, scale, 0, 0]);
     setZoomLevel(Math.round(scale * 100));
+  };
+
+  const handleDoubleClick = (event: MouseEvent) => {
+    event.preventDefault();
+    if (!editor) return;
+    // Reset zoom to 100%
+    editor.canvas.setZoom(1);
+    // editor.canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
+    setZoomLevel(100);
   };
 
   useEffect(() => {
@@ -42,10 +51,9 @@ export default function useZoomHandlers(editor: any) {
 
     const handleWheel = (event: WheelEvent) => {
       if (!event.ctrlKey) return;
-      event.preventDefault(); // prevent browser zooming
-
+      event.preventDefault();
       const delta = -event.deltaY;
-      const zoomStep = 0.02;
+      const zoomStep = 0.1;
       let newZoom = canvas.getZoom() + (delta > 0 ? zoomStep : -zoomStep);
 
       newZoom = Math.max(0.2, Math.min(5, newZoom));
@@ -56,9 +64,11 @@ export default function useZoomHandlers(editor: any) {
     };
 
     canvasElement.addEventListener("wheel", handleWheel, { passive: false });
+    canvasElement.addEventListener("dblclick", handleDoubleClick);
 
     return () => {
       canvasElement.removeEventListener("wheel", handleWheel);
+      canvasElement.removeEventListener("dblclick", handleDoubleClick);
     };
   }, [editor]);
 

@@ -13,14 +13,20 @@ import {
   useImperativeHandle,
   useState,
 } from "react";
-import { animationStyles, CollaborationToast } from "./boardComponents/CollaborationToast";
+import {
+  animationStyles,
+  CollaborationToast,
+} from "./boardComponents/CollaborationToast";
 import FabricHeader from "./boardComponents/FabricHeader";
 import FabricSidebar from "./boardComponents/FabricSidebar";
+import ToolIndicator from "./boardComponents/ToolIndicator";
 import ZoomPanel from "./boardComponents/ZoomPanel";
 import useBoardEditor from "./boardUtils/useBoardEditor";
 import useBoardSocket from "./boardUtils/useBoardSocket";
 import { useDeleteSelectedObject } from "./boardUtils/useDeleteSelectedObject";
 import useZoomHandlers from "./boardUtils/useZoomHandlers";
+import { useKeyboardShortcuts } from "./boardUtils/useKeyboardShortcuts";
+import useCanvasHistory from "./boardUtils/useCanvasHistory";
 
 interface BoardProps {
   boardId: string;
@@ -35,14 +41,26 @@ const Board = forwardRef<BoardRef, BoardProps>(
     const { editor, onReady } = useFabricJSEditor();
     const pathname = usePathname();
     const boardContext = useContext(BoardContext);
+    const [activeTool, setActiveTool] = useState<string | null>(null);
+    const [activeSubTool, setActiveSubTool] = useState<string | null>(null);
 
     const { zoomLevel, handleZoomIn, handleZoomOut, handleFitView } =
       useZoomHandlers(editor);
     useBoardEditor(editor, boardContext, initialBoardId);
 
+    // Initialize board socket only once
     useBoardSocket(editor, initialBoardId, false);
 
     useDeleteSelectedObject(editor?.canvas);
+
+    const { undo, redo } = useCanvasHistory(editor);
+
+    // Add keyboard shortcuts for undo/redo
+    useKeyboardShortcuts({
+      canvas: editor?.canvas,
+      onUndo: undo,
+      onRedo: redo,
+    });
 
     useImperativeHandle(ref, () => ({
       updateContent: (content: BoardContent) => {
@@ -56,18 +74,25 @@ const Board = forwardRef<BoardRef, BoardProps>(
     if (!boardContext) return <div>Loading...</div>;
 
     return (
-      <div className='h-screen w-full flex flex-col relative'>
+      <div className='h-screen w-full flex flex-col relative overflow-hidden'>
         <style>{animationStyles}</style>
         <FabricHeader
           zoomLevel={zoomLevel}
           onZoomIn={handleZoomIn}
           onZoomOut={handleZoomOut}
         />
-        <div className='flex flex-1'>
-          <FabricSidebar editor={editor} />
-          <div className='flex-1 bg-[#f5f5f5] relative'>
+        <div className='flex flex-1 relative'>
+          <FabricSidebar
+            editor={editor}
+            onToolSelect={(tool, subTool) => {
+              setActiveTool(tool);
+              setActiveSubTool(subTool);
+            }}
+          />
+          <div className='flex-1 bg-[#f5f5f5] relative overflow-hidden'>
             <FabricJSCanvas className='h-full w-full' onReady={onReady} />
             <CollaborationToast boardId={initialBoardId} />
+            <ToolIndicator toolName={activeTool} subToolName={activeSubTool} />
             <ZoomPanel
               zoomLevel={zoomLevel}
               onZoomIn={handleZoomIn}

@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Hero() {
+  const { user } = useAuth();
   return (
     <section className='relative py-20 sm:py-24 md:py-28 overflow-hidden'>
       {/* Background Elements */}
@@ -41,7 +43,7 @@ export default function Hero() {
 
           <div className='mt-10 flex justify-center gap-4 flex-wrap'>
             <Link
-              href='/dashboard'
+              href={user ? "/dashboard" : "/auth/login"}
               className='group px-6 py-3 sm:px-8 sm:py-4 text-white text-lg rounded-lg transition-all shadow-md hover:shadow-lg flex items-center gap-2'
               style={{ backgroundColor: "#1e40af", borderColor: "#1e40af" }}
               onMouseOver={(e) =>

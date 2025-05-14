@@ -26,13 +26,18 @@ export function initializeBoardCollaboration(
   cleanupCursors(canvas);
 
   let cursorsVisible = true;
+  let hasJoined = false;
 
-  SocketService.joinBoard(
-    boardId,
-    user.uid,
-    user.displayName || "Anonymous",
-    isOwner
-  );
+  // Only join the board if we haven't already
+  if (!hasJoined) {
+    SocketService.joinBoard(
+      boardId,
+      user.uid,
+      user.displayName || "Anonymous",
+      isOwner
+    );
+    hasJoined = true;
+  }
 
   const cursorMoveCleanup = SocketService.on(
     "cursor:move",
