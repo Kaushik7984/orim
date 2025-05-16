@@ -1,21 +1,22 @@
+import { useAuth } from "@/context/AuthContext";
+import { useBoard } from "@/context/BoardContext/useBoard";
+import DeleteIcon from "@mui/icons-material/Delete";
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
+  Avatar,
   Button,
-  TextField,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
   List,
   ListItem,
-  ListItemText,
   ListItemSecondaryAction,
-  IconButton,
+  ListItemText,
+  TextField,
   Typography,
 } from "@mui/material";
 import { useState } from "react";
-import { useBoard } from "@/context/BoardContext/useBoard";
-import DeleteIcon from "@mui/icons-material/Delete";
-import { useAuth } from "@/context/AuthContext";
 
 interface ManageCollaboratorsDialogProps {
   open: boolean;
@@ -30,23 +31,23 @@ const ManageCollaboratorsDialog = ({
   boardId,
   collaborators,
 }: ManageCollaboratorsDialogProps) => {
-  const [newCollaboratorId, setNewCollaboratorId] = useState("");
+  const [newCollaboratorEmail, setNewCollaboratorEmail] = useState("");
   const { addCollaborator, removeCollaborator } = useBoard();
   const { user } = useAuth();
 
   const handleAddCollaborator = async () => {
-    if (!newCollaboratorId.trim()) return;
+    if (!newCollaboratorEmail.trim()) return;
     try {
-      await addCollaborator(boardId, newCollaboratorId.trim());
-      setNewCollaboratorId("");
+      await addCollaborator(boardId, newCollaboratorEmail.trim());
+      setNewCollaboratorEmail("");
     } catch (error) {
       console.error("Failed to add collaborator:", error);
     }
   };
 
-  const handleRemoveCollaborator = async (collaboratorId: string) => {
+  const handleRemoveCollaborator = async (collaboratorEmail: string) => {
     try {
-      await removeCollaborator(boardId, collaboratorId);
+      await removeCollaborator(boardId, collaboratorEmail);
     } catch (error) {
       console.error("Failed to remove collaborator:", error);
     }
@@ -59,16 +60,16 @@ const ManageCollaboratorsDialog = ({
         <div className='mb-4'>
           <TextField
             fullWidth
-            label='Add Collaborator (User ID)'
-            value={newCollaboratorId}
-            onChange={(e) => setNewCollaboratorId(e.target.value)}
+            label='Add Collaborator (User Email)'
+            value={newCollaboratorEmail}
+            onChange={(e) => setNewCollaboratorEmail(e.target.value)}
             margin='normal'
           />
           <Button
             variant='contained'
             color='primary'
             onClick={handleAddCollaborator}
-            disabled={!newCollaboratorId.trim()}
+            disabled={!newCollaboratorEmail.trim()}
             className='mt-2'
           >
             Add Collaborator
@@ -84,17 +85,27 @@ const ManageCollaboratorsDialog = ({
               <ListItemText primary='No collaborators yet' />
             </ListItem>
           ) : (
-            collaborators.map((collaboratorId) => (
-              <ListItem key={collaboratorId}>
+            collaborators.map((collaboratorEmail) => (
+              <ListItem key={collaboratorEmail}>
+                <Avatar
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    mr: 2,
+                    bgcolor: "secondary.main",
+                  }}
+                >
+                  {collaboratorEmail.charAt(0).toUpperCase()}
+                </Avatar>
                 <ListItemText
-                  primary={collaboratorId}
-                  secondary={collaboratorId === user?.uid ? "You" : ""}
+                  primary={collaboratorEmail}
+                  secondary={collaboratorEmail === user?.uid ? "You" : ""}
                 />
                 <ListItemSecondaryAction>
                   <IconButton
                     edge='end'
                     aria-label='delete'
-                    onClick={() => handleRemoveCollaborator(collaboratorId)}
+                    onClick={() => handleRemoveCollaborator(collaboratorEmail)}
                   >
                     <DeleteIcon />
                   </IconButton>

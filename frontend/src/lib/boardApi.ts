@@ -1,7 +1,6 @@
+import { Board } from "@/types";
 import axios from "axios";
 import { getAuth } from "firebase/auth";
-import { Board } from "@/types";
-import { ICanvasOptions } from "fabric/fabric-impl";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
@@ -149,12 +148,12 @@ export const boardAPI = {
 
   addCollaborator: async (
     boardId: string,
-    collaboratorId: string
+    collaboratorEmail: string
   ): Promise<Board> => {
     try {
       const config = await getAuthHeaders();
       const response = await axios.patch<Board>(
-        `${BASE_URL}/boards/${boardId}/collaborator/${collaboratorId}`,
+        `${BASE_URL}/boards/${boardId}/collaborator/${collaboratorEmail}`,
         {},
         config
       );
@@ -167,12 +166,12 @@ export const boardAPI = {
 
   removeCollaborator: async (
     boardId: string,
-    collaboratorId: string
+    collaboratorEmail: string
   ): Promise<Board> => {
     try {
       const config = await getAuthHeaders();
       const response = await axios.delete<Board>(
-        `${BASE_URL}/boards/${boardId}/collaborator/${collaboratorId}`,
+        `${BASE_URL}/boards/${boardId}/collaborator/${collaboratorEmail}`,
         config
       );
       return response.data;

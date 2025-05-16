@@ -14,6 +14,7 @@ export default function JoinBoard() {
   const searchParams = useSearchParams();
   const { addCollaborator } = useBoard();
   const { user } = useAuth();
+  const [error, setError] = useState("");
 
   // If boardId is provided in URL, use it
   useState(() => {
@@ -25,25 +26,21 @@ export default function JoinBoard() {
 
   const handleJoinBoard = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) {
-      toast.error("Please sign in to join a board");
-      return;
-    }
+    if (!boardId.trim()) return;
 
-    if (!boardId.trim()) {
-      toast.error("Please enter a board ID");
-      return;
-    }
-
-    setLoading(true);
     try {
-      await addCollaborator(boardId.trim(), user.uid);
-      toast.success("Successfully joined the board!");
-      router.push("/dashboard");
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to join board");
-    } finally {
-      setLoading(false);
+      if (!user) {
+        toast.error("Please sign in to join a board");
+        router.push("/auth/login");
+        return;
+      }
+
+      // Add the user as a collaborator using their email
+      await addCollaborator(boardId.trim(), user.email || "");
+      router.push(`/board/${boardId.trim()}`);
+    } catch (error) {
+      console.error("Failed to join board:", error);
+      setError("Failed to join board. Please try again.");
     }
   };
 
@@ -89,6 +86,15 @@ export default function JoinBoard() {
             </Button>
           </div>
         </form>
+        {error && (
+          <Typography
+            variant='body2'
+            color='error'
+            className='mt-2 text-center'
+          >
+            {error}
+          </Typography>
+        )}
       </div>
     </div>
   );
