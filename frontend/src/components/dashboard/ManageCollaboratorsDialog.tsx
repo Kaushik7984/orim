@@ -1,5 +1,6 @@
 import { useAuth } from "@/context/AuthContext";
 import { useBoard } from "@/context/BoardContext/useBoard";
+import { Email } from "@mui/icons-material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
   Avatar,
@@ -32,13 +33,23 @@ const ManageCollaboratorsDialog = ({
   collaborators,
 }: ManageCollaboratorsDialogProps) => {
   const [newCollaboratorEmail, setNewCollaboratorEmail] = useState("");
-  const { addCollaborator, removeCollaborator } = useBoard();
+  const { addCollaborator, removeCollaborator, boards } = useBoard();
   const { user } = useAuth();
 
+  const board = boards.find((b) => b._id === boardId);
+  const isOwner = user?.uid === board?.ownerId;
+
   const handleAddCollaborator = async () => {
-    if (!newCollaboratorEmail.trim()) return;
+    const emailToAdd = newCollaboratorEmail.trim();
+    if (!emailToAdd) return;
+
+    if (emailToAdd === user?.email) {
+      alert("You are already the owner/collaborator of this board.");
+      return;
+    }
+
     try {
-      await addCollaborator(boardId, newCollaboratorEmail.trim());
+      await addCollaborator(boardId, emailToAdd);
       setNewCollaboratorEmail("");
     } catch (error) {
       console.error("Failed to add collaborator:", error);
@@ -55,26 +66,29 @@ const ManageCollaboratorsDialog = ({
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth='sm' fullWidth>
-      <DialogTitle>Manage Collaborators</DialogTitle>
+      {isOwner && <DialogTitle>Manage Collaborators</DialogTitle>}{" "}
       <DialogContent>
-        <div className='mb-4'>
-          <TextField
-            fullWidth
-            label='Add Collaborator (User Email)'
-            value={newCollaboratorEmail}
-            onChange={(e) => setNewCollaboratorEmail(e.target.value)}
-            margin='normal'
-          />
-          <Button
-            variant='contained'
-            color='primary'
-            onClick={handleAddCollaborator}
-            disabled={!newCollaboratorEmail.trim()}
-            className='mt-2'
-          >
-            Add Collaborator
-          </Button>
-        </div>
+        {isOwner && (
+          <div className='mb-4'>
+            <TextField
+              fullWidth
+              label='Add Collaborator (User Email)'
+              value={newCollaboratorEmail}
+              onChange={(e) => setNewCollaboratorEmail(e.target.value)}
+              margin='normal'
+            />
+
+            <Button
+              variant='contained'
+              color='primary'
+              onClick={handleAddCollaborator}
+              disabled={!newCollaboratorEmail.trim()}
+              className='mt-2'
+            >
+              Add Collaborator
+            </Button>
+          </div>
+        )}
 
         <Typography variant='h6' className='mt-4 mb-2'>
           Current Collaborators
@@ -99,17 +113,21 @@ const ManageCollaboratorsDialog = ({
                 </Avatar>
                 <ListItemText
                   primary={collaboratorEmail}
-                  secondary={collaboratorEmail === user?.uid ? "You" : ""}
+                  secondary={collaboratorEmail === user?.email ? "You" : ""}
                 />
-                <ListItemSecondaryAction>
-                  <IconButton
-                    edge='end'
-                    aria-label='delete'
-                    onClick={() => handleRemoveCollaborator(collaboratorEmail)}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </ListItemSecondaryAction>
+                {isOwner && collaboratorEmail !== user?.email && (
+                  <ListItemSecondaryAction>
+                    <IconButton
+                      edge='end'
+                      aria-label='delete'
+                      onClick={() =>
+                        handleRemoveCollaborator(collaboratorEmail)
+                      }
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </ListItemSecondaryAction>
+                )}
               </ListItem>
             ))
           )}

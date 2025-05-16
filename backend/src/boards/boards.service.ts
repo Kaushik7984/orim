@@ -102,7 +102,7 @@ export class BoardsService {
   }
 
   // Add a collaborator to a board
-  async addCollaborator(boardId: string, collaboratorEmail: string) {
+  async addCollaborator(boardId: string, collaboratorId: string) {
     const board = await this.boardModel.findById(boardId);
     if (!board) throw new NotFoundException("Board not found");
 
@@ -112,15 +112,15 @@ export class BoardsService {
     }
 
     // Check if collaborator is already in the array
-    if (!board.collaborators.includes(collaboratorEmail)) {
-      board.collaborators.push(collaboratorEmail);
+    if (!board.collaborators.includes(collaboratorId)) {
+      board.collaborators.push(collaboratorId);
       await board.save();
     }
     return board;
   }
 
   // Remove a collaborator from a board
-  async removeCollaborator(boardId: string, collaboratorEmail: string) {
+  async removeCollaborator(boardId: string, collaboratorId: string) {
     const board = await this.boardModel.findById(boardId);
     if (!board) throw new NotFoundException("Board not found");
 
@@ -130,7 +130,7 @@ export class BoardsService {
     }
 
     board.collaborators = board.collaborators.filter(
-      (email) => email !== collaboratorEmail
+      (id) => id !== collaboratorId
     );
     await board.save();
     return board;

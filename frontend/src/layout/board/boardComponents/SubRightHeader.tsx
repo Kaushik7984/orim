@@ -30,11 +30,6 @@ import { useBoard } from "@/context/BoardContext/useBoard";
 import { CursorPosition, getUserColor } from "@/utils/collaborationUtils";
 import { SocketService } from "@/lib/socket";
 
-const nunito = Nunito({
-  subsets: ["latin-ext"],
-  weight: ["700"],
-});
-
 type ActiveCollaborator = {
   userId: string;
   username: string;
@@ -212,11 +207,8 @@ const SubRightHeader = () => {
           </Tooltip>
         ))}
       </div>
-
       <Divider orientation='vertical' flexItem className='mx-2 md:mx-4' />
-
       <div className='flex-grow' />
-
       <div className='flex items-center space-x-1 md:space-x-2 pl-2 md:pl-3'>
         <button
           onClick={() => setIsInviteDialogOpen(true)}
@@ -336,21 +328,23 @@ const SubRightHeader = () => {
         <Menu
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
-          onClose={() => setIsInviteDialogOpen(true)}
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "right",
-          }}
-          transformOrigin={{
-            vertical: "top",
-            horizontal: "right",
-          }}
+          onClose={handleMenuClose}
+          // onClose={() => setIsInviteDialogOpen(true)}
+          // anchorOrigin={{
+          //   vertical: "bottom",
+          //   horizontal: "right",
+          // }}
+          // transformOrigin={{
+          //   vertical: "top",
+          //   horizontal: "right",
+          // }}
         >
           {user ? (
             <>
-              <MenuItem onClick={() => setIsInviteDialogOpen(true)}>
-                <PersonAddIcon fontSize='small' className='mr-2' />
-                Invite
+              <MenuItem>{/* all colloborator email avatar */}</MenuItem>
+              <MenuItem onClick={() => router.push("/profile")}>
+                <PersonIcon fontSize='small' className='mr-2' />
+                Profile
               </MenuItem>
               <MenuItem onClick={handleLogout}>
                 <LogoutIcon fontSize='small' className='mr-2' />

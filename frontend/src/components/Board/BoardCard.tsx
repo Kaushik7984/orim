@@ -1,4 +1,5 @@
 import { useAuth } from "@/context/AuthContext";
+import { useBoard } from "@/context/BoardContext/useBoard";
 import {
   AccessTime as AccessTimeIcon,
   Delete as DeleteIcon,
@@ -38,7 +39,6 @@ interface BoardCardProps {
   backgroundImage?: string;
   isStarred?: boolean;
   ownerId?: string;
-  // collaborators?: { userId: string; email: string; imageUrl?: string }[];
   collaborators?: string[];
   boardId: string;
 }
@@ -63,6 +63,16 @@ const BoardCard: React.FC<BoardCardProps> = ({
   const { user } = useAuth();
   const open = Boolean(anchorEl);
   const isOwner = user?.uid === ownerId;
+
+  const { removeCollaborator } = useBoard();
+
+  const handleRemoveCollaborator = async (collaboratorEmail: string) => {
+    try {
+      await removeCollaborator(boardId, collaboratorEmail);
+    } catch (error) {
+      console.error("Failed to remove collaborator:", error);
+    }
+  };
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
@@ -149,7 +159,7 @@ const BoardCard: React.FC<BoardCardProps> = ({
 
   return (
     <Card
-      className='h-full w-[210px] cursor-pointer hover:shadow-lg transition-all duration-200 hover:translate-y-[-3px] rounded-lg overflow-hidden'
+      className='h-full w-[210px] border  cursor-pointer hover:shadow-lg transition-all duration-200 hover:translate-y-[-3px] rounded-lg overflow-hidden'
       onClick={onClick}
     >
       <div className='relative h-36'>
@@ -321,19 +331,6 @@ const BoardCard: React.FC<BoardCardProps> = ({
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-        <MenuItem onClick={handleStar}>
-          {isStarred ? (
-            <>
-              <StarIcon fontSize='small' className='mr-2 text-yellow-500' />
-              Unstar Board
-            </>
-          ) : (
-            <>
-              <StarBorderIcon fontSize='small' className='mr-2' />
-              Star Board
-            </>
-          )}
-        </MenuItem>
         <MenuItem onClick={handleShareBoardId}>
           <ShareIcon fontSize='small' className='mr-2' />
           Share Board ID
@@ -350,10 +347,24 @@ const BoardCard: React.FC<BoardCardProps> = ({
             Manage Collaborators
           </MenuItem>
         )}
-        <MenuItem onClick={handleDelete} className='text-red-500'>
-          <DeleteIcon fontSize='small' className='mr-2' />
-          Delete
-        </MenuItem>
+        {isOwner ? (
+          <MenuItem onClick={handleDelete} className='text-red-500'>
+            <DeleteIcon fontSize='small' className='mr-2' />
+            Delete
+          </MenuItem>
+        ) : (
+          <MenuItem
+            onClick={(e) => {
+              e.stopPropagation();
+              handleMenuClose();
+              handleRemoveCollaborator(user?.email || "");
+            }}
+            className='text-red-500'
+          >
+            <DeleteIcon fontSize='small' className='mr-2' />
+            Leave Board
+          </MenuItem>
+        )}
       </Menu>
     </Card>
   );
