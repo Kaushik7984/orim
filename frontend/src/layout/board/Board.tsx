@@ -89,7 +89,7 @@ const Board = forwardRef<BoardRef, BoardProps>(
               setActiveSubTool(subTool);
             }}
           />
-          <div className='flex-1 bg-[#f5f5f5] relative overflow-hidden'>
+          <div className='flex-1 relative overflow-hidden'>
             <FabricJSCanvas className='h-full w-full' onReady={onReady} />
             <CollaborationToast boardId={initialBoardId} />
             <ToolIndicator toolName={activeTool} subToolName={activeSubTool} />

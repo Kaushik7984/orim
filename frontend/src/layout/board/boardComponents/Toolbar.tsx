@@ -137,6 +137,7 @@ const Toolbar = ({
       case "Comment":
         break;
       case "Frame":
+        setIsOpen(true);
         break;
       case "Upload":
         // handleFileUpload();
@@ -257,52 +258,68 @@ const Toolbar = ({
   };
 
   return (
-    <motion.div className='flex flex-col items-center mt-12 ml-1 md:mt-14'>
+    <motion.div className='flex flex-col  items-center mt-12 ml-2 md:mt-14'>
       <input
         type='file'
         ref={fileInputRef}
         style={{ display: "none" }}
         accept='image/*'
       />
-      <div className='flex flex-col rounded-md bg-white items-center shadow-md'>
+      <div className='flex flex-col rounded-md bg-white border border-gray-200 items-center shadow-md'
+        style={{ boxShadow: "1px 1px 5px rgba(0, 0, 0, 0.3)" }}
+      >
         {items.map((item) => (
-          <Tooltip key={item.name} title={item.name} placement='right' arrow>
+          <div
+            key={item.name}
+            onClick={() => handleToolSelect(item.name)}
+            className="relative group"
+          >
             <div
-              onClick={() => handleToolSelect(item.name)}
-              className={`rounded-md p-2 duration-200 cursor-pointer m-0.5 transition-colors ${
-                activeItem === item.name ? "bg-[#dde4fc]" : "hover:bg-[#dde4fc]"
-              }`}
+              className={`rounded-md p-2 duration-200 cursor-pointer m-0.5 transition-colors ${activeItem === item.name ? "bg-[#dde4fc]" : "hover:bg-[#dde4fc]"
+                }`}
             >
               {renderIcon(item)}
             </div>
-          </Tooltip>
+            <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2 py-1 text-xs bg-gray-800 text-white rounded shadow opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+              {item.name}
+            </div>
+          </div>
+
         ))}
       </div>
 
-      <div className='mt-4 flex flex-col items-center rounded-md bg-white shadow-md'>
-        <Tooltip title='Undo' placement='right' arrow>
+      <div className='mt-4 flex flex-col items-center rounded-md bg-white border border-gray-200 shadow-md'
+        style={{ boxShadow: "1px 1px 5px rgba(0, 0, 0, 0.3)" }}
+      >
+        <div className="relative group">
           <div
-            className={`rounded-md p-2 hover:bg-[#dde4fc] duration-200 cursor-pointer m-0.5 transition-colors ${
-              !canUndo ? "opacity-50" : ""
-            }`}
+            className={`rounded-md p-2 duration-200 cursor-pointer m-0.5 transition-colors hover:bg-[#dde4fc] ${!canUndo ? "opacity-50 pointer-events-none" : ""
+              }`}
             onClick={undo}
           >
             <Undo />
           </div>
-        </Tooltip>
-        <Tooltip title='Redo' placement='right' arrow>
+          <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2 py-1 text-xs bg-gray-800 text-white rounded shadow opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+            Undo
+          </div>
+        </div>
+
+        <div className="relative group">
           <div
-            className={`rounded-md p-2 hover:bg-[#dde4fc] duration-200 cursor-pointer transition-colors ${
-              !canRedo ? "opacity-50" : ""
-            }`}
+            className={`rounded-md p-2 duration-200 cursor-pointer transition-colors hover:bg-[#dde4fc] ${!canRedo ? "opacity-50 pointer-events-none" : ""
+              }`}
             onClick={redo}
           >
             <Redo />
           </div>
-        </Tooltip>
+          <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2 py-1 text-xs bg-gray-800 text-white rounded shadow opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+            Redo
+          </div>
+        </div>
+
       </div>
 
-      <Tooltip title='Toggle Sidebar' placement='right' arrow>
+      {/* <Tooltip title='Toggle Sidebar' placement='right' arrow>
         <div
           onClick={() => setIsOpen(!isOpen)}
           className={`rounded-md p-2.5 duration-200 cursor-pointer mt-1 transition-colors ${
@@ -311,7 +328,7 @@ const Toolbar = ({
         >
           <LayoutPanelLeft />
         </div>
-      </Tooltip>
+      </Tooltip> */}
     </motion.div>
   );
 };

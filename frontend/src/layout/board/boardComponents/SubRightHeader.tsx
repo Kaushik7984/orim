@@ -133,12 +133,12 @@ const SubRightHeader = () => {
     {
       name: "Reactions",
       icon: <CelebrationIcon />,
-      onClick: () => {},
+      onClick: () => { },
     },
     {
       name: "Comments",
       icon: <CommentIcon />,
-      onClick: () => {},
+      onClick: () => { },
     },
   ];
 
@@ -171,7 +171,7 @@ const SubRightHeader = () => {
     try {
       await logout();
       handleMenuClose();
-    } catch (error) {}
+    } catch (error) { }
   };
 
   const handleLogin = () => {
@@ -193,7 +193,9 @@ const SubRightHeader = () => {
   const boardId = currentBoard?._id || "";
 
   return (
-    <div className='flex flex-row items-center h-12 px-2 md:px-4 bg-white border-b rounded-md mr-2 border-gray-200 shadow-md'>
+    <div className='flex flex-row items-center h-12 px-1 md:px-4 bg-white border-b rounded-md mr-2 border-gray-200 shadow-md'
+      style={{ boxShadow: "1px 1px 5px rgba(0, 0, 0, 0.3)" }}
+    >
       <div className='flex items-center space-x-1 md:space-x-2'>
         {items.map((item) => (
           <Tooltip key={item.name} title={item.name}>
@@ -220,11 +222,10 @@ const SubRightHeader = () => {
 
         <button
           onClick={handleTogglePresentation}
-          className={`flex items-center px-2 md:px-3 py-1.5 text-sm font-medium ${
-            isPresenting
-              ? "text-gray-700 bg-gray-100 hover:bg-gray-200"
-              : "text-white bg-blue-600 hover:bg-blue-700"
-          } rounded-md transition-colors duration-200`}
+          className={`flex items-center px-2 md:px-3 py-1.5 text-sm font-medium ${isPresenting
+            ? "text-gray-700 bg-gray-100 hover:bg-gray-200"
+            : "text-white bg-blue-600 hover:bg-blue-700"
+            } rounded-md transition-colors duration-200`}
         >
           <PlayArrowIcon className='w-4 h-4 mr-1' />
           <span className='hidden sm:inline'>
@@ -329,15 +330,15 @@ const SubRightHeader = () => {
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
           onClose={handleMenuClose}
-          // onClose={() => setIsInviteDialogOpen(true)}
-          // anchorOrigin={{
-          //   vertical: "bottom",
-          //   horizontal: "right",
-          // }}
-          // transformOrigin={{
-          //   vertical: "top",
-          //   horizontal: "right",
-          // }}
+        // onClose={() => setIsInviteDialogOpen(true)}
+        // anchorOrigin={{
+        //   vertical: "bottom",
+        //   horizontal: "right",
+        // }}
+        // transformOrigin={{
+        //   vertical: "top",
+        //   horizontal: "right",
+        // }}
         >
           {user ? (
             <>

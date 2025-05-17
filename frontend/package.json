@@ -18,7 +18,6 @@
     "@firebase/auth": "^1.10.0",
     "@mui/icons-material": "^5.17.1",
     "@mui/material": "^5.17.1",
-    "@nextui-org/react": "^2.2.9",
     "axios": "^1.8.4",
     "canvas": "^2.11.2",
     "date-fns": "^4.1.0",

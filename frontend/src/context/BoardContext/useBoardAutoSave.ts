@@ -20,6 +20,7 @@ export const useBoardAutoSave = (editor?: FabricJSEditor, boardId?: string) => {
 
     const checkOwnership = async () => {
       try {
+        //
         const API_URL = process.env.NEXT_PUBLIC_API_URL;
         const response = await axios.get(`${API_URL}/boards/${boardId}`);
 
@@ -58,15 +59,6 @@ export const useBoardAutoSave = (editor?: FabricJSEditor, boardId?: string) => {
             });
             setLastSaveTime(new Date());
             console.log("Canvas saved to database (owner)");
-          }
-
-          // Emit canvas update to other users
-          if (socket) {
-            socket.emit("board:update", {
-              boardId,
-              canvasData: JSON.parse(currentCanvasData),
-              userId: user?.uid,
-            });
           }
         }
       } catch (err) {
@@ -107,17 +99,17 @@ export const useBoardAutoSave = (editor?: FabricJSEditor, boardId?: string) => {
     });
 
     // Listen for board updates from other users
-    const handleBoardUpdate = (data: { canvasData: any }) => {
-      if (data.canvasData && !isSaving) {
-        editor.canvas.loadFromJSON(data.canvasData, () => {
-          editor.canvas.renderAll();
-        });
-      }
-    };
+    // const handleBoardUpdate = (data: { canvasData: any }) => {
+    //   if (data.canvasData && !isSaving) {
+    //     editor.canvas.loadFromJSON(data.canvasData, () => {
+    //       editor.canvas.renderAll();
+    //     });
+    //   }
+    // };
 
-    if (socket) {
-      socket.on("board:update", handleBoardUpdate);
-    }
+    // if (socket) {
+    //   socket.on("board:update", handleBoardUpdate);
+    // }
 
     return () => {
       if (saveTimeoutRef.current) {
@@ -128,9 +120,9 @@ export const useBoardAutoSave = (editor?: FabricJSEditor, boardId?: string) => {
         editor.canvas.off(event, handleCanvasChange);
       });
 
-      if (socket) {
-        socket.off("board:update", handleBoardUpdate);
-      }
+      // if (socket) {
+      //   socket.off("board:update", handleBoardUpdate);
+      // }
     };
   }, [editor, boardId, user, isOwner, socket, isSaving]);
 

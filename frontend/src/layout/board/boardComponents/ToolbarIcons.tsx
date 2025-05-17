@@ -7,8 +7,7 @@ import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import InterestsOutlinedIcon from "@mui/icons-material/InterestsOutlined";
 import StickyNote2OutlinedIcon from "@mui/icons-material/StickyNote2Outlined";
-import { Divider } from "@mui/material";
-import { Popover, PopoverContent, PopoverTrigger } from "@nextui-org/react";
+import { Box, Divider, Popover } from "@mui/material";
 import {
   Brush,
   Crop,
@@ -24,7 +23,6 @@ import {
   Eraser,
   Highlighter,
   Lasso,
-  // Smart_Draw,
   Thickness,
 } from "@/svgs/index.svg";
 
@@ -42,6 +40,7 @@ import {
   TriangleIcon,
 } from "@/utils/shapes";
 import { HIGHLIGHTER_COLORS, PEN_COLORS, PEN_THICKNESS } from "@/utils/usePen";
+import { HexColorPicker } from "react-colorful";
 
 const nunito = Nunito({
   subsets: ["latin-ext"],
@@ -62,20 +61,20 @@ const shapes = [
     name: "Triangle",
   },
   {
-    icon: <StraightLineIcon />,
-    name: "Line",
-  },
-  {
     icon: <PolygonIcon />,
     name: "Polygon",
+  },
+  {
+    icon: <FavoriteBorderIcon />,
+    name: "Heart",
   },
   {
     icon: <ChatBubbleOutlineIcon />,
     name: "Speech bubble",
   },
   {
-    icon: <FavoriteBorderIcon />,
-    name: "Heart",
+    icon: <StraightLineIcon />,
+    name: "Line",
   },
   {
     icon: <StraightArrowIcon />,
@@ -111,10 +110,6 @@ const pens = [
     name: "Highlighter",
     icon: <Highlighter className='w-[27px] h-[27px]' />,
   },
-  // {
-  //   name: "Smart draw",
-  //   icon: <Smart_Draw className='w-[27px] h-[27px]' />,
-  // },
   {
     name: "Eraser",
     icon: <Eraser className='w-[27px] h-[27px]' />,
@@ -144,40 +139,74 @@ const stickyNotes = [
   "#800080",
 ];
 
+// Add these at the top level, outside of any component
+const LAST_USED_COLORS = {
+  pen: "#000000",
+  highlighter: HIGHLIGHTER_COLORS[0],
+};
+
 const PenToolbar = ({
   onPenSelect,
+  onClose,
 }: {
   onPenSelect?: (
     name: string,
     options?: { color?: string; thickness?: number }
   ) => void;
+  onClose?: () => void;
 }) => {
-  const [selectedColor, setSelectedColor] = useState("#000000");
+  const [selectedColor, setSelectedColor] = useState(LAST_USED_COLORS.pen);
   const [selectedThickness, setSelectedThickness] = useState(3);
-  const [showColorPicker, setShowColorPicker] = useState(false);
-  const [showThicknessPicker, setShowThicknessPicker] = useState(false);
   const [activeToolName, setActiveToolName] = useState("Pen");
+  const [thicknessAnchorEl, setThicknessAnchorEl] =
+    useState<HTMLElement | null>(null);
+  const [colorAnchorEl, setColorAnchorEl] = useState<HTMLElement | null>(null);
+
+  const handleThicknessClick = (event: React.MouseEvent<HTMLElement>) => {
+    setThicknessAnchorEl(event.currentTarget);
+  };
+
+  const handleColorClick = (event: React.MouseEvent<HTMLElement>) => {
+    setColorAnchorEl(event.currentTarget);
+  };
+
+  const handleThicknessClose = () => {
+    setThicknessAnchorEl(null);
+  };
+
+  const handleColorClose = () => {
+    setColorAnchorEl(null);
+  };
 
   const handlePenToolClick = (penName: string) => {
     setActiveToolName(penName);
 
-    if (penName === "Highlighter" && !selectedColor.includes("rgba")) {
-      setSelectedColor(HIGHLIGHTER_COLORS[0]);
+    if (penName === "Highlighter") {
+      setSelectedColor(LAST_USED_COLORS.highlighter);
+      setSelectedThickness(15);
+    } else {
+      setSelectedColor(LAST_USED_COLORS.pen);
+      setSelectedThickness(3);
     }
 
     onPenSelect &&
       onPenSelect(penName, {
         color:
-          penName === "Highlighter" && !selectedColor.includes("rgba")
-            ? HIGHLIGHTER_COLORS[0]
-            : selectedColor,
-        thickness: selectedThickness,
+          penName === "Highlighter"
+            ? LAST_USED_COLORS.highlighter
+            : LAST_USED_COLORS.pen,
+        thickness: penName === "Highlighter" ? 15 : selectedThickness,
       });
   };
 
   const handleColorSelect = (color: string) => {
     setSelectedColor(color);
-    setShowColorPicker(false);
+    // Update last used color
+    if (activeToolName === "Highlighter") {
+      LAST_USED_COLORS.highlighter = color;
+    } else {
+      LAST_USED_COLORS.pen = color;
+    }
     onPenSelect &&
       onPenSelect(
         activeToolName === "Highlighter" ? "Highlighter" : "ColorPen",
@@ -190,7 +219,6 @@ const PenToolbar = ({
 
   const handleThicknessSelect = (thickness: number) => {
     setSelectedThickness(thickness);
-    setShowThicknessPicker(false);
     onPenSelect &&
       onPenSelect(
         activeToolName === "Highlighter" ? "Highlighter" : "ColorPen",
@@ -208,16 +236,31 @@ const PenToolbar = ({
     <div className='flex flex-col gap-2 p-2'>
       <div className='flex justify-between items-center border-b pb-2'>
         <span className='text-sm font-medium'>Drawing Tools</span>
+        <button
+          onClick={onClose}
+          className='hover:bg-gray-100 rounded-full p-1 transition-colors'
+        >
+          <svg
+            xmlns='http://www.w3.org/2000/svg'
+            width='16'
+            height='16'
+            viewBox='0 0 24 24'
+            fill='none'
+            stroke='currentColor'
+            strokeWidth='2'
+            strokeLinecap='round'
+            strokeLinejoin='round'
+          >
+            <line x1='18' y1='6' x2='6' y2='18'></line>
+            <line x1='6' y1='6' x2='18' y2='18'></line>
+          </svg>
+        </button>
       </div>
       <div className='grid grid-cols-2 gap-3 py-2'>
         {pens.map((pen) => (
           <div
             key={pen.name}
-            className={`flex flex-col items-center justify-center rounded-md p-2 transition duration-200 cursor-pointer ${
-              activeToolName === pen.name
-                ? "bg-[#dde4fc]"
-                : "hover:bg-[#dde4fc]"
-            }`}
+            className='flex flex-col items-center justify-center rounded-md p-2 hover:bg-[#dde4fc] transition duration-200 cursor-pointer'
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -233,64 +276,91 @@ const PenToolbar = ({
       <div className='flex justify-between items-center'>
         <div className='flex flex-col items-center relative'>
           <span className='text-xs mb-1'>Thickness</span>
-          <div
-            className='cursor-pointer'
-            onClick={() => setShowThicknessPicker(!showThicknessPicker)}
-          >
+          <div className='cursor-pointer' onClick={handleThicknessClick}>
             <Thickness className='w-[27px] h-[27px]' />
           </div>
 
-          {showThicknessPicker && (
-            <div className='absolute top-12 left-0 bg-white shadow-lg rounded-md p-2 z-10 w-32'>
+          <Popover
+            open={Boolean(thicknessAnchorEl)}
+            anchorEl={thicknessAnchorEl}
+            onClose={handleThicknessClose}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "left",
+            }}
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "left",
+            }}
+          >
+            <div className='p-2 w-32'>
               <div className='flex flex-col gap-2'>
                 {PEN_THICKNESS.map((thickness) => (
                   <div
                     key={thickness}
                     className='flex items-center gap-2 p-1 hover:bg-gray-100 rounded cursor-pointer'
-                    onClick={() => handleThicknessSelect(thickness)}
+                    onClick={() => {
+                      handleThicknessSelect(thickness);
+                      handleThicknessClose();
+                    }}
                   >
                     <div
-                      className='w-full h-0 border-t border-black'
-                      style={{ borderTopWidth: `${thickness}px` }}
+                      className='w-full h-2 bg-black rounded-full'
+                      style={{ height: `${thickness}px` }}
                     />
-                    <span className='text-xs'>{thickness}px</span>
                   </div>
                 ))}
               </div>
             </div>
-          )}
+          </Popover>
         </div>
 
         <div className='flex flex-col items-center relative'>
           <span className='text-xs mb-1'>Color</span>
-          <div
-            className='cursor-pointer'
-            onClick={() => setShowColorPicker(!showColorPicker)}
-          >
+          <div className='cursor-pointer' onClick={handleColorClick}>
             <div
-              className='w-[27px] h-[27px] rounded-full border border-gray-300'
+              className='w-6 h-6 rounded-full border border-gray-300'
               style={{ backgroundColor: selectedColor }}
             />
           </div>
 
-          {showColorPicker && (
-            <div className='absolute top-12 right-0 bg-white shadow-lg rounded-md p-2 z-10 w-36'>
-              <div className='grid grid-cols-4 gap-2'>
+          <Popover
+            sx={{
+              mt: "-55px",
+              ml: "40px",
+            }}
+            open={Boolean(colorAnchorEl)}
+            anchorEl={colorAnchorEl}
+            onClose={handleColorClose}
+            anchorOrigin={{
+              vertical: "bottom",
+              horizontal: "left",
+            }}
+            transformOrigin={{
+              vertical: "top",
+              horizontal: "left",
+            }}
+          >
+            <Box className='p-4 '>
+              <HexColorPicker
+                color={selectedColor}
+                onChange={handleColorSelect}
+              />
+              <div className='mt-4 grid grid-cols-4 gap-2'>
                 {availableColors.map((color) => (
                   <div
                     key={color}
-                    className={`w-6 h-6 rounded-full cursor-pointer border hover:scale-110 transition-transform ${
-                      selectedColor === color
-                        ? "border-2 border-blue-500"
-                        : "border-gray-300"
-                    }`}
+                    className='w-6 h-6 rounded-full cursor-pointer border border-gray-300'
                     style={{ backgroundColor: color }}
-                    onClick={() => handleColorSelect(color)}
+                    onClick={() => {
+                      handleColorSelect(color);
+                      handleColorClose();
+                    }}
                   />
                 ))}
               </div>
-            </div>
-          )}
+            </Box>
+          </Popover>
         </div>
       </div>
     </div>
@@ -299,15 +369,17 @@ const PenToolbar = ({
 
 const ShapesToolbar = ({
   onShapeSelect,
+  onClose,
 }: {
   onShapeSelect?: (name: string) => void;
+  onClose?: () => void;
 }) => {
   return (
-    <div className='flex flex-col gap-2 p-2'>
+    <div className='flex flex-col p-2'>
       <div className='flex justify-between items-center border-b pb-2'>
         <span className='text-sm font-medium'>Shape Tools</span>
       </div>
-      <div className='grid grid-cols-3 gap-2 py-2'>
+      <div className='grid grid-cols-2'>
         {shapes.map((shape) => (
           <div
             key={shape.name}
@@ -316,6 +388,7 @@ const ShapesToolbar = ({
               e.preventDefault();
               e.stopPropagation();
               onShapeSelect && onShapeSelect(shape.name);
+              onClose && onClose();
             }}
           >
             <div className='flex items-center justify-center h-8'>
@@ -338,15 +411,17 @@ const ShapesToolbar = ({
 
 const ConnectionLineToolbar = ({
   onShapeSelect,
+  onClose,
 }: {
   onShapeSelect?: (name: string) => void;
+  onClose?: () => void;
 }) => {
   return (
-    <div className='flex flex-col gap-2 p-2'>
+    <div className='flex flex-col p-2'>
       <div className='flex justify-between items-center border-b pb-2'>
         <span className='text-sm font-medium'>Connection Tools</span>
       </div>
-      <div className='grid grid-cols-2 gap-2 py-2'>
+      <div className='grid grid-cols-2'>
         {lines.map((line) => (
           <div
             key={line.name}
@@ -355,6 +430,7 @@ const ConnectionLineToolbar = ({
               e.preventDefault();
               e.stopPropagation();
               onShapeSelect && onShapeSelect(line.name);
+              onClose && onClose();
             }}
           >
             <div className='flex items-center justify-center h-8'>
@@ -370,8 +446,10 @@ const ConnectionLineToolbar = ({
 
 const StickyNoteToolbar = ({
   onShapeSelect,
+  onClose,
 }: {
   onShapeSelect?: (name: string) => void;
+  onClose?: () => void;
 }) => {
   return (
     <div className='flex flex-col gap-2 p-2'>
@@ -386,6 +464,7 @@ const StickyNoteToolbar = ({
               e.preventDefault();
               e.stopPropagation();
               onShapeSelect && onShapeSelect(`Sticky note:${color}`);
+              onClose && onClose();
             }}
             className='flex items-center justify-center'
           >
@@ -413,6 +492,180 @@ const StickyNoteToolbar = ({
   );
 };
 
+const StickyNoteIcon = ({ onClick, onShapeSelect, color }: any) => {
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+    onClick && onClick(event);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  return (
+    <>
+      <div
+        onClick={handleClick}
+        className='hover:bg-[#dde4fc] rounded-md  transition-colors duration-200'
+      >
+        <StickyNote2OutlinedIcon sx={{ color }} />
+      </div>
+      <Popover
+        open={Boolean(anchorEl)}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "right",
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "left",
+        }}
+        PaperProps={{
+          className: "ml-6 -mt-16 bg-white rounded-md flex flex-col p-2 w-[220px]",
+        }}
+      >
+        <StickyNoteToolbar
+          onShapeSelect={onShapeSelect}
+          onClose={handleClose}
+        />
+      </Popover>
+    </>
+  );
+};
+
+const ShapesIcon = ({ onClick, onShapeSelect, color }: any) => {
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+    onClick && onClick(event);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  return (
+    <>
+      <div
+        onClick={handleClick}
+        className='hover:bg-[#dde4fc] rounded-md transition-colors duration-200'
+      >
+        <InterestsOutlinedIcon sx={{ color }} />
+      </div>
+      <Popover
+        open={Boolean(anchorEl)}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "right",
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "left",
+        }}
+        PaperProps={{
+          className: "ml-6 -mt-16 bg-white rounded-md flex flex-col ",
+        }}
+      >
+        <ShapesToolbar onShapeSelect={onShapeSelect} onClose={handleClose} />
+      </Popover>
+    </>
+  );
+};
+
+const ConnectionLineIcon = ({ onClick, onShapeSelect, color }: any) => {
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+    onClick && onClick(event);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  return (
+    <>
+      <div
+        onClick={handleClick}
+        className='hover:bg-[#dde4fc] rounded-md transition-colors duration-200'
+      >
+        <TrendingUpDown color={color} />
+      </div>
+      <Popover
+        open={Boolean(anchorEl)}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "right",
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "left",
+        }}
+        PaperProps={{
+          className: "ml-6 -mt-16 bg-white rounded-md flex flex-col",
+        }}
+      >
+        <ConnectionLineToolbar
+          onShapeSelect={onShapeSelect}
+          onClose={handleClose}
+        />
+      </Popover>
+    </>
+  );
+};
+
+const DrawingToolsIcon = ({ onClick, onPenSelect, color }: any) => {
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+    onClick && onClick(event);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  return (
+    <>
+      <div
+        onClick={handleClick}
+        className='hover:bg-[#dde4fc] rounded-md transition-colors duration-200'
+      >
+        <Brush color={color} />
+      </div>
+      <Popover
+        open={Boolean(anchorEl)}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "right",
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "left",
+        }}
+        PaperProps={{
+          className: "ml-6 -mt-16 bg-white rounded-md flex flex-col p-1 gap-2",
+        }}
+      >
+        <PenToolbar onPenSelect={onPenSelect} onClose={handleClose} />
+      </Popover>
+    </>
+  );
+};
+
 export const items = [
   {
     name: "Select",
@@ -430,78 +683,36 @@ export const items = [
   },
   {
     name: "Sticky note",
-    icon: ({ onClick, onShapeSelect, color }: any) => (
-      <Popover placement='right'>
-        <PopoverTrigger>
-          <div onClick={onClick}>
-            <StickyNote2OutlinedIcon sx={{ color }} />
-          </div>
-        </PopoverTrigger>
-        <PopoverContent className='ml-1 bg-white rounded-md flex flex-col p-2 w-[220px] mt-20'>
-          <StickyNoteToolbar onShapeSelect={onShapeSelect} />
-        </PopoverContent>
-      </Popover>
-    ),
+    icon: StickyNoteIcon,
   },
   {
     name: "Shapes",
-    icon: ({ onClick, onShapeSelect, color }: any) => (
-      <Popover placement='right'>
-        <PopoverTrigger>
-          <div onClick={onClick}>
-            <InterestsOutlinedIcon sx={{ color }} />
-          </div>
-        </PopoverTrigger>
-        <PopoverContent className='ml-1 bg-white rounded-md flex flex-col p-2'>
-          <ShapesToolbar onShapeSelect={onShapeSelect} />
-        </PopoverContent>
-      </Popover>
-    ),
+    icon: ShapesIcon,
   },
   {
     name: "Connection line",
-    icon: ({ onClick, onShapeSelect, color }: any) => (
-      <Popover placement='right'>
-        <PopoverTrigger>
-          <div onClick={onClick}>
-            <TrendingUpDown color={color} />
-          </div>
-        </PopoverTrigger>
-        <PopoverContent className='ml-1 bg-white rounded-md flex flex-col'>
-          <ConnectionLineToolbar onShapeSelect={onShapeSelect} />
-        </PopoverContent>
-      </Popover>
-    ),
+    icon: ConnectionLineIcon,
   },
   {
     name: "Drawing Tools",
-    icon: ({ onClick, onPenSelect, color }: any) => (
-      <Popover placement='right'>
-        <PopoverTrigger>
-          <div onClick={onClick}>
-            <Brush color={color} />
-          </div>
-        </PopoverTrigger>
-        <PopoverContent className='ml-1 bg-white rounded-md flex flex-col p-1 gap-2'>
-          <PenToolbar onPenSelect={onPenSelect} />
-        </PopoverContent>
-      </Popover>
-    ),
-  },
-  {
-    name: "Comment",
-    icon: <MessageSquareText />,
+    icon: DrawingToolsIcon,
   },
   {
     name: "Frame",
-    icon: <Crop />,
+    icon: ({ color }: { color?: string }) => <Crop color={color} />,
+  },
+  {
+    name: "Comment",
+    icon: ({ color }: { color?: string }) => (
+      <MessageSquareText color={color} />
+    ),
   },
   {
     name: "Upload",
-    icon: <Upload />,
+    icon: ({ color }: { color?: string }) => <Upload color={color} />,
   },
   {
     name: "More apps",
-    icon: <AddBoxIcon />,
+    icon: ({ color }: { color?: string }) => <AddBoxIcon sx={{ color }} />,
   },
 ];
