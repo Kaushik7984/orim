@@ -2,10 +2,14 @@
   "name": "orim-board",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "18.x"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "start:prod": "node .next/standalone/server.js",
     "lint": "next lint"
   },
   "dependencies": {
@@ -15,22 +19,14 @@
     "@mui/icons-material": "^5.17.1",
     "@mui/material": "^5.17.1",
     "@nextui-org/react": "^2.2.9",
-    "@radix-ui/react-dialog": "^1.1.7",
-    "@radix-ui/react-label": "^2.1.4",
-    "@radix-ui/react-slot": "^1.2.0",
     "axios": "^1.8.4",
-    "canvas": "^3.1.0",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
+    "canvas": "^2.11.2",
     "date-fns": "^4.1.0",
     "fabric": "^5.5.2",
-    "fabric-ca-client": "^2.2.20",
-    "fabric-with-gestures": "^4.5.0",
     "fabricjs-react": "^1.2.1",
     "firebase": "^11.6.0",
     "framer-motion": "^12.7.4",
     "lucide-react": "^0.492.0",
-    "mongoose": "^8.13.2",
     "next": "14.0.4",
     "react": "^18",
     "react-dom": "^18",

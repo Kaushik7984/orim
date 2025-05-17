@@ -1,8 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  output: "standalone",
+  experimental: {
+    serverComponentsExternalPackages: ["canvas", "fabric"],
+  },
 
-  webpack(config) {
+  webpack(config, { isServer }) {
     // Exclude .svg files from the default file-loader
     const fileLoaderRule = config.module.rules.find((rule) =>
       rule.test?.test?.(".svg")
@@ -39,6 +43,14 @@ const nextConfig = {
       test: /\.node$/,
       use: "node-loader",
     });
+
+    // Handle native modules
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        canvas: false,
+      };
+    }
 
     return config;
   },
