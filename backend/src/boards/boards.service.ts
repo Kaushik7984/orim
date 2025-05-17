@@ -25,18 +25,23 @@ export class BoardsService {
   }
 
   // Get all boards for a user (including collaborated boards)
-  getUserBoards(userId: string) {
+  getUserBoards(userEmail: string) {
     return this.boardModel
       .find({
-        $or: [{ ownerId: userId }, { collaborators: userId }],
+        $or: [{ ownerEmail: userEmail }, { collaborators: userEmail }],
       })
       .sort({ createdAt: -1 });
   }
 
   // Get starred boards for a user
-  getStarredBoards(userId: string) {
+  getStarredBoards(userEmail: string) {
     return this.boardModel
-      .find({ ownerId: userId, isStarred: true })
+      .find({
+        $or: [
+          { ownerEmail: userEmail, isStarred: true },
+          { collaborators: userEmail, isStarred: true },
+        ],
+      })
       .sort({ createdAt: -1 });
   }
 
@@ -56,11 +61,13 @@ export class BoardsService {
 
   // Toggle star status for a board
   async toggleStarBoard(boardId: string) {
-    const board = await this.boardModel.findById(boardId);
+    const board = await this.boardModel.findByIdAndUpdate(
+      boardId,
+      [{ $set: { isStarred: { $not: "$isStarred" } } }],
+      { new: true }
+    );
     if (!board) throw new NotFoundException("Board not found");
-
-    board.isStarred = !board.isStarred;
-    return board.save();
+    return board;
   }
 
   // Update a board
@@ -99,6 +106,12 @@ export class BoardsService {
     const board = await this.boardModel.findById(boardId);
     if (!board) throw new NotFoundException("Board not found");
 
+    // Initialize collaborators array if it doesn't exist
+    if (!board.collaborators) {
+      board.collaborators = [];
+    }
+
+    // Check if collaborator is already in the array
     if (!board.collaborators.includes(collaboratorId)) {
       board.collaborators.push(collaboratorId);
       await board.save();
@@ -110,6 +123,11 @@ export class BoardsService {
   async removeCollaborator(boardId: string, collaboratorId: string) {
     const board = await this.boardModel.findById(boardId);
     if (!board) throw new NotFoundException("Board not found");
+
+    // Initialize collaborators array if it doesn't exist
+    if (!board.collaborators) {
+      board.collaborators = [];
+    }
 
     board.collaborators = board.collaborators.filter(
       (id) => id !== collaboratorId

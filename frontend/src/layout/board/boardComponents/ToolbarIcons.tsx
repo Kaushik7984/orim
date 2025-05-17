@@ -24,7 +24,7 @@ import {
   Eraser,
   Highlighter,
   Lasso,
-  Smart_Draw,
+  // Smart_Draw,
   Thickness,
 } from "@/svgs/index.svg";
 

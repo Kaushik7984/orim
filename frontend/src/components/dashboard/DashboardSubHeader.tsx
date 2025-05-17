@@ -8,8 +8,8 @@ const DashboardSubHeader = ({
   onCreateClick: () => void;
 }) => (
   <div className='flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4'>
-    <Typography variant='h4' fontWeight={700}>
-      My Boards
+    <Typography variant='h4' fontWeight={400}>
+      Team boards
     </Typography>
     <Button
       variant='contained'

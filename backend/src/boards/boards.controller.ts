@@ -31,12 +31,12 @@ export class BoardsController {
 
   @Get()
   findAll(@CurrentUser() user: FirebaseUser) {
-    return this.boardsService.getUserBoards(user.uid);
+    return this.boardsService.getUserBoards(user.email);
   }
 
   @Get("starred")
   findStarred(@CurrentUser() user: FirebaseUser) {
-    return this.boardsService.getStarredBoards(user.uid);
+    return this.boardsService.getStarredBoards(user.email);
   }
 
   @Get(":id")
@@ -63,19 +63,19 @@ export class BoardsController {
     return this.boardsService.deleteBoard(id);
   }
 
-  @Patch(":id/collaborator/:collaboratorId")
+  @Patch(":id/collaborator/:collaboratorEmail")
   addCollaborator(
     @Param("id") id: string,
-    @Param("collaboratorId") collaboratorId: string
+    @Param("collaboratorEmail") collaboratorEmail: string
   ) {
-    return this.boardsService.addCollaborator(id, collaboratorId);
+    return this.boardsService.addCollaborator(id, collaboratorEmail);
   }
 
-  @Delete(":id/collaborator/:collaboratorId")
+  @Delete(":id/collaborator/:collaboratorEmail")
   removeCollaborator(
     @Param("id") id: string,
-    @Param("collaboratorId") collaboratorId: string
+    @Param("collaboratorEmail") collaboratorEmail: string
   ) {
-    return this.boardsService.removeCollaborator(id, collaboratorId);
+    return this.boardsService.removeCollaborator(id, collaboratorEmail);
   }
 }

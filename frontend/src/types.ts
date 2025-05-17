@@ -68,10 +68,13 @@ export interface BoardContextType {
   loadStarredBoards: () => Promise<void>;
   loadBoard: (id: string) => Promise<void>;
   toggleStarBoard: (id: string) => Promise<Board>;
-  addCollaborator: (boardId: string, collaboratorId: string) => Promise<Board>;
+  addCollaborator: (
+    boardId: string,
+    collaboratorEmail: string
+  ) => Promise<Board>;
   removeCollaborator: (
     boardId: string,
-    collaboratorId: string
+    collaboratorEmail: string
   ) => Promise<Board>;
 
   setCurrentBoard: (board: Board | null) => void;

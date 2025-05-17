@@ -1,15 +1,14 @@
 "use client";
-import React, { useState, useEffect, useCallback } from "react";
-import { FabricJSEditor } from "fabricjs-react";
-import { fabric } from "fabric";
-import { useShapes } from "@/utils/useShapes";
 import { boardAPI } from "@/lib/boardApi";
+import { getSocket } from "@/lib/socket";
+import { Board } from "@/types";
+import { usePen } from "@/utils/usePen";
+import { useShapes } from "@/utils/useShapes";
+import { FabricJSEditor } from "fabricjs-react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../AuthContext";
-import { BoardContextType, Board } from "@/types";
 import BoardContext from "./BoardContext";
 import { useBoardAutoSave } from "./useBoardAutoSave";
-import { getSocket } from "@/lib/socket";
-import { usePen } from "@/utils/usePen";
 
 export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
@@ -170,6 +169,8 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
       const response = await boardAPI.toggleStarBoard(id);
       setBoards((prev) => prev.map((b) => (b._id === id ? response : b)));
       if (currentBoard?._id === id) setCurrentBoard(response);
+      // Refresh starred boards list
+      await loadStarredBoards();
       return response;
     } catch (err) {
       console.error("Failed to toggle star", err);
@@ -180,10 +181,16 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const addCollaborator = async (boardId: string, collaboratorId: string) => {
+  const addCollaborator = async (
+    boardId: string,
+    collaboratorEmail: string
+  ) => {
     setLoading(true);
     try {
-      const response = await boardAPI.addCollaborator(boardId, collaboratorId);
+      const response = await boardAPI.addCollaborator(
+        boardId,
+        collaboratorEmail
+      );
       setBoards((prev) => prev.map((b) => (b._id === boardId ? response : b)));
       if (currentBoard?._id === boardId) setCurrentBoard(response);
       return response;
@@ -198,13 +205,13 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
 
   const removeCollaborator = async (
     boardId: string,
-    collaboratorId: string
+    collaboratorEmail: string
   ) => {
     setLoading(true);
     try {
       const response = await boardAPI.removeCollaborator(
         boardId,
-        collaboratorId
+        collaboratorEmail
       );
       setBoards((prev) => prev.map((b) => (b._id === boardId ? response : b)));
       if (currentBoard?._id === boardId) setCurrentBoard(response);
