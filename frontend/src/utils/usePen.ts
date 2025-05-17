@@ -1,4 +1,4 @@
-"use client";
+// "use client";
 import { getSocket } from "@/lib/socket";
 import { fabric } from "fabric";
 import { FabricJSEditor } from "fabricjs-react";
@@ -41,6 +41,10 @@ export const usePen = (
     editor.canvas._currentDrawingMode = undefined;
     editor.canvas.isDrawingMode = false;
 
+    // Reset cursor to default
+    editor.canvas.defaultCursor = "default";
+    editor.canvas.hoverCursor = "default";
+
     editor.canvas.off("mouse:down");
     editor.canvas.off("mouse:move");
     editor.canvas.off("mouse:up");
@@ -55,6 +59,11 @@ export const usePen = (
     editor.canvas.isDrawingMode = true;
     editor.canvas.freeDrawingBrush.width = width;
     editor.canvas.freeDrawingBrush.color = color;
+
+    // Set cursor style based on tool type
+    const cursorStyle = type === "highlighter" ? "crosshair" : "crosshair";
+    editor.canvas.defaultCursor = cursorStyle;
+    editor.canvas.hoverCursor = cursorStyle;
 
     if (type === "highlighter") {
       if (editor.canvas.freeDrawingBrush instanceof fabric.PencilBrush) {

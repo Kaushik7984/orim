@@ -35,15 +35,6 @@ export default function useZoomHandlers(editor: any) {
     setZoomLevel(Math.round(scale * 100));
   };
 
-  const handleDoubleClick = (event: MouseEvent) => {
-    event.preventDefault();
-    if (!editor) return;
-    // Reset zoom to 100%
-    editor.canvas.setZoom(1);
-    // editor.canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
-    setZoomLevel(100);
-  };
-
   useEffect(() => {
     if (!editor || !editor.canvas) return;
     const canvas = editor.canvas;
@@ -53,7 +44,7 @@ export default function useZoomHandlers(editor: any) {
       if (!event.ctrlKey) return;
       event.preventDefault();
       const delta = -event.deltaY;
-      const zoomStep = 0.1;
+      const zoomStep = 0.03;
       let newZoom = canvas.getZoom() + (delta > 0 ? zoomStep : -zoomStep);
 
       newZoom = Math.max(0.2, Math.min(5, newZoom));
@@ -67,7 +58,7 @@ export default function useZoomHandlers(editor: any) {
       event.preventDefault();
       // Reset zoom to 100%
       canvas.setZoom(1);
-      canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
+      // canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
       setZoomLevel(100);
     };
 

@@ -28,7 +28,7 @@ const fira_sans = Fira_Sans({
 });
 
 const LeftFabricHeader = () => {
-  const { boardName, boardId, updateBoard, deleteBoard, loadBoard } =
+  const { boardName, boardId, updateBoard, deleteBoard, loadBoard, editor } =
     useBoard();
   const router = useRouter();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -109,15 +109,40 @@ const LeftFabricHeader = () => {
   };
 
   const handleExportBoard = () => {
-    alert("Export board functionality will be added soon");
-    handleMenuClose();
+    if (!editor?.canvas) {
+      alert("No board content to export");
+      return;
+    }
+
+    try {
+      // Get the canvas data URL
+      const dataURL = editor.canvas.toDataURL({
+        format: "png",
+        quality: 1,
+        multiplier: 2, // Higher quality
+      });
+
+      // Create a temporary link element
+      const link = document.createElement("a");
+      link.download = `${localBoardName || "board"}-export.png`;
+      link.href = dataURL;
+
+      // Trigger the download
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      handleMenuClose();
+    } catch (error) {
+      console.error("Failed to export board:", error);
+      alert("Failed to export board. Please try again.");
+    }
   };
 
   return (
     <div
       className='flex flex-row rounded-md gap-3 bg-white border border-gray-200 pl-2 items-center ml-1 mt-1'
       style={{ boxShadow: "1px 1px 5px rgba(0, 0, 0, 0.3)" }}
-      onClick={() => router.push("/dashboard")}
     >
       <Image
         src='/orime.svg'
@@ -125,6 +150,7 @@ const LeftFabricHeader = () => {
         width={100}
         height={32}
         className='cursor-pointer hover:opacity-90 transition-opacity'
+        onClick={() => router.push("/dashboard")}
       />
 
       <p className='rounded-md  hover:bg-[#dde4fc] duration-200 cursor-pointer text-sm pl-2'>
@@ -136,7 +162,10 @@ const LeftFabricHeader = () => {
       >
         <MoreVertIcon />
       </span>
-      <span className='p-2 rounded-md hover:bg-[#dde4fc] duration-200 cursor-pointer'>
+      <span
+        className='p-2 rounded-md hover:bg-[#dde4fc] duration-200 cursor-pointer'
+        onClick={handleExportBoard}
+      >
         <Tooltip title='Export Board'>
           <Upload />
         </Tooltip>

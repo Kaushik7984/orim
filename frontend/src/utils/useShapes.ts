@@ -114,6 +114,11 @@ export const useShapes = (
     canvas.isDrawingMode = false;
     isDrawing.current = false;
 
+    // Set cursor style based on tool type
+    const cursorStyle = type === "line" ? "crosshair" : "crosshair";
+    canvas.defaultCursor = cursorStyle;
+    canvas.hoverCursor = cursorStyle;
+
     canvas.on("mouse:down", (o) => {
       const pointer = canvas.getPointer(o.e);
       isDrawing.current = true;
@@ -158,6 +163,10 @@ export const useShapes = (
       canvas.off("mouse:down");
       canvas.off("mouse:move");
       canvas.off("mouse:up");
+
+      // Reset cursor to default
+      canvas.defaultCursor = "default";
+      canvas.hoverCursor = "default";
 
       if (canvas._toggleCollaboration?.activate) {
         canvas._toggleCollaboration.activate();
@@ -393,6 +402,10 @@ export const useShapes = (
       canvas._toggleCollaboration.deactivate();
     }
 
+    // Set cursor style for text tool
+    canvas.defaultCursor = "text";
+    canvas.hoverCursor = "text";
+
     canvas.on("mouse:down", (o) => {
       const pointer = canvas.getPointer(o.e);
 
@@ -410,6 +423,10 @@ export const useShapes = (
 
       // Clean up
       canvas.off("mouse:down");
+      // Reset cursor to default
+      canvas.defaultCursor = "default";
+      canvas.hoverCursor = "default";
+
       if (canvas._toggleCollaboration?.activate) {
         canvas._toggleCollaboration.activate();
       }

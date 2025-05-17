@@ -38,18 +38,19 @@ const nextConfig = {
       ],
     });
 
-    // Add support for loading .node binary modules
-    config.module.rules.push({
-      test: /\.node$/,
-      use: "node-loader",
-    });
-
     // Handle native modules
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
         canvas: false,
+        fs: false,
+        path: false,
       };
+    }
+
+    // Ignore canvas on server-side
+    if (isServer) {
+      config.externals = [...(config.externals || []), { canvas: "canvas" }];
     }
 
     return config;
