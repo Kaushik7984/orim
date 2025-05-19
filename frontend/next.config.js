@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  output: "standalone",
   experimental: {
     serverComponentsExternalPackages: ["canvas", "fabric"],
   },
@@ -52,6 +51,18 @@ const nextConfig = {
     if (isServer) {
       config.externals = [...(config.externals || []), { canvas: "canvas" }];
     }
+
+    // Add canvas to transpiled modules
+    config.module.rules.push({
+      test: /\.node$/,
+      use: "node-loader",
+    });
+
+    // Configure module resolution
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "@": require("path").resolve(__dirname, "src"),
+    };
 
     return config;
   },
