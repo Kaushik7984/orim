@@ -21,6 +21,7 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [editor, setEditor] = useState<FabricJSEditor>();
+  const [canvasReady, setCanvasReady] = useState(false);
   const [newJoin, setNewJoin] = useState<string>("");
   const [path, setPath] = useState<string>("");
   const [username, setUsername] = useState<string>("");
@@ -45,6 +46,9 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     editor,
     boardId || undefined
   );
+
+  // Add a ref to track the board ID that has been loaded
+  const loadedBoardIdRef = React.useRef<string | undefined>(undefined);
 
   // Board socket integration is now handled directly in Board.tsx using the collaborationUtils
   useBoardAutoSave(editor, boardId || undefined);
@@ -82,28 +86,52 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
   //open board
   const loadBoard = async (id: string) => {
     setLoading(true);
+    setCanvasReady(false);
+
     try {
       const response = await boardAPI.getBoard(id);
       setCurrentBoard(response);
       setBoardId(response._id);
       setBoardName(response.title);
 
-      if (response.canvasData && editor) {
+      // Load canvas data if we have it
+      if (editor?.canvas && response.canvasData) {
         const canvasData =
           typeof response.canvasData === "string"
             ? response.canvasData
             : JSON.stringify(response.canvasData);
 
-        editor.canvas.loadFromJSON(canvasData, () => {
-          editor.canvas.renderAll();
-        });
+        // Ensure canvas is properly initialized
+        if (!editor.canvas.getContext()) {
+          console.warn(
+            "Canvas context not initialized, waiting for initialization..."
+          );
+          // Do not set canvasReady to true here, as the canvas is not ready.
+          // We'll rely on the useEffect to re-trigger when the canvas is ready.
+          return;
+        }
+
+        try {
+          editor.canvas.loadFromJSON(canvasData, () => {
+            editor.canvas.renderAll();
+            setCanvasReady(true);
+            // Mark this board as loaded after successful load
+            loadedBoardIdRef.current = id;
+          });
+        } catch (loadError) {
+          console.error("Error loading canvas data:", loadError);
+          setCanvasReady(true);
+        }
       } else {
-        console.warn("Canvas data missing or editor not ready");
+        setCanvasReady(true);
+        // Mark this board as loaded if there's no canvas data
+        loadedBoardIdRef.current = id;
       }
     } catch (err: any) {
-      console.error("Failed to load board", err);
-      setError(err?.response?.data?.message || "Board not found");
+      console.error("Failed to load board:", err);
+      setError(err?.response?.data?.message || "Failed to load board");
       setCurrentBoard(null);
+      setCanvasReady(true);
     } finally {
       setLoading(false);
     }
@@ -232,11 +260,27 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [user]);
 
+  // Handle board loading when editor or boardId changes
   useEffect(() => {
-    if (editor && boardId) {
-      loadBoard(boardId);
+    // Only attempt to load if editor, canvas, boardId are available, and this board hasn't been loaded yet
+    if (editor?.canvas && boardId && loadedBoardIdRef.current !== boardId) {
+      // Check if canvas context is available before calling loadBoard
+      if (editor.canvas.getContext()) {
+        loadBoard(boardId);
+      } else {
+        console.warn(
+          "Editor or canvas context not yet available for loading board."
+        );
+      }
     }
-  }, [editor, boardId]);
+  }, [editor?.canvas, boardId]);
+
+  // Handle initial editor setup
+  useEffect(() => {
+    if (editor?.canvas && !boardId) {
+      setCanvasReady(true);
+    }
+  }, [editor?.canvas, boardId]);
 
   return (
     <BoardContext.Provider
@@ -285,6 +329,7 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
         setNewJoin,
         newJoin,
         setUsername,
+        canvasReady,
       }}
     >
       {children}

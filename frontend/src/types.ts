@@ -55,6 +55,7 @@ export interface BoardContextType {
   currentBoard: Board | null;
   loading: boolean;
   error: string | null;
+  canvasReady: boolean;
 
   createBoard: (
     title: string,
