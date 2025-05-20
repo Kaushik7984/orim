@@ -15,16 +15,10 @@ import {
   MessageSquareText,
   MousePointer2,
   TrendingUpDown,
-  Type,
-  Upload,
+  Type
 } from "lucide-react";
 
-import {
-  Eraser,
-  Highlighter,
-  Lasso,
-  Thickness,
-} from "@/svgs/index.svg";
+import { Eraser, Highlighter, Lasso, Thickness } from "@/svgs/index.svg";
 
 import { PenIcon } from "@/utils/draw";
 import {
@@ -525,7 +519,8 @@ const StickyNoteIcon = ({ onClick, onShapeSelect, color }: any) => {
           horizontal: "left",
         }}
         PaperProps={{
-          className: "ml-6 -mt-16 bg-white rounded-md flex flex-col p-2 w-[220px]",
+          className:
+            "ml-6 -mt-16 bg-white rounded-md flex flex-col p-2 w-[220px]",
         }}
       >
         <StickyNoteToolbar
@@ -706,10 +701,6 @@ export const items = [
     icon: ({ color }: { color?: string }) => (
       <MessageSquareText color={color} />
     ),
-  },
-  {
-    name: "Upload",
-    icon: ({ color }: { color?: string }) => <Upload color={color} />,
   },
   {
     name: "More apps",

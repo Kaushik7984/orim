@@ -6,12 +6,8 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang='en'>
-      <body>
-        <ProtectedRoute>
-          <main>{children}</main>
-        </ProtectedRoute>
-      </body>
-    </html>
+    <ProtectedRoute>
+      <main>{children}</main>
+    </ProtectedRoute>
   );
 }

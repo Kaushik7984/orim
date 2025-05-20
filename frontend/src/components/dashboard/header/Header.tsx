@@ -203,7 +203,7 @@ const Header = () => {
               )}
               <Button
                 component={Link}
-                href='/pricing'
+                href='#'
                 variant='contained'
                 sx={{
                   bgcolor: "#1976d2",

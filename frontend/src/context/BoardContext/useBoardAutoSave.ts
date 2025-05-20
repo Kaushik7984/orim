@@ -2,8 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { FabricJSEditor } from "fabricjs-react";
 import { boardAPI } from "@/lib/boardApi";
 import { useAuth } from "../AuthContext";
-import { getSocket } from "@/lib/socket";
-import axios from "axios";
 
 export const useBoardAutoSave = (editor?: FabricJSEditor, boardId?: string) => {
   const lastCanvasDataRef = useRef<string>("");
@@ -12,24 +10,26 @@ export const useBoardAutoSave = (editor?: FabricJSEditor, boardId?: string) => {
   const [isOwner, setIsOwner] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaveTime, setLastSaveTime] = useState<Date | null>(null);
-  const socket = getSocket();
+  const [isLoading, setIsLoading] = useState(true);
 
   // Check if current user is the board owner
   useEffect(() => {
-    if (!user || !boardId) return;
+    if (!user || !boardId) {
+      setIsLoading(false);
+      return;
+    }
 
     const checkOwnership = async () => {
       try {
-        //
-        const API_URL = process.env.NEXT_PUBLIC_API_URL;
-        const response = await axios.get(`${API_URL}/boards/${boardId}`);
-
-        if (response.data && response.data.ownerId === user.uid) {
-          setIsOwner(true);
-        }
+        setIsLoading(true);
+        const board = await boardAPI.getBoard(boardId);
+        setIsOwner(board.ownerId === user.uid);
       } catch (error) {
+        // If board doesn't exist, set current user as owner
         setIsOwner(true);
         console.log("New board, setting current user as owner");
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -98,19 +98,6 @@ export const useBoardAutoSave = (editor?: FabricJSEditor, boardId?: string) => {
       editor.canvas.on(event, handleCanvasChange);
     });
 
-    // Listen for board updates from other users
-    // const handleBoardUpdate = (data: { canvasData: any }) => {
-    //   if (data.canvasData && !isSaving) {
-    //     editor.canvas.loadFromJSON(data.canvasData, () => {
-    //       editor.canvas.renderAll();
-    //     });
-    //   }
-    // };
-
-    // if (socket) {
-    //   socket.on("board:update", handleBoardUpdate);
-    // }
-
     return () => {
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current);
@@ -119,16 +106,13 @@ export const useBoardAutoSave = (editor?: FabricJSEditor, boardId?: string) => {
       canvasEvents.forEach((event) => {
         editor.canvas.off(event, handleCanvasChange);
       });
-
-      // if (socket) {
-      //   socket.off("board:update", handleBoardUpdate);
-      // }
     };
-  }, [editor, boardId, user, isOwner, socket, isSaving]);
+  }, [editor, boardId, user, isOwner, isSaving]);
 
   return {
     isSaving,
     lastSaveTime,
     isOwner,
+    isLoading,
   };
 };

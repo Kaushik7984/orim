@@ -315,7 +315,7 @@ export default function NotFound() {
           >
             If you believe this is an error, please{" "}
             <Link
-              href="/help/contact"
+              href="#"
               style={{
                 color: "#1e40af",
                 textDecoration: "none",

@@ -61,7 +61,7 @@ export default function CallToAction() {
           </Link>
 
           <Link
-            href='/contact-sales'
+            href='#'
             className='inline-block px-8 py-4 bg-transparent border-2 border-white text-white font-semibold text-lg rounded-lg hover:bg-white/10 transition-all'
           >
             Contact sales

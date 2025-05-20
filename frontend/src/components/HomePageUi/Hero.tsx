@@ -70,7 +70,7 @@ export default function Hero() {
               </svg>
             </Link>
             <Link
-              href='/demo'
+              href='#'
               className='px-6 py-3 sm:px-8 sm:py-4 border text-lg rounded-lg transition-all shadow-sm hover:shadow-md flex items-center gap-2'
               style={{ borderColor: "#1e40af", color: "#1e40af" }}
               onMouseOver={(e) => {
