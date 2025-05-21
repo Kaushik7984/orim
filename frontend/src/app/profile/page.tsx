@@ -44,8 +44,6 @@ export default function ProfilePage() {
   const [email, setEmail] = useState("");
   const [jobTitle, setJobTitle] = useState("");
   const [company, setCompany] = useState("");
-  const [avatar, setAvatar] = useState<File | null>(null);
-  const [avatarPreview, setAvatarPreview] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -56,20 +54,11 @@ export default function ProfilePage() {
     if (user) {
       setName(user.displayName || "");
       setEmail(user.email || "");
-      setAvatarPreview(user.photoURL || "");
     }
   }, [user]);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
-  };
-
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setAvatar(file);
-      setAvatarPreview(URL.createObjectURL(file));
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -81,7 +70,6 @@ export default function ProfilePage() {
     try {
       await updateProfile({
         displayName: name,
-        photoURL: avatar ? URL.createObjectURL(avatar) : undefined,
       });
       setSuccess("Profile updated successfully!");
     } catch (error: any) {
@@ -98,35 +86,21 @@ export default function ProfilePage() {
           {/* Left Sidebar */}
           <Grid item xs={12} md={3}>
             <Paper sx={{ p: 2, borderRadius: 2, textAlign: "center" }}>
-              <Box sx={{ position: "relative", display: "inline-block" }}>
-                <Avatar
-                  alt='User Avatar'
-                  src={avatarPreview}
-                  sx={{ width: 100, height: 100, mx: "auto", mb: 2 }}
-                />
-                <input
-                  id='avatar-upload'
-                  type='file'
-                  accept='image/*'
-                  onChange={handleAvatarChange}
-                  style={{ display: "none" }}
-                />
-                <label htmlFor='avatar-upload'>
-                  <IconButton
-                    component='span'
-                    sx={{
-                      position: "absolute",
-                      bottom: 0,
-                      right: 0,
-                      bgcolor: "white",
-                      boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
-                      "&:hover": { bgcolor: "#f5f5f5" },
-                    }}
-                  >
-                    <IoMdCamera />
-                  </IconButton>
-                </label>
-              </Box>
+              <Avatar
+                alt='User Avatar'
+                src={(user && user.photoURL) || undefined}
+                sx={{
+                  width: 100,
+                  height: 100,
+                  mx: "auto",
+                  mb: 2,
+                  bgcolor: user ? "#2563eb" : "#e0e0e0",
+                  fontSize: "2.5rem",
+                }}
+              >
+                {(user && user.email?.charAt(0).toUpperCase()) || "?"}
+              </Avatar>
+
               <Typography variant='h6' gutterBottom>
                 {name || "Your Name"}
               </Typography>

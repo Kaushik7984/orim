@@ -77,6 +77,11 @@ export const usePen = (
       }
     }
 
+    // Deactivate collaboration when drawing starts
+    if (editor.canvas._toggleCollaboration?.deactivate) {
+      editor.canvas._toggleCollaboration.deactivate();
+    }
+
     if (socket && boardId) {
       const handlePathCreated = ((event: IPathCreatedEvent) => {
         const path = event.path;
@@ -94,6 +99,11 @@ export const usePen = (
             shape: path.toObject(["globalCompositeOperation", "id"]),
             type: type,
           });
+
+          // Reactivate collaboration after path is created
+          if (editor.canvas._toggleCollaboration?.activate) {
+            editor.canvas._toggleCollaboration.activate();
+          }
         }
       }) as any;
 

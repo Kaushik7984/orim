@@ -141,38 +141,45 @@ const LeftFabricHeader = () => {
 
   return (
     <div
-      className='flex flex-row rounded-md gap-3 bg-white border border-gray-200 pl-2 items-center ml-1 mt-1'
+      className='flex flex-row rounded-md gap-0 sm:gap-1 md:gap-2 lg:gap-3 bg-white border border-gray-200 pl-0.5 sm:pl-1 md:pl-2 items-center ml-0.5 sm:ml-1 mt-0.5 sm:mt-1 h-12'
       style={{ boxShadow: "1px 1px 5px rgba(0, 0, 0, 0.3)" }}
     >
       <Image
         src='/orime.svg'
         alt='Orime Logo'
-        width={100}
-        height={32}
-        className='cursor-pointer hover:opacity-90 transition-opacity'
+        width={80}
+        height={24}
+        className='cursor-pointer hover:opacity-90 transition-opacity w-[60px] sm:w-[70px] md:w-[100px] h-6 sm:h-7 md:h-8'
         onClick={() => router.push("/dashboard")}
       />
 
-      <p className='rounded-md  hover:bg-[#dde4fc] duration-200 cursor-pointer text-sm pl-2'>
+      <p className='rounded-md hover:bg-[#dde4fc] duration-200 cursor-pointer text-xs md:text-sm pl-0.5 sm:pl-1 md:pl-2 truncate max-w-[60px] sm:max-w-[80px] md:max-w-[200px]'>
         {localBoardName}
       </p>
       <span
-        className='p-2 rounded-md hover:bg-[#dde4fc] duration-200 cursor-pointer'
+        className='p-0.5 sm:p-1 md:p-2 rounded-md hover:bg-[#dde4fc] duration-200 cursor-pointer'
         onClick={handleMenuClick}
       >
-        <MoreVertIcon />
+        <MoreVertIcon fontSize='small' />
       </span>
       <span
-        className='p-2 rounded-md hover:bg-[#dde4fc] duration-200 cursor-pointer'
+        className='p-0.5 sm:p-1 md:p-2 rounded-md hover:bg-[#dde4fc] duration-200 cursor-pointer'
         onClick={handleExportBoard}
       >
         <Tooltip title='Export Board'>
-          <Upload />
+          <Upload
+            size={16}
+            className='sm:w-4 sm:h-4 md:w-5 md:h-5 w-3.5 h-3.5'
+          />
         </Tooltip>
       </span>
-      <span className='p-2 rounded-md hover:bg-[#dde4fc] duration-200 cursor-pointer'>
+      <span className='p-0.5 sm:p-1 md:p-2 rounded-md hover:bg-[#dde4fc] duration-200 cursor-pointer'>
         <Tooltip title='Get Premium'>
-          <Crown color='#D4AF37' />
+          <Crown
+            color='#D4AF37'
+            size={16}
+            className='sm:w-4 sm:h-4 md:w-5 md:h-5 w-3.5 h-3.5'
+          />
         </Tooltip>
       </span>
 

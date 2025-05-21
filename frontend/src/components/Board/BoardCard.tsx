@@ -6,6 +6,7 @@ import {
   Edit as EditIcon,
   People as PeopleIconMUI,
   Share as ShareIcon,
+  ExitToApp as ExitToAppIcon,
 } from "@mui/icons-material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import StarIcon from "@mui/icons-material/Star";
@@ -69,8 +70,13 @@ const BoardCard: React.FC<BoardCardProps> = ({
   const handleRemoveCollaborator = async (collaboratorEmail: string) => {
     try {
       await removeCollaborator(boardId, collaboratorEmail);
+      toast.success("Successfully left the board");
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (error) {
       console.error("Failed to remove collaborator:", error);
+      toast.error("Failed to leave the board");
     }
   };
 
@@ -214,11 +220,11 @@ const BoardCard: React.FC<BoardCardProps> = ({
 
         {createdAt && (
           <div className='flex items-center text-gray-500 mb-1 relative'>
-            <AccessTimeIcon
+            {/* <AccessTimeIcon
               fontSize='small'
               className='mr-1'
               sx={{ fontSize: "0.875rem" }}
-            />
+            /> */}
             <Typography variant='caption' className='text-gray-500'>
               {formatDate(createdAt)} by{" "}
               {isOwner ? "you" : formatEmail(ownerEmail || "")}
@@ -361,7 +367,7 @@ const BoardCard: React.FC<BoardCardProps> = ({
             }}
             className='text-red-500'
           >
-            <DeleteIcon fontSize='small' className='mr-2' />
+            <ExitToAppIcon fontSize='small' className='mr-2' />
             Leave Board
           </MenuItem>
         )}

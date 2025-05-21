@@ -81,7 +81,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       try {
         await firebaseUpdateProfile(user, {
           displayName: data.displayName || user.displayName,
-          photoURL: data.photoURL || user.photoURL,
         });
 
         const updatedUser = auth.currentUser;

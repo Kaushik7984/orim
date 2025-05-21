@@ -3,12 +3,14 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useBoard } from "@/context/BoardContext/useBoard";
-import { CircularProgress, Typography } from "@mui/material";
-import DashboardSubHeader from "@/components/dashboard/DashboardSubHeader";
+import { CircularProgress, Typography, Box } from "@mui/material";
 import CreateBoardDialog from "@/components/dashboard/CreateBoardDialog";
 import RenameBoardDialog from "@/components/dashboard/RenameBoardDialog";
 import BoardList from "@/components/dashboard/BoardList";
 import ManageCollaboratorsDialog from "@/components/dashboard/ManageCollaboratorsDialog";
+import BoardTemplates from "@/components/dashboard/BoardTemplates";
+import DashboardFilterHeader from "@/components/dashboard/DashboardFilterHeader";
+import { useAuth } from "@/context/AuthContext";
 
 const Dashboard = () => {
   const {
@@ -37,6 +39,11 @@ const Dashboard = () => {
       id: string;
       collaborators: string[];
     } | null>(null);
+
+  const [filter, setFilter] = useState("All boards");
+  const [sort, setSort] = useState("Last opened");
+
+  const { user } = useAuth();
 
   useEffect(() => {
     loadBoards();
@@ -104,6 +111,27 @@ const Dashboard = () => {
     }
   };
 
+  const handleFilterChange = (newFilter: string) => {
+    setFilter(newFilter);
+    // TODO: Implement filtering logic
+    // console.log("Filter changed to:", newFilter);
+  };
+
+  const filteredBoards = boards.filter((board) => {
+    if (filter === "All boards") {
+      return true;
+    } else if (filter === "Collaborator") {
+      return board.collaborators?.includes(user?.email || "");
+    }
+    return true;
+  });
+
+  const handleSortChange = (newSort: string) => {
+    setSort(newSort);
+    // TODO: Implement sorting logic
+    // console.log("Sort changed to:", newSort);
+  };
+
   if (loading) {
     return (
       <div className='flex items-center justify-center h-screen'>
@@ -122,9 +150,18 @@ const Dashboard = () => {
 
   return (
     <div className='container mx-auto px-4 sm:px-6 py-6 sm:py-10'>
-      <DashboardSubHeader onCreateClick={() => setOpenDialog(true)} />
+      {/* <Box sx={{ display: { xs: "none", sm: "block" } }}>
+        <BoardTemplates />
+      </Box> */}
+      <DashboardFilterHeader
+        onCreateClick={() => setOpenDialog(true)}
+        onFilterChange={handleFilterChange}
+        onSortChange={handleSortChange}
+        currentFilter={filter}
+        currentSort={sort}
+      />
       <BoardList
-        boards={boards}
+        boards={filteredBoards}
         onOpen={handleOpenBoard}
         onDelete={handleDeleteBoard}
         onRename={handleRenameBoard}

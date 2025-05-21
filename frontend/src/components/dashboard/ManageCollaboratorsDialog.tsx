@@ -1,6 +1,5 @@
 import { useAuth } from "@/context/AuthContext";
 import { useBoard } from "@/context/BoardContext/useBoard";
-import { Email } from "@mui/icons-material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
   Avatar,
@@ -18,6 +17,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface ManageCollaboratorsDialogProps {
   open: boolean;
@@ -35,6 +35,7 @@ const ManageCollaboratorsDialog = ({
   const [newCollaboratorEmail, setNewCollaboratorEmail] = useState("");
   const { addCollaborator, removeCollaborator, boards } = useBoard();
   const { user } = useAuth();
+  const router = useRouter();
 
   const board = boards.find((b) => b._id === boardId);
   const isOwner = user?.uid === board?.ownerId;
@@ -51,6 +52,8 @@ const ManageCollaboratorsDialog = ({
     try {
       await addCollaborator(boardId, emailToAdd);
       setNewCollaboratorEmail("");
+      onClose();
+      router.refresh();
     } catch (error) {
       console.error("Failed to add collaborator:", error);
     }
@@ -59,6 +62,8 @@ const ManageCollaboratorsDialog = ({
   const handleRemoveCollaborator = async (collaboratorEmail: string) => {
     try {
       await removeCollaborator(boardId, collaboratorEmail);
+      onClose();
+      router.refresh();
     } catch (error) {
       console.error("Failed to remove collaborator:", error);
     }

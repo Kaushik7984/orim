@@ -24,6 +24,7 @@
     "fabricjs-react": "^1.2.1",
     "firebase": "^11.6.0",
     "framer-motion": "^12.7.4",
+    "fuse.js": "^7.1.0",
     "lucide-react": "^0.492.0",
     "next": "14.0.4",
     "react": "^18",

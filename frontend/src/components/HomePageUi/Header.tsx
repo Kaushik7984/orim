@@ -96,12 +96,12 @@ export default function Header({ user }: HeaderProps) {
 
         {/* Right Side Navigation */}
         <div className='hidden md:flex items-center gap-4 text-sm font-medium'>
-          <Link
+          {/* <Link
             href='#'
             className='text-gray-600 hover:text-black transition-colors'
           >
             Contact Sales
-          </Link>
+          </Link> */}
           {user ? (
             <>
               <IconButton
@@ -118,7 +118,7 @@ export default function Header({ user }: HeaderProps) {
                   }}
                   src={user.photoURL || undefined}
                 >
-                  {user.displayName?.charAt(0) || "U"}
+                  {user.email?.charAt(0).toUpperCase() || "?"}
                 </Avatar>
               </IconButton>
               <Menu

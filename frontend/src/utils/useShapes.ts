@@ -485,7 +485,7 @@ export const useShapes = (
       .some((obj: any) => obj.id === shapeId);
 
     if (duplicateId) {
-      console.log("Object with same ID already exists, skipping:", shapeId);
+      // console.log("Object with same ID already exists, skipping:", shapeId);
       return;
     }
 

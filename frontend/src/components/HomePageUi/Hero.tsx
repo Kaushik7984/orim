@@ -72,7 +72,7 @@ export default function Hero() {
             <Link
               href='#'
               className='px-6 py-3 sm:px-8 sm:py-4 border text-lg rounded-lg transition-all shadow-sm hover:shadow-md flex items-center gap-2'
-              style={{ borderColor: "#1e40af", color: "#1e40af" }}
+              style={{ borderColor: "#1e40af", color: "#1e40af", cursor: "not-allowed" }}
               onMouseOver={(e) => {
                 e.currentTarget.style.backgroundColor = "#dde4fc";
                 e.currentTarget.style.borderColor = "#1e40af";

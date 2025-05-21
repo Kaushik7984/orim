@@ -34,7 +34,7 @@ export default function useBoardSocket(
         const cleanup = setupCollaborationEvents();
         currentEventCleanup = typeof cleanup === "function" ? cleanup : null;
         isCollaborationActive = true;
-        console.log("Collaboration events activated");
+        // console.log("Collaboration events activated");
       }
     };
 

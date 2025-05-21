@@ -85,7 +85,7 @@ const StarredBoards = () => {
   return (
     <div className='container mx-auto px-4 sm:px-6 py-6 sm:py-10'>
       <div className='flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4'>
-        <Typography variant='h4' fontWeight={700}>
+        <Typography variant='h4' fontWeight={400}>
           Starred Boards
         </Typography>
       </div>
@@ -123,6 +123,7 @@ const StarredBoards = () => {
                 boardId={board._id}
                 title={board.title || "Untitled"}
                 ownerEmail={board.ownerEmail}
+                ownerId={board.ownerId}
                 createdAt={board.createdAt}
                 onClick={() => handleOpenBoard(board._id)}
                 onDelete={() => handleDeleteBoard(board._id)}
@@ -130,6 +131,7 @@ const StarredBoards = () => {
                 onStar={() => handleStarBoard(board._id)}
                 backgroundImage={getPlaceholderById(board._id)}
                 isStarred={board.isStarred}
+                collaborators={board.collaborators || []}
               />
             </Grid>
           ))}

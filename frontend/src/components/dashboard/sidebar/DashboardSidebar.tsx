@@ -25,6 +25,8 @@ import {
 } from "@mui/material";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import { useBoard } from "@/context/BoardContext/useBoard";
+import Fuse from "fuse.js";
 
 const DashboardSidebar = () => {
   const router = useRouter();
@@ -32,43 +34,58 @@ const DashboardSidebar = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [isOpen, setIsOpen] = useState(false);
+  const { boards } = useBoard();
+  const [search, setSearch] = useState("");
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
 
-  const mainMenuItems = [
-    {
-      text: "Explore",
-      icon: <ExploreOutlinedIcon />,
-      path: "#",
-    },
-    {
-      text: "Home",
-      icon: <HomeOutlinedIcon fontSize='medium' />,
-      path: "/dashboard",
-    },
-    { text: "Recent", icon: <AccessTimeIcon />, path: "#" },
-    { text: "Starred", icon: <StarBorderIcon />, path: "/dashboard/starred" },
-  ];
+  const fuse = new Fuse(boards, {
+    keys: ["title", "ownerEmail", "collaborators"],
+    threshold: 0.3,
+  });
+  const searchResults =
+    search && isSearchFocused
+      ? fuse.search(search).map((result) => result.item)
+      : [];
 
   const handleMenuClick = (path: string) => {
     router.push(path);
-    if (isMobile) {
-      setIsOpen(false);
-    }
+    if (isMobile) setIsOpen(false);
+  };
+
+  const commonStyles = {
+    icon: {
+      minWidth: { xs: 32, sm: 36 },
+      color: "#606060",
+      "& svg": { fontSize: { xs: 20, sm: 24 } },
+    },
+    listItem: {
+      borderRadius: 1,
+      py: { xs: 0.75, sm: 1 },
+      "&.Mui-selected": {
+        bgcolor: "#f0f0f0",
+        "&:hover": { bgcolor: "#f0f0f0" },
+      },
+    },
+    text: {
+      fontSize: { xs: "0.85rem", sm: "0.9rem" },
+    },
   };
 
   const SidebarContent = () => (
     <Box
       sx={{
-        width: "270px",
+        width: { xs: "100%", sm: "270px" },
         height: "100%",
         bgcolor: "white",
         display: "flex",
         flexDirection: "column",
       }}
     >
+      {/* Header */}
       <Box
         sx={{
-          p: 2,
-          pb: 1.5,
+          p: { xs: 1.5, sm: 2 },
+          pb: { xs: 1, sm: 1.5 },
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
@@ -77,23 +94,23 @@ const DashboardSidebar = () => {
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <Avatar
             sx={{
-              width: 32,
-              height: 32,
+              width: { xs: 28, sm: 36 },
+              height: { xs: 28, sm: 36 },
               bgcolor: "#D0E8FF",
               color: "#0078D4",
-              fontSize: 14,
-              mr: 1.5,
+              fontSize: { xs: 14, sm: 16 },
+              mr: { xs: 1, sm: 1.5 },
             }}
           >
             SD
           </Avatar>
-          <Box sx={{ maxWidth: 160, overflow: "hidden" }}>
+          <Box sx={{ maxWidth: { xs: 140, sm: 180 }, overflow: "hidden" }}>
             <Typography
               variant='caption'
               color='text.secondary'
               sx={{
                 display: "block",
-                fontSize: "0.75rem",
+                fontSize: { xs: "0.7rem", sm: "0.75rem" },
                 whiteSpace: "nowrap",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
@@ -104,7 +121,7 @@ const DashboardSidebar = () => {
             <Typography
               sx={{
                 fontWeight: 500,
-                fontSize: "0.95rem",
+                fontSize: { xs: "0.85rem", sm: "0.95rem" },
                 whiteSpace: "nowrap",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
@@ -114,12 +131,16 @@ const DashboardSidebar = () => {
             </Typography>
           </Box>
         </Box>
-        <IconButton size='small'>
-          <AddIcon fontSize='small' />
-        </IconButton>
       </Box>
 
-      <Box sx={{ px: 2, mt: 3, mb: 2 }}>
+      {/* Search */}
+      <Box
+        sx={{
+          px: { xs: 1.5, sm: 2 },
+          mt: { xs: 2, sm: 3 },
+          mb: { xs: 1.5, sm: 2 },
+        }}
+      >
         <Box
           sx={{
             display: "flex",
@@ -129,71 +150,182 @@ const DashboardSidebar = () => {
             p: "2px 8px",
           }}
         >
-          <SearchIcon sx={{ color: "#757575", fontSize: 20 }} />
+          <SearchIcon sx={{ color: "#757575", fontSize: { xs: 18, sm: 20 } }} />
           <InputBase
-            placeholder='Search by title or topic'
-            sx={{ ml: 1, flex: 1, fontSize: "0.875rem" }}
+            placeholder='Search Board'
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onFocus={() => setIsSearchFocused(true)}
+            onBlur={() => setIsSearchFocused(false)}
+            sx={{ ml: 1, flex: 1, fontSize: { xs: "0.8rem", sm: "0.875rem" } }}
           />
         </Box>
+        {search && isSearchFocused && (
+          <Box
+            sx={{
+              mt: 1,
+              maxHeight: 200,
+              overflowY: "auto",
+              bgcolor: "#fafafa",
+              borderRadius: 1,
+              boxShadow: 1,
+            }}
+          >
+            {searchResults.length === 0 ? (
+              <Typography sx={{ p: 2, color: "#888", fontSize: "0.9rem" }}>
+                No boards found.
+              </Typography>
+            ) : (
+              searchResults.map((board) => (
+                <Box
+                  key={board._id}
+                  sx={{
+                    p: 1.2,
+                    borderBottom: "1px solid #eee",
+                    cursor: "pointer",
+                    "&:hover": { bgcolor: "#e3f2fd" },
+                  }}
+                  onClick={() => router.push(`/board/${board._id}`)}
+                >
+                  <Typography sx={{ fontWeight: 500, fontSize: "0.95rem" }}>
+                    {board.title}
+                  </Typography>
+                  <Typography sx={{ fontSize: "0.8rem", color: "#666" }}>
+                    {board.ownerEmail}
+                  </Typography>
+                </Box>
+              ))
+            )}
+          </Box>
+        )}
       </Box>
 
-      <List sx={{ px: 1 }}>
-        {mainMenuItems.map((item) => (
-          <ListItem key={item.text} disablePadding>
-            <ListItemButton
-              selected={pathname === item.path}
-              onClick={() => handleMenuClick(item.path)}
-              sx={{
-                borderRadius: 1,
-                py: 1,
-                "&.Mui-selected": {
-                  bgcolor: "#f0f0f0",
-                  "&:hover": {
-                    bgcolor: "#f0f0f0",
-                  },
-                },
-                "&:hover": {
-                  bgcolor: "#f5f5f5",
-                },
+      {/* Menu Items */}
+      <List sx={{ px: { xs: 0.5, sm: 1 } }}>
+        {/* Explore */}
+        <ListItem disablePadding>
+          <ListItemButton
+            style={{ cursor: "not-allowed" }}
+            sx={{
+              ...commonStyles.listItem,
+              opacity: 0.6,
+            }}
+          >
+            <ListItemIcon sx={commonStyles.icon}>
+              <ExploreOutlinedIcon />
+            </ListItemIcon>
+            <ListItemText
+              primary='Explore'
+              primaryTypographyProps={{
+                ...commonStyles.text,
+                fontWeight: pathname === "#" ? 500 : 400,
               }}
-            >
-              <ListItemIcon sx={{ minWidth: 36, color: "#606060" }}>
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText
-                primary={item.text}
-                primaryTypographyProps={{
-                  fontSize: "0.9rem",
-                  fontWeight: pathname === item.path ? 500 : 400,
-                }}
-              />
-            </ListItemButton>
-          </ListItem>
-        ))}
+            />
+          </ListItemButton>
+        </ListItem>
+
+        {/* Home */}
+        <ListItem disablePadding>
+          <ListItemButton
+            selected={pathname === "/dashboard"}
+            onClick={() => handleMenuClick("/dashboard")}
+            sx={{
+              ...commonStyles.listItem,
+              cursor: "pointer",
+              "&:hover": { bgcolor: "#f5f5f5" },
+            }}
+          >
+            <ListItemIcon sx={commonStyles.icon}>
+              <HomeOutlinedIcon fontSize='medium' />
+            </ListItemIcon>
+            <ListItemText
+              primary='Home'
+              primaryTypographyProps={{
+                ...commonStyles.text,
+                fontWeight: pathname === "/dashboard" ? 500 : 400,
+              }}
+            />
+          </ListItemButton>
+        </ListItem>
+
+        {/* Recent */}
+        <ListItem disablePadding>
+          <ListItemButton
+            style={{ cursor: "not-allowed" }}
+            sx={{
+              ...commonStyles.listItem,
+              opacity: 0.6,
+            }}
+          >
+            <ListItemIcon sx={commonStyles.icon}>
+              <AccessTimeIcon />
+            </ListItemIcon>
+            <ListItemText
+              primary='Recent'
+              primaryTypographyProps={{
+                ...commonStyles.text,
+                fontWeight: pathname === "#" ? 500 : 400,
+              }}
+            />
+          </ListItemButton>
+        </ListItem>
+
+        {/* Starred */}
+        <ListItem disablePadding>
+          <ListItemButton
+            selected={pathname === "/dashboard/starred"}
+            onClick={() => handleMenuClick("/dashboard/starred")}
+            sx={{
+              ...commonStyles.listItem,
+              cursor: "pointer",
+              "&:hover": { bgcolor: "#f5f5f5" },
+            }}
+          >
+            <ListItemIcon sx={commonStyles.icon}>
+              <StarBorderIcon />
+            </ListItemIcon>
+            <ListItemText
+              primary='Starred'
+              primaryTypographyProps={{
+                ...commonStyles.text,
+                fontWeight: pathname === "/dashboard/starred" ? 500 : 400,
+              }}
+            />
+          </ListItemButton>
+        </ListItem>
       </List>
 
-      <Divider sx={{ my: 1.5 }} />
+      <Divider sx={{ my: { xs: 1, sm: 1.5 } }} />
 
+      {/* Spaces Section */}
       <Box
         sx={{
-          px: 3,
-          py: 1,
+          px: { xs: 2, sm: 3 },
+          py: { xs: 0.75, sm: 1 },
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
         }}
       >
         <Typography
-          sx={{ fontSize: "0.8rem", fontWeight: 400, color: "#606060" }}
+          sx={{
+            fontSize: { xs: "0.75rem", sm: "0.8rem" },
+            fontWeight: 400,
+            color: "#606060",
+          }}
         >
           Spaces
         </Typography>
-        <IconButton size='small'>
+        <IconButton size='small' sx={{ p: { xs: 0.5, sm: 1 } }}>
           <AddIcon
             fontSize='small'
             sx={{
               color: "#606060",
+              fontSize: { xs: 18, sm: 20 },
+              cursor: "not-allowed",
             }}
+          // onClick={() => alert("hello")}
+
           />
         </IconButton>
       </Box>
@@ -207,15 +339,16 @@ const DashboardSidebar = () => {
           onClick={() => setIsOpen(true)}
           sx={{
             position: "fixed",
-            top: 16,
-            left: 16,
+            top: { xs: 12, sm: 16 },
+            left: { xs: 12, sm: 16 },
             zIndex: 1200,
             bgcolor: "white",
             boxShadow: 1,
+            p: { xs: 0.5, sm: 1 },
             "&:hover": { bgcolor: "white" },
           }}
         >
-          <MenuIcon />
+          <MenuIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
         </IconButton>
         <Drawer
           anchor='left'
@@ -223,15 +356,19 @@ const DashboardSidebar = () => {
           onClose={() => setIsOpen(false)}
           PaperProps={{
             sx: {
-              width: "270px",
+              width: { xs: "100%", sm: "270px" },
               boxShadow: "none",
               borderRight: "1px solid #eaeaea",
             },
           }}
         >
           <Box sx={{ position: "absolute", top: 8, right: 8, zIndex: 1 }}>
-            <IconButton onClick={() => setIsOpen(false)} size='small'>
-              <CloseIcon />
+            <IconButton
+              onClick={() => setIsOpen(false)}
+              size='small'
+              sx={{ p: { xs: 0.5, sm: 1 } }}
+            >
+              <CloseIcon sx={{ fontSize: { xs: 20, sm: 24 } }} />
             </IconButton>
           </Box>
           <SidebarContent />
@@ -247,6 +384,7 @@ const DashboardSidebar = () => {
         borderRight: "1px solid #eaeaea",
         height: "100vh",
         bgcolor: "white",
+        display: { xs: "none", md: "block" },
       }}
     >
       <SidebarContent />
