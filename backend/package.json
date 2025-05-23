@@ -20,16 +20,12 @@
     "@nestjs/core": "^11.0.17",
     "@nestjs/cli": "^11.0.7",
     "@nestjs/mongoose": "^11.0.3",
-    "@nestjs/platform-express": "^11.0.17",
-    "@nestjs/platform-socket.io": "^11.0.20",
     "@nestjs/websockets": "^11.0.20",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "firebase-admin": "^13.2.0",
     "mongoose": "^8.13.2",
     "nodemailer": "^6.10.1",
-    "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.2",
     "socket.io": "^4.8.1"
   },
   "devDependencies": {
@@ -42,8 +38,6 @@
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",
     "prettier": "^3.4.2",
-    "ts-loader": "^9.5.2",
-    "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   }
 }

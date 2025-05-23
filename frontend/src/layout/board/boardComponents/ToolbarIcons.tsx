@@ -133,7 +133,6 @@ const stickyNotes = [
   "#800080",
 ];
 
-// Add these at the top level, outside of any component
 const LAST_USED_COLORS = {
   pen: "#000000",
   highlighter: HIGHLIGHTER_COLORS[0],

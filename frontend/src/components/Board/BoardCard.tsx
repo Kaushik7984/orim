@@ -1,7 +1,6 @@
 import { useAuth } from "@/context/AuthContext";
 import { useBoard } from "@/context/BoardContext/useBoard";
 import {
-  AccessTime as AccessTimeIcon,
   Delete as DeleteIcon,
   Edit as EditIcon,
   People as PeopleIconMUI,

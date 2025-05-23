@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 type Testimonial = {
@@ -140,9 +139,8 @@ export default function Testimonials() {
               {testimonials.map((_, index) => (
                 <button
                   key={index}
-                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                    activeIndex === index ? "w-6 bg-indigo-600" : "bg-gray-300"
-                  }`}
+                  className={`w-2 h-2 rounded-full transition-all duration-300 ${activeIndex === index ? "w-6 bg-indigo-600" : "bg-gray-300"
+                    }`}
                   onClick={() => setActiveIndex(index)}
                   aria-label={`Go to testimonial ${index + 1}`}
                 />

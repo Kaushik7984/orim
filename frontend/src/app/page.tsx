@@ -8,7 +8,6 @@ import Hero from "@/components/HomePageUi/Hero";
 import ProductPreview from "@/components/HomePageUi/ProductPreview";
 import Testimonials from "@/components/HomePageUi/Testimonials";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
 
 const themeColors = {
   primary: "#1e40af",
@@ -20,7 +19,6 @@ const themeColors = {
 
 export default function HomePage() {
   const { user } = useAuth();
-  const router = useRouter();
 
   return (
     <main

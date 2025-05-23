@@ -8,7 +8,6 @@ import CreateBoardDialog from "@/components/dashboard/CreateBoardDialog";
 import RenameBoardDialog from "@/components/dashboard/RenameBoardDialog";
 import BoardList from "@/components/dashboard/BoardList";
 import ManageCollaboratorsDialog from "@/components/dashboard/ManageCollaboratorsDialog";
-import BoardTemplates from "@/components/dashboard/BoardTemplates";
 import DashboardFilterHeader from "@/components/dashboard/DashboardFilterHeader";
 import { useAuth } from "@/context/AuthContext";
 

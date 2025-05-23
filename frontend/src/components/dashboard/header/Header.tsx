@@ -135,14 +135,14 @@ const Header = () => {
               <Tooltip title='Account'>
                 <IconButton
                   onClick={handleMenuOpen}
-                  // sx={{
-                  //   p: { xs: 0.5, sm: 1 },
-                  //   ml: { xs: 0.5, sm: 1 },
-                  //   border: "2px solid transparent",
-                  //   "&:hover": {
-                  //     borderColor: "#1976d2",
-                  //   },
-                  // }}
+                // sx={{
+                //   p: { xs: 0.5, sm: 1 },
+                //   ml: { xs: 0.5, sm: 1 },
+                //   border: "2px solid transparent",
+                //   "&:hover": {
+                //     borderColor: "#1976d2",
+                //   },
+                // }}
                 >
                   <Avatar
                     sx={{

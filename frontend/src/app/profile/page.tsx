@@ -8,15 +8,13 @@ import {
   CircularProgress,
   Container,
   Grid,
-  IconButton,
   Paper,
   Tab,
   Tabs,
   TextField,
-  Typography,
+  Typography
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { IoMdCamera } from "react-icons/io";
 import { MdPerson, MdSettings } from "react-icons/md";
 
 interface TabPanelProps {

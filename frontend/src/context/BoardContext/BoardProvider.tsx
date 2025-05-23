@@ -84,86 +84,34 @@ export const BoardProvider = ({ children }: { children: React.ReactNode }) => {
   }, [user]);
 
   //open board
-  let loadBoard: (id: string) => Promise<void>;
+  const loadBoard = async (id: string) => {
+    setLoading(true);
+    try {
+      const response = await boardAPI.getBoard(id);
+      setCurrentBoard(response);
+      setBoardId(response._id);
+      setBoardName(response.title);
 
-  if (process.env.NODE_ENV === "production") {
-    loadBoard = async (id: string) => {
-      setLoading(true);
-      setCanvasReady(false);
+      if (response.canvasData && editor) {
+        const canvasData =
+          typeof response.canvasData === "string"
+            ? response.canvasData
+            : JSON.stringify(response.canvasData);
 
-      try {
-        const response = await boardAPI.getBoard(id);
-        setCurrentBoard(response);
-        setBoardId(response._id);
-        setBoardName(response.title);
-
-        if (editor?.canvas && response.canvasData) {
-          const canvasData =
-            typeof response.canvasData === "string"
-              ? response.canvasData
-              : JSON.stringify(response.canvasData);
-
-          if (!editor.canvas.getContext()) {
-            console.warn(
-              "Canvas context not initialized, waiting for initialization..."
-            );
-            // Do not set canvasReady to true here, wait for canvas to be ready
-            return;
-          }
-
-          try {
-            editor.canvas.loadFromJSON(canvasData, () => {
-              editor.canvas.renderAll();
-              setCanvasReady(true);
-              loadedBoardIdRef.current = id;
-            });
-          } catch (loadError) {
-            console.error("Error loading canvas data:", loadError);
-            setCanvasReady(true);
-          }
-        } else {
-          setCanvasReady(true);
-          loadedBoardIdRef.current = id;
-        }
-      } catch (err: any) {
-        console.error("Failed to load board:", err);
-        setError(err?.response?.data?.message || "Failed to load board");
-        setCurrentBoard(null);
-        setCanvasReady(true);
-      } finally {
-        setLoading(false);
+        editor.canvas.loadFromJSON(canvasData, () => {
+          editor.canvas.renderAll();
+        });
+      } else {
+        console.warn("Canvas data missing or editor not ready");
       }
-    };
-  } else {
-    loadBoard = async (id: string) => {
-      setLoading(true);
-      try {
-        const response = await boardAPI.getBoard(id);
-        setCurrentBoard(response);
-        setBoardId(response._id);
-        setBoardName(response.title);
-
-        if (response.canvasData && editor) {
-          const canvasData =
-            typeof response.canvasData === "string"
-              ? response.canvasData
-              : JSON.stringify(response.canvasData);
-
-          editor.canvas.loadFromJSON(canvasData, () => {
-            editor.canvas.renderAll();
-          });
-        } else {
-          console.warn("Canvas data missing or editor not ready");
-        }
-      } catch (err: any) {
-        console.error("Failed to load board", err);
-        setError(err?.response?.data?.message || "Board not found");
-        setCurrentBoard(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-  }
+    } catch (err: any) {
+      console.error("Failed to load board", err);
+      setError(err?.response?.data?.message || "Board not found");
+      setCurrentBoard(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   //create new board
   const createBoard = useCallback(

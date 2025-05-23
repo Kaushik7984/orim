@@ -1,5 +1,5 @@
 "use client";
-import { Grid, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import Image from "next/image";
 import BoardCard from "../Board/BoardCard";
 import { Board } from "@/types";

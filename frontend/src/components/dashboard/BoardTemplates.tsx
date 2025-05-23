@@ -9,7 +9,6 @@ const templates = [
   { id: 4, name: "Kanban Framework", image: "/templates/kanban.svg" },
   { id: 5, name: "Quick Retrospective", image: "/templates/retrospective.svg" },
   { id: 6, name: "Brainwriting", image: "/templates/brainwriting.svg" },
-  // Add more templates as needed
 ];
 
 const BoardTemplates = () => {

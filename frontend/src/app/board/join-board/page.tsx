@@ -25,7 +25,7 @@ export default function JoinBoard() {
     }
   }, [searchParams]);
 
-  interface JoinBoardEvent extends React.FormEvent<HTMLFormElement> {}
+  interface JoinBoardEvent extends React.FormEvent<HTMLFormElement> { }
 
   const handleJoinBoard = async (e: JoinBoardEvent): Promise<void> => {
     e.preventDefault();
@@ -59,7 +59,6 @@ export default function JoinBoard() {
 
   return (
     <div className='min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 relative'>
-      {/* Back button positioned at absolute top left */}
       <div className='absolute top-28 left-28 border rounded-lg p-2 bg-white shadow-md'>
         <Button
           startIcon={<ArrowBackIcon />}

@@ -15,7 +15,7 @@ export default function useBoardEditor(
   useEffect(() => {
     if (!editor) return;
 
-    editor.canvas.allowTouchScrolling = true;
+    editor.canvas.allowTouchScrolling = true; //for mobile
     editor.canvas.renderOnAddRemove = true;
 
     // Pan functionality
@@ -59,12 +59,11 @@ export default function useBoardEditor(
       editor.canvas.defaultCursor = "default";
     };
 
-    // Prevent context menu on right click
     const handleContextMenu = (e: MouseEvent) => {
       e.preventDefault();
     };
 
-    // Touch events for mobile
+    // Touch events for mobile //not proper work yet
     const handleTouchStart = (e: TouchEvent) => {
       if (e.touches.length === 1) {
         isPanning = true;

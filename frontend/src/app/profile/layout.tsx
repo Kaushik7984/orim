@@ -5,16 +5,9 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import {
   Box,
   Container,
-  Divider,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
   Paper,
-  Typography,
+  Typography
 } from "@mui/material";
-import Image from "next/image";
-import Link from "next/link";
 import React from "react";
 import {
   MdApps,
