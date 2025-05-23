@@ -2,6 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+* {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+input,
+textarea {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
 body {
   height: 100%;
   width: 100%;
