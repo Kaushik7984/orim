@@ -1,6 +1,6 @@
 "use client";
 
-import Board from "@/layout/board/Board";
+import Board from "@/components/Board/Board";
 import { getSocket } from "@/lib/socket";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -52,7 +52,7 @@ const BoardPage = () => {
   // }
 
   return (
-    <div className="h-screen">
+    <div className='h-screen'>
       <Board boardId={board_id} ref={boardRef} />
     </div>
   );

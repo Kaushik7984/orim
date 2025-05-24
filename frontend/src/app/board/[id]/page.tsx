@@ -1,7 +1,7 @@
 "use client";
 
 import { useBoard } from "@/context/BoardContext/useBoard";
-import Board from "@/layout/board/Board";
+import Board from "@/components/Board/Board";
 import { CircularProgress } from "@mui/material";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -12,8 +12,8 @@ export default function BoardPage() {
     typeof params.id === "string"
       ? params.id
       : Array.isArray(params.id)
-      ? params.id[0]
-      : null;
+        ? params.id[0]
+        : null;
 
   const { loadBoard, currentBoard, loading, error } = useBoard();
   const [hasTried, setHasTried] = useState(false);

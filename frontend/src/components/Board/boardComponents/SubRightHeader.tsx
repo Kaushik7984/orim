@@ -24,7 +24,7 @@ import LoginIcon from "@mui/icons-material/Login";
 import PersonIcon from "@mui/icons-material/Person";
 import ShareIcon from "@mui/icons-material/Share";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import InviteDialog from "@/layout/board/boardComponents/InviteDialog";
+import InviteDialog from "@/components/Board/boardComponents/InviteDialog";
 import { useRouter } from "next/navigation";
 import { useBoard } from "@/context/BoardContext/useBoard";
 import { CursorPosition, getUserColor } from "@/utils/collaborationUtils";
@@ -133,12 +133,12 @@ const SubRightHeader = () => {
     {
       name: "Reactions",
       icon: <CelebrationIcon />,
-      onClick: () => { },
+      onClick: () => {},
     },
     {
       name: "Comments",
       icon: <CommentIcon />,
-      onClick: () => { },
+      onClick: () => {},
     },
   ];
 
@@ -171,7 +171,7 @@ const SubRightHeader = () => {
     try {
       await logout();
       handleMenuClose();
-    } catch (error) { }
+    } catch (error) {}
   };
 
   const handleLogin = () => {
@@ -227,10 +227,11 @@ const SubRightHeader = () => {
 
         <button
           onClick={handleTogglePresentation}
-          className={`flex items-center px-1.5 sm:px-2 md:px-3 lg:px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-200 shadow-sm ${isPresenting
+          className={`flex items-center px-1.5 sm:px-2 md:px-3 lg:px-4 py-1.5 text-sm font-medium rounded-md transition-all duration-200 shadow-sm ${
+            isPresenting
               ? "text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300"
               : "text-blue-600 bg-white border border-blue-600 hover:bg-blue-50"
-            }`}
+          }`}
         >
           <PlayArrowIcon className='w-3.5 h-3.5 sm:w-4 sm:h-4 md:mr-2' />
           <span className='hidden md:inline'>
